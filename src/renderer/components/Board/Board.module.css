@@ -1,0 +1,15 @@
+:root {
+  --board-width: 300px;
+}
+
+.Board {
+  width: var(--board-width);
+  height: 100%;
+  position: relative;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffb8b8;
+  overflow: hidden;
+}
