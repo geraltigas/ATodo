@@ -2,9 +2,8 @@ import { Close, Fullscreen, FullscreenExit, Minimize } from '@mui/icons-material
 import React from 'react';
 import styles from './Head.module.css';
 import { closeWindow, maximizeWindow, minimizeWindow, moveWindow, unmaximizeWindow } from '../../consumer/WindowCON';
-import { useDispatch, useSelector } from 'react-redux';
-import { toggleFullscreen } from '../../state/windowSlice';
-import { RootState } from '../../store/store';
+import { useAtom } from 'jotai';
+import { fullscreenAtom } from '../../state/windowAtoms';
 
 let active = false;
 let currentX: number;
@@ -20,15 +19,14 @@ export default function Head() {
     minimizeWindow();
   };
 
-  const fullscreen = useSelector((state: RootState) => state.window.fullscreen);
-  const dispatch = useDispatch();
+  const [fullscreen_, setFullscreen] = useAtom(fullscreenAtom);
 
   const maximize = () => {
-    if (!fullscreen) {
-      dispatch(toggleFullscreen());
+    if (!fullscreen_) {
+      setFullscreen(true);
       maximizeWindow();
     } else {
-      dispatch(toggleFullscreen());
+      setFullscreen(false);
       unmaximizeWindow();
     }
   };
@@ -73,7 +71,7 @@ export default function Head() {
         <Minimize fontSize='large' color='action' />
       </div>
       <div className={styles.icon} onClick={maximize}>
-        {!fullscreen ? (
+        {!fullscreen_ ? (
           <Fullscreen fontSize='large' color='action' />
         ) : (
           <FullscreenExit fontSize='large' color='action' />
