@@ -1,16 +1,23 @@
 import { TextField, Typography } from '@mui/material';
-import { StaticDatePicker, StaticTimePicker } from '@mui/x-date-pickers';
+import { DateCalendar, TimeClock } from '@mui/x-date-pickers';
 import React from 'react';
 import styles from './TaskCreater.module.css';
-import { useAtom } from 'jotai';
-import { isInputingAtom } from '../../state/windowAtoms';
-import { taskToEditAtom } from '../../state/tasksAtoms';
+import { Task } from '../../lib/task/Task';
 
-export default function TaskCreater() {
+export default function TaskCreater(
+  {
+    taskToEdit,
+    setTaskToEdit,
+    setIsInputing
+  }: {
+    taskToEdit: Task,
+    setTaskToEdit: React.Dispatch<React.SetStateAction<Task>>,
+    setIsInputing: React.Dispatch<React.SetStateAction<boolean>>
+  }) {
 
-  const [isInputing, setIsInputing] = useAtom(isInputingAtom);
+  // const [isInputing, setIsInputing] = useAtom(isInputingAtom);
 
-  const [taskToEdit, setTaskToEdit] = useAtom(taskToEditAtom);
+  // const [taskToEdit, setTaskToEdit] = useAtom(taskToEditAtom);
 
   // const [name, setName] = React.useState('');
   // const [goal, setGoal] = React.useState('');
@@ -31,7 +38,7 @@ export default function TaskCreater() {
           <TextField
             label='Goal'
             multiline
-            rows={9}
+            rows={7}
             className={styles.input + ' ' + styles.textfield}
             onChange={(e) => setTaskToEdit({ ...taskToEdit, goal: e.target.value })}
             onFocus={() => setIsInputing(true)}
@@ -41,12 +48,27 @@ export default function TaskCreater() {
       </div>
 
       <div className={styles.right}>
-        <StaticDatePicker onChange={(e) => setTaskToEdit({ ...taskToEdit, date: e })}
-                          value={taskToEdit.date} />
-        <StaticTimePicker onChange={(e) => setTaskToEdit({ ...taskToEdit, time: e })}
-                          value={taskToEdit.time} />
-      </div>
+        <DateCalendar onChange={(e) => {
+          setTaskToEdit({ ...taskToEdit, date: e });
+        }}
+                      value={taskToEdit.date} />
+        <div className={styles.TimeClock}>
+          <Typography variant='h4' gutterBottom style={{
+            textAlign: 'center',
+            marginTop: '15px'
+          }}>
+            {taskToEdit.time!.format('HH:mm')}
+          </Typography>
+          <TimeClock
+            onChange={(e) => {
+              setTaskToEdit({ ...taskToEdit, time: e });
+            }
+            }
+            value={taskToEdit.time}
+            views={['hours', 'minutes']} />
+        </div>
 
+      </div>
     </div>
   );
 }

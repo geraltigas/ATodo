@@ -1,6 +1,6 @@
 :root {
   --task-creater-width: 1050px;
-  --task-creater-height: 490px;
+  --task-creater-height: 400px;
   --task-creater-margin: 30px;
   --task-creater-small-margin: 10px;
   --task-creater-left-width: 400px;
@@ -34,6 +34,7 @@
 }
 
 .right {
+  margin-top: 40px;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -43,4 +44,10 @@
 .description {
   display: flex;
   flex-direction: column;
+}
+
+.TimeClock {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
 }

@@ -1,6 +1,5 @@
 import Graph from '../graph/Graph';
 import dayjs, { Dayjs } from 'dayjs';
-import objectStoreService from '../../../main/service/ObjectStoreService';
 
 enum TaskStatus {
   Created = 'created',
@@ -39,11 +38,10 @@ export function combineDateTime(date: Dayjs | null, time: Dayjs | null): Dayjs {
 export type TaskReference = string;
 
 class Task {
-  id: Dayjs = dayjs();
   name: string = '';
   goal: string = '';
-  date: Dayjs | null = this.id;
-  time: Dayjs | null = this.id;
+  date: Dayjs | null = dayjs();
+  time: Dayjs | null = dayjs();
   status: TaskStatus = TaskStatus.Created;
   // TODO: create a trigger mechanism for status: suspended -> in-progress -> done
   dependencies: TaskDependency = new TaskDependency();
@@ -98,6 +96,7 @@ export const deepCopyTask = (obj: Task): Task => {
 
 class TaskManager {
   private root: TaskReference = dayjs('2003-01-12T00:00:00.000Z').toString();
+
   //   {
   //   id: dayjs('2003-01-12T00:00:00.000Z'),
   //   name: 'Overall',
@@ -109,23 +108,24 @@ class TaskManager {
   //   subtasks: new Graph<Task>(),
   //   parent: null
   // };
+
   private cursor: TaskReference = this.root;
   private tasksMap: Map<string, Task> = new Map<string, Task>();
   private styleMap: Map<string, NodeStyle> = new Map<string, NodeStyle>();
 
   constructor() {
-    console.log('TaskManager constructor');
-    objectStoreService.get('tasksMap').then((tasks) => {
-      if (tasks) {
-        this.tasksMap = new Map<string, Task>(JSON.parse(tasks));
-      }
-    }).then(() => {
-      objectStoreService.get('styleMap').then((styles) => {
-        if (styles) {
-          this.styleMap = new Map<string, NodeStyle>(JSON.parse(styles));
-        }
-      });
-    });
+    // console.log('TaskManager constructor');
+    // objectStoreService.get('tasksMap').then((tasks) => {
+    //   if (tasks) {
+    //     this.tasksMap = new Map<string, Task>(JSON.parse(tasks));
+    //   }
+    // }).then(() => {
+    //   objectStoreService.get('styleMap').then((styles) => {
+    //     if (styles) {
+    //       this.styleMap = new Map<string, NodeStyle>(JSON.parse(styles));
+    //     }
+    //   });
+    // });
   }
 
   public getRoot(): Task {
@@ -159,25 +159,25 @@ class TaskManager {
     return this.getCurser();
   }
 
-  public move(task: Task): void {
-    this.cursor = task.id.toString();
-  }
+  // public move(task: Task): void {
+  //   this.cursor = task.id.toString();
+  // }
 
   // findTask(filter: (task: Task) => boolean): Task[] {
   //   return [];
   // }
 
-  public setStyle(task: Task, style: NodeStyle) {
-    this.styleMap.set(task.id.toString(), style);
-  }
-
-  public getStyle(task: Task): NodeStyle | undefined {
-    return this.styleMap.get(task.id.toString());
-  }
-
-  public getNode(node: string): Task | undefined {
-    return this.tasksMap.get(node);
-  }
+  // public setStyle(task: Task, style: NodeStyle) {
+  //   this.styleMap.set(task.id.toString(), style);
+  // }
+  //
+  // public getStyle(task: Task): NodeStyle | undefined {
+  //   return this.styleMap.get(task.id.toString());
+  // }
+  //
+  // public getNode(node: string): Task | undefined {
+  //   return this.tasksMap.get(node);
+  // }
 }
 
 const taskManager = new TaskManager();
