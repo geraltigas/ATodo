@@ -19,6 +19,15 @@ const electronHandler = {
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
+    },
+    asyncRequest(channel: Channels, args: any[]): Promise<any> {
+      return new Promise((resolve, reject) => {
+        ipcRenderer.once(`${channel}-reply`, (event, response) => {
+          resolve(response);
+        });
+
+        ipcRenderer.send(channel, args);
+      });
     }
   }
 };

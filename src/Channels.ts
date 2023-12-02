@@ -1,6 +1,7 @@
 enum Channels {
   // IPC_EXAMPLE = 'ipc-example',
   WINDOW_API = 'window-api',
+  OBJECT_STORE_API = 'object-store-api',
 }
 
 enum WindowAPI {
@@ -11,6 +12,11 @@ enum WindowAPI {
   MOVE = 'move-window',
 }
 
+enum ObjectStoreAPI {
+  SET = 'set-object-store',
+  GET = 'get-object-store',
+}
+
 export default Channels;
 
-export { WindowAPI };
+export { WindowAPI, ObjectStoreAPI };
