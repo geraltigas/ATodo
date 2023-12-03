@@ -1,0 +1,67 @@
+:root {
+  --task-node-handle-size: 10px;
+  --task-node-size-height: 30px;
+  --task-node-size-width: 40px;
+  --task-node-padding: 5px;
+  --start-border-radius: 5px;
+  --task-node-background-color: #555555;
+  --task-node-handle-background-color: #e4e4e4;
+  --task-node-handle-hover-background-color: #a5a5a5;
+}
+
+.TaskNode {
+  background-color: var(--task-node-background-color);
+  border-radius: var(--start-border-radius);
+  min-width: var(--task-node-size-width);
+  min-height: var(--task-node-size-height);
+  padding: var(--task-node-padding);
+  /*border: 1px solid black;*/
+  /*position: absolute;*/
+  /*z-index: 1;*/
+  /*margin: 0;*/
+  /*padding: 0;*/
+  /*display: flex;*/
+  /*justify-content: center;*/
+  /*align-items: center;*/
+  /*font-size: 1.5rem;*/
+  /*font-weight: bold;*/
+  /*color: black;*/
+  /*cursor: pointer;*/
+  /*transition: all 0.2s ease-in-out;*/
+  /*box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);*/
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.focused {
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+}
+
+.TaskNode .TaskNodeHandle {
+  background-color: var(--task-node-handle-background-color);
+  width: var(--task-node-handle-size);
+  height: var(--task-node-handle-size);
+  /*move right 15 px*/
+  /*position: relative;*/
+  /*!*right: 15px;*!*/
+  /*margin: 0 !important;*/
+}
+
+
+.TaskNode .TaskNodeHandle:hover {
+  background-color: var(--task-node-handle-hover-background-color);
+  width: var(--task-node-handle-size);
+  height: var(--task-node-handle-size);
+  /*move right 15 px*/
+  /*position: relative;*/
+  /*!*right: 15px;*!*/
+  /*margin: 0 !important;*/
+}
