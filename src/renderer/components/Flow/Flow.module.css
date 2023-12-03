@@ -14,4 +14,11 @@
 
 }
 
+.edgeInfo {
+  position: absolute;
+  color: #dd5757;
+  bottom: 15px;
+  right: 0;
+}
+
 

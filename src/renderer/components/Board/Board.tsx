@@ -3,7 +3,7 @@ import { TaskNodeShow } from '../Flow/Flow';
 import React from 'react';
 import { TextField, Typography } from '@mui/material';
 import { DateCalendar, TimeClock } from '@mui/x-date-pickers';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 
 export default function Board({
   nowClickedNode,
@@ -45,7 +45,7 @@ export default function Board({
         ...nowClickedNode.data,
         realTask: {
           ...nowClickedNode.data.realTask!,
-          date: date,
+          date: date!.toString(),
         },
       },
     });
@@ -58,7 +58,7 @@ export default function Board({
         ...nowClickedNode.data,
         realTask: {
           ...nowClickedNode.data.realTask!,
-          time: date,
+          time: date!.toString(),
         },
       },
     });
@@ -81,7 +81,7 @@ export default function Board({
       />
       <DateCalendar
         onChange={onDateChange}
-        value={nowClickedNode.data.realTask!.date}
+        value={dayjs(nowClickedNode.data.realTask!.date!)}
       />
       <div>
         <Typography
@@ -91,11 +91,11 @@ export default function Board({
             textAlign: 'center',
           }}
         >
-          {nowClickedNode.data.realTask!.time!.format('HH:mm')}
+          {dayjs(nowClickedNode.data.realTask!.time!).format('HH:mm')}
         </Typography>
         <TimeClock
           onChange={onTimeChange}
-          value={nowClickedNode.data.realTask!.time}
+          value={dayjs(nowClickedNode.data.realTask!.time!)}
           views={['hours', 'minutes']}
         />
       </div>

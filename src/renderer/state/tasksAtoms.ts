@@ -139,6 +139,7 @@ const originNode: TaskNodeShow = {
 
 const showNodesAtom = atom<TaskNodeShow[]>([originNode, startNode, endNode]);
 const showEdgesAtom = atom<TaskEdgeShow[]>([]);
+const taskStackAtom = atom<string[]>(['Overall']);
 
 const taskToEditBoardIdAtom = atom<string | null>(null);
 

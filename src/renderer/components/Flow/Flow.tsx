@@ -16,7 +16,7 @@ import React, {
 } from 'react';
 import { Dialog } from '@mui/material';
 import TaskCreater from '../TaskCreater/TaskCreater';
-import { Task } from '../../lib/task/Task';
+import { Task, TaskDependencyType, TaskStatus } from '../../lib/task/Task';
 import { Connection } from '@reactflow/core/dist/esm/types/general';
 import { useAtom } from 'jotai';
 import {
@@ -51,8 +51,8 @@ export interface TaskEdgeShow {
   id: string;
   source: string;
   target: string;
-  sourceHandle: string | null;
-  targetHandle: string | null;
+  sourceHandle?: string | null | undefined;
+  targetHandle?: string | null | undefined;
   animated?: boolean;
 }
 
@@ -70,7 +70,28 @@ export default function Flow({
   const [showNodes, setShowNodes] = useAtom(showNodesAtom);
   const [showEdges, setShowEdges] = useAtom(showEdgesAtom);
 
-  const [taskToEdit, setTaskToEdit] = useState(new Task());
+  const [nowClickEdge, setNowClickEdge] = useState<string | null>(null);
+  const nowClickEdgeRef = useRef(nowClickEdge);
+  useEffect(() => {
+    nowClickEdgeRef.current = nowClickEdge;
+  }, [nowClickEdge]);
+
+  const [taskToEdit, setTaskToEdit] = useState<Task>({
+    id: dayjs().toString(),
+    name: '',
+    goal: '',
+    date: dayjs().toString(),
+    time: dayjs().toString(),
+    status: TaskStatus.Created,
+    dependencies: {
+      dependencyType: TaskDependencyType.And,
+    },
+    subtasks: {
+      nodes: [],
+      edges: [],
+    },
+    parent: null,
+  });
   const taskToEditRef = useRef(taskToEdit);
   useEffect(() => {
     taskToEditRef.current = taskToEdit;
@@ -126,7 +147,22 @@ export default function Flow({
                 },
               ];
             });
-            setTaskToEdit(new Task());
+            setTaskToEdit({
+              id: dayjs().toString(),
+              name: '',
+              goal: '',
+              date: dayjs().toString(),
+              time: dayjs().toString(),
+              status: TaskStatus.Created,
+              dependencies: {
+                dependencyType: TaskDependencyType.And,
+              },
+              subtasks: {
+                nodes: [],
+                edges: [],
+              },
+              parent: null,
+            });
 
             // const style: NodeStyle = {
             //   position: {
@@ -153,8 +189,17 @@ export default function Flow({
               );
             });
             setNowClickNode(null);
+            break;
           }
-          console.log('delete');
+          if (nowClickEdgeRef.current) {
+            setShowEdges((prev) => {
+              return prev.filter(
+                (value) => value.id !== nowClickEdgeRef.current,
+              );
+            });
+            setNowClickEdge(null);
+            break;
+          }
           break;
         default:
           break;
@@ -193,7 +238,12 @@ export default function Flow({
   };
 
   const onNodeClick = (event: React.MouseEvent, node: TaskNodeShow) => {
-    if (node.type === 'origin' || node.type === 'start' || node.type === 'end')
+    if (
+      node.type === 'origin' ||
+      node.type === 'start' ||
+      node.type === 'end' ||
+      nowClickEdge !== null
+    )
       return;
     if (node.data.selected) {
       setShowNodes((prev) => {
@@ -214,12 +264,22 @@ export default function Flow({
     setNowClickNode(node.id);
   };
 
+  const onEdgeClick = (event: React.MouseEvent, edge: TaskEdgeShow) => {
+    console.log(edge);
+    if (edge.id === nowClickEdge) {
+      setNowClickEdge(null);
+      return;
+    }
+    setNowClickEdge(edge.id);
+  };
+
   return (
     <div
       className={styles.Flow}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
+      {nowClickEdge !== null && <div className={styles.edgeInfo}>Selected</div>}
       <ReactFlow
         ref={flowRef}
         nodes={showNodes}
@@ -228,6 +288,7 @@ export default function Flow({
           setShowNodes((prev) => applyNodeChanges(changes, prev));
         }}
         onNodeClick={onNodeClick}
+        onEdgeClick={onEdgeClick}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         fitView

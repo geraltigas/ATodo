@@ -12,9 +12,8 @@ enum TaskDependencyType {
   And = 'and',
 }
 
-class TaskDependency {
-  dependencyType: TaskDependencyType = TaskDependencyType.And;
-  dependencies: TaskReference[] = [];
+export interface TaskDependency {
+  dependencyType: TaskDependencyType;
 }
 
 export interface NodeStyle {
@@ -37,16 +36,22 @@ export function combineDateTime(date: Dayjs | null, time: Dayjs | null): Dayjs {
 
 export type TaskReference = string;
 
-class Task {
-  name: string = '';
-  goal: string = '';
-  date: Dayjs | null = dayjs();
-  time: Dayjs | null = dayjs();
-  status: TaskStatus = TaskStatus.Created;
+interface Task {
+  id: TaskReference;
+  name: string;
+  goal: string;
+  date: string | null;
+  time: string | null;
+  status: TaskStatus;
   // TODO: create a trigger mechanism for status: suspended -> in-progress -> done
-  dependencies: TaskDependency = new TaskDependency();
-  subtasks: Graph<TaskReference> = new Graph<TaskReference>();
-  parent: TaskReference | null = null;
+  dependencies: TaskDependency;
+  subtasks: Graph<Task>;
+  parent: Task | null;
+}
+
+export interface TaskStorage {
+  taskStack: Task[];
+  styleMap: Map<TaskReference, NodeStyle | null>;
 }
 
 // const deepCopyTaskDependency = (obj: TaskDependency, parent: Task): TaskDependency => {
@@ -128,36 +133,36 @@ class TaskManager {
     // });
   }
 
-  public getRoot(): Task {
-    if (this.tasksMap.size === 0) {
-      return new Task();
-    }
-    return this.tasksMap.get(this.root)!;
-  }
+  // public getRoot(): Task {
+  //   if (this.tasksMap.size === 0) {
+  //     return new Task();
+  //   }
+  //   return this.tasksMap.get(this.root)!;
+  // }
 
   public getCurser(): Task {
     return this.tasksMap.get(this.cursor)!;
   }
 
-  public getGraph(): Graph<Task> {
-    let graph = new Graph<Task>();
-    let nowAt = this.getCurser();
-    nowAt.subtasks.forEachNode((node) => {
-      graph.addNode(this.tasksMap.get(node)!);
-    });
-    nowAt.subtasks.forEachEdge((edge) => {
-      graph.addEdge(edge[0], edge[1]);
-    });
-    return graph;
-  }
+  // public getGraph(): Graph<Task> {
+  //   let graph = new Graph<Task>();
+  //   let nowAt = this.getCurser();
+  //   nowAt.subtasks.forEachNode((node) => {
+  //     graph.addNode(this.tasksMap.get(node)!);
+  //   });
+  //   nowAt.subtasks.forEachEdge((edge) => {
+  //     graph.addEdge(edge[0], edge[1]);
+  //   });
+  //   return graph;
+  // }
 
-  public moveUp(): Task {
-    const parent = this.getCurser().parent;
-    if (parent !== null) {
-      this.cursor = parent;
-    }
-    return this.getCurser();
-  }
+  // public moveUp(): Task {
+  //   const parent = this.getCurser().parent;
+  //   if (parent !== null) {
+  //     this.cursor = parent;
+  //   }
+  //   return this.getCurser();
+  // }
 
   // public move(task: Task): void {
   //   this.cursor = task.id.toString();
