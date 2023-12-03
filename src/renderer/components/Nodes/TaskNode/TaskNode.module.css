@@ -2,14 +2,16 @@
   --task-node-handle-size: 10px;
   --task-node-size-height: 30px;
   --task-node-size-width: 40px;
-  --task-node-padding: 5px;
+  --task-node-padding: 7px;
   --start-border-radius: 5px;
   --task-node-background-color: #555555;
   --task-node-handle-background-color: #e4e4e4;
   --task-node-handle-hover-background-color: #a5a5a5;
+  --task-node-color: #ffffff;
 }
 
 .TaskNode {
+  color: var(--task-node-color);
   background-color: var(--task-node-background-color);
   border-radius: var(--start-border-radius);
   min-width: var(--task-node-size-width);

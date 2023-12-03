@@ -184,7 +184,7 @@
   },
   "build": {
     "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "appId": "geraltigas",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [

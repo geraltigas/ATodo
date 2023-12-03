@@ -77,9 +77,9 @@ const createWindow = async () => {
     show: false,
     width: 2000,
     height: 1200,
-    frame: false,
+    frame: true,
     roundedCorners: false,
-    titleBarStyle: 'hidden',
+    titleBarStyle: 'hiddenInset',
     titleBarOverlay: true,
     icon: getAssetPath('icon.png'),
     webPreferences: {

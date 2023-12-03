@@ -1,15 +1,31 @@
 import styles from './AToDo.module.css';
 import Board from '../../components/Board/Board';
-import Flow, { TaskNodeShow } from '../../components/Flow/Flow';
+import Flow from '../../components/Flow/Flow';
 import React from 'react';
+import { useAtom } from 'jotai';
+import {
+  taskToEditBoardAtom,
+  taskToEditBoardIdAtom,
+} from '../../state/tasksAtoms';
 
 export default function AToDo() {
-  const [nowClickedNode, setNowClickedNode] = React.useState<TaskNodeShow | null>(null);
+  const [nowClickedNodeId, setNowClickedNodeId] = useAtom(
+    taskToEditBoardIdAtom,
+  );
+  const [nowClickedNode, setNowClickedNode] = useAtom(taskToEditBoardAtom);
 
   return (
     <div className={styles.AToDo}>
-      <Flow setNowClickNode={setNowClickedNode} />
-      {nowClickedNode !== null && <Board nowClickedNode={nowClickedNode!} setNowClickedNode={setNowClickedNode} />}
+      <Flow
+        setNowClickNode={setNowClickedNodeId}
+        taskToEditId={nowClickedNodeId}
+      />
+      {nowClickedNode !== null && (
+        <Board
+          nowClickedNode={nowClickedNode!}
+          setNowClickedNode={setNowClickedNode}
+        />
+      )}
     </div>
   );
 }

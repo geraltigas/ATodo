@@ -10,7 +10,7 @@ export default function App() {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className='App'>
-        <Head />
+        {/*<Head />*/}
         <Router>
           <Routes>
             <Route path='/' element={<AToDo />} />

@@ -1,13 +1,15 @@
 import { Handle, NodeProps, Position } from 'reactflow';
 import React from 'react';
 import styles from './TaskNode.module.css';
+import { Task } from '../../../lib/task/Task';
 
 const TaskNode: React.FC<NodeProps> = ({ data }) => {
-
   const classNames = [styles.TaskNode];
   if (data.selected) {
     classNames.push(styles.focused);
   }
+
+  const realTask: Task = data.realTask;
 
   return (
     <div className={classNames.join(' ')}>
@@ -16,14 +18,16 @@ const TaskNode: React.FC<NodeProps> = ({ data }) => {
         position={Position.Right}
         className={styles.TaskNodeHandle}
         id={'task-node-source'}
-        isConnectable={true} />
+        isConnectable={true}
+      />
       <Handle
         type={'target'}
         position={Position.Left}
         className={styles.TaskNodeHandle}
         id={'task-node-target'}
-        isConnectable={true} />
-      <div>task</div>
+        isConnectable={true}
+      />
+      <div>{realTask.name}</div>
     </div>
   );
 };
