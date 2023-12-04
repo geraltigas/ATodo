@@ -8,3 +8,16 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <App />
   </React.StrictMode>,
 );
+
+// const taskStorage = buildTaskStorage();
+//
+// const strs: string =  stringify(taskStorage);
+//
+// console.log(strs);
+//
+// invoke<string>("save", {key: "taskStorage",value:strs}).then((res) => {
+//     console.log(res);
+//     invoke<string>("load", {key: "taskStorage"}).then((res) => {
+//         return console.log(parse(res));
+//     });
+// });

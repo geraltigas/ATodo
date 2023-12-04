@@ -1,57 +1,59 @@
 import Graph from '../graph/Graph';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs, {Dayjs} from 'dayjs';
+import {CSSProperties} from "react";
+import {Position} from "reactflow";
 
 enum TaskStatus {
-  Created = 'created',
-  InProgress = 'in-progress',
-  Suspended = 'suspended',
-  Done = 'done',
+    Created = 'created',
+    InProgress = 'in-progress',
+    Suspended = 'suspended',
+    Done = 'done',
 }
 
 enum TaskDependencyType {
-  And = 'and',
+    And = 'and',
 }
 
 export interface TaskDependency {
-  dependencyType: TaskDependencyType;
+    dependencyType: TaskDependencyType | string;
 }
 
 export interface NodeStyle {
-  position: {
-    x: number;
-    y: number;
-  };
+    position: {
+        x: number;
+        y: number;
+    };
 }
 
 export function combineDateTime(date: Dayjs | null, time: Dayjs | null): Dayjs {
-  if (date && time) {
-    return dayjs(date)
-      .hour(time.hour())
-      .minute(time.minute())
-      .second(time.second());
-  }
+    if (date && time) {
+        return dayjs(date)
+            .hour(time.hour())
+            .minute(time.minute())
+            .second(time.second());
+    }
 
-  return dayjs();
+    return dayjs();
 }
 
 export type TaskReference = string;
 
 interface Task {
-  id: TaskReference;
-  name: string;
-  goal: string;
-  date: string | null;
-  time: string | null;
-  status: TaskStatus;
-  // TODO: create a trigger mechanism for status: suspended -> in-progress -> done
-  dependencies: TaskDependency;
-  subtasks: Graph<Task>;
-  parent: Task | null;
+    id: TaskReference;
+    name: string;
+    goal: string;
+    date: string | null;
+    time: string | null;
+    status: TaskStatus;
+    // TODO: create a trigger mechanism for status: suspended -> in-progress -> done
+    dependencies: TaskDependency;
+    subtasks: Graph<Task>;
+    parent: Task | null;
 }
 
 export interface TaskStorage {
-  taskStack: Task[];
-  styleMap: Map<TaskReference, NodeStyle | null>;
+    taskStack: Task[];
+    styleMap: [TaskReference, NodeStyle][];
 }
 
 // const deepCopyTaskDependency = (obj: TaskDependency, parent: Task): TaskDependency => {
@@ -96,95 +98,263 @@ export interface TaskStorage {
 // };
 
 export const deepCopyTask = (obj: Task): Task => {
-  return JSON.parse(JSON.stringify(obj));
+    return JSON.parse(JSON.stringify(obj));
 };
 
-class TaskManager {
-  private root: TaskReference = dayjs('2003-01-12T00:00:00.000Z').toString();
-
-  //   {
-  //   id: dayjs('2003-01-12T00:00:00.000Z'),
-  //   name: 'Overall',
-  //   goal: 'Good Game',
-  //   date: null,
-  //   time: null,
-  //   status: TaskStatus.Created,
-  //   dependencies: new TaskDependency(),
-  //   subtasks: new Graph<Task>(),
-  //   parent: null
-  // };
-
-  private cursor: TaskReference = this.root;
-  private tasksMap: Map<string, Task> = new Map<string, Task>();
-  private styleMap: Map<string, NodeStyle> = new Map<string, NodeStyle>();
-
-  constructor() {
-    // console.log('TaskManager constructor');
-    // objectStoreService.get('tasksMap').then((tasks) => {
-    //   if (tasks) {
-    //     this.tasksMap = new Map<string, Task>(JSON.parse(tasks));
-    //   }
-    // }).then(() => {
-    //   objectStoreService.get('styleMap').then((styles) => {
-    //     if (styles) {
-    //       this.styleMap = new Map<string, NodeStyle>(JSON.parse(styles));
-    //     }
-    //   });
-    // });
-  }
-
-  // public getRoot(): Task {
-  //   if (this.tasksMap.size === 0) {
-  //     return new Task();
-  //   }
-  //   return this.tasksMap.get(this.root)!;
-  // }
-
-  public getCurser(): Task {
-    return this.tasksMap.get(this.cursor)!;
-  }
-
-  // public getGraph(): Graph<Task> {
-  //   let graph = new Graph<Task>();
-  //   let nowAt = this.getCurser();
-  //   nowAt.subtasks.forEachNode((node) => {
-  //     graph.addNode(this.tasksMap.get(node)!);
-  //   });
-  //   nowAt.subtasks.forEachEdge((edge) => {
-  //     graph.addEdge(edge[0], edge[1]);
-  //   });
-  //   return graph;
-  // }
-
-  // public moveUp(): Task {
-  //   const parent = this.getCurser().parent;
-  //   if (parent !== null) {
-  //     this.cursor = parent;
-  //   }
-  //   return this.getCurser();
-  // }
-
-  // public move(task: Task): void {
-  //   this.cursor = task.id.toString();
-  // }
-
-  // findTask(filter: (task: Task) => boolean): Task[] {
-  //   return [];
-  // }
-
-  // public setStyle(task: Task, style: NodeStyle) {
-  //   this.styleMap.set(task.id.toString(), style);
-  // }
-  //
-  // public getStyle(task: Task): NodeStyle | undefined {
-  //   return this.styleMap.get(task.id.toString());
-  // }
-  //
-  // public getNode(node: string): Task | undefined {
-  //   return this.tasksMap.get(node);
-  // }
+export interface TaskEdgeShow {
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle?: string | null | undefined;
+    targetHandle?: string | null | undefined;
+    animated?: boolean;
 }
 
-const taskManager = new TaskManager();
+export interface TaskNodeShow {
+    id: string;
+    position: {
+        x: number;
+        y: number;
+    };
+    type?: string;
+    style?: CSSProperties;
+    draggable?: boolean;
+    selectable?: boolean;
+    data: {
+        label: string;
+        selected?: boolean;
+        realTask?: Task;
+    };
+    sourcePosition?: Position | undefined;
+    targetPosition?: Position | undefined;
+}
 
-export { Task, TaskDependencyType, TaskStatus, taskManager, TaskManager };
+export const buildTaskStorage = (): TaskStorage => {
+    const overall: Task = {
+        id: dayjs('2023-01-12T00:00:00.123Z').toString(),
+        name: 'Overall',
+        goal: 'Good Game',
+        date: dayjs('2023-01-12T00:00:00.123Z').toString(),
+        time: dayjs('2023-01-12T00:00:00.123Z').toString(),
+        status: TaskStatus.Created,
+        dependencies: {
+            dependencyType: TaskDependencyType.And,
+        },
+        subtasks: {
+            nodes: [],
+            edges: [],
+        },
+        parent: null
+    };
+
+    const task1: Task = {
+        id: dayjs('2023-01-12T00:00:01.001Z').toString(),
+        name: 'Task 1',
+        goal: 'Task 1 Goal',
+        date: dayjs('2023-01-12T00:00:01.001Z').toString(),
+        time: dayjs('2023-01-12T00:00:01.001Z').toString(),
+        status: TaskStatus.Created,
+        dependencies: {
+            dependencyType: TaskDependencyType.And,
+        },
+        subtasks: {
+            nodes: [],
+            edges: [],
+        },
+        parent: overall
+    };
+
+    const task2: Task = {
+        id: dayjs('2023-01-12T00:00:02.002Z').toString(),
+        name: 'Task 2',
+        goal: 'Task 2 Goal',
+        date: dayjs('2023-01-12T00:00:02.002Z').toString(),
+        time: dayjs('2023-01-12T00:00:02.002Z').toString(),
+        status: TaskStatus.Created,
+        dependencies: {
+            dependencyType: TaskDependencyType.And,
+        },
+        subtasks: {
+            nodes: [],
+            edges: [],
+        },
+        parent: overall
+    };
+
+    const task3: Task = {
+        id: dayjs('2023-01-12T00:00:03.003Z').toString(),
+        name: 'Task 3',
+        goal: 'Task 3 Goal',
+        date: dayjs('2023-01-12T00:00:03.003Z').toString(),
+        time: dayjs('2023-01-12T00:00:03.003Z').toString(),
+        status: TaskStatus.Created,
+        dependencies: {
+            dependencyType: TaskDependencyType.And,
+        },
+        subtasks: {
+            nodes: [],
+            edges: [],
+        },
+        parent: overall
+    };
+
+    const task4: Task = {
+        id: dayjs('2023-01-12T00:00:04.004Z').toString(),
+        name: 'Task 4',
+        goal: 'Task 4 Goal',
+        date: dayjs('2023-01-12T00:00:04.004Z').toString(),
+        time: dayjs('2023-01-12T00:00:04.004Z').toString(),
+        status: TaskStatus.Created,
+        dependencies: {
+            dependencyType: TaskDependencyType.And,
+        },
+        subtasks: {
+            nodes: [],
+            edges: [],
+        },
+        parent: overall
+    };
+
+    overall.subtasks.nodes.push(task1);
+    overall.subtasks.nodes.push(task2);
+    overall.subtasks.edges.push([task1.id, task2.id]);
+
+    task1.subtasks.nodes.push(task3);
+    task1.subtasks.nodes.push(task4);
+    task1.subtasks.edges.push([task3.id, task4.id]);
+
+    const styleMap = new Map<TaskReference, NodeStyle>();
+
+    styleMap.set(overall.id, {
+        position: {
+            x: 0,
+            y: 0,
+        }
+    });
+
+    styleMap.set(task1.id, {
+        position: {
+            x: 100,
+            y: 100,
+        }
+    });
+
+    styleMap.set(task2.id, {
+        position: {
+            x: 200,
+            y: -150,
+        }
+    });
+
+    styleMap.set(task3.id, {
+        position: {
+            x: 100,
+            y: 50,
+        }
+    });
+
+    styleMap.set(task4.id, {
+        position: {
+            x: 200,
+            y: -50,
+        }
+    });
+
+    return {
+        taskStack: [overall],
+        styleMap: Array.from(styleMap.entries()),
+    };
+}
+
+//
+// class TaskManager {
+//   private root: TaskReference = dayjs('2003-01-12T00:00:00.000Z').toString();
+//
+//   //   {
+//   //   id: dayjs('2003-01-12T00:00:00.000Z'),
+//   //   name: 'Overall',
+//   //   goal: 'Good Game',
+//   //   date: null,
+//   //   time: null,
+//   //   status: TaskStatus.Created,
+//   //   dependencies: new TaskDependency(),
+//   //   subtasks: new Graph<Task>(),
+//   //   parent: null
+//   // };
+//
+//   private cursor: TaskReference = this.root;
+//   private tasksMap: Map<string, Task> = new Map<string, Task>();
+//   // private styleMap: Map<string, NodeStyle> = new Map<string, NodeStyle>();
+//
+//   constructor() {
+//     // console.log('TaskManager constructor');
+//     // objectStoreService.get('tasksMap').then((tasks) => {
+//     //   if (tasks) {
+//     //     this.tasksMap = new Map<string, Task>(JSON.parse(tasks));
+//     //   }
+//     // }).then(() => {
+//     //   objectStoreService.get('styleMap').then((styles) => {
+//     //     if (styles) {
+//     //       this.styleMap = new Map<string, NodeStyle>(JSON.parse(styles));
+//     //     }
+//     //   });
+//     // });
+//   }
+//
+//   // public getRoot(): Task {
+//   //   if (this.tasksMap.size === 0) {
+//   //     return new Task();
+//   //   }
+//   //   return this.tasksMap.get(this.root)!;
+//   // }
+//
+//   public getCurser(): Task {
+//     return this.tasksMap.get(this.cursor)!;
+//   }
+//
+//   // public getGraph(): Graph<Task> {
+//   //   let graph = new Graph<Task>();
+//   //   let nowAt = this.getCurser();
+//   //   nowAt.subtasks.forEachNode((node) => {
+//   //     graph.addNode(this.tasksMap.get(node)!);
+//   //   });
+//   //   nowAt.subtasks.forEachEdge((edge) => {
+//   //     graph.addEdge(edge[0], edge[1]);
+//   //   });
+//   //   return graph;
+//   // }
+//
+//   // public moveUp(): Task {
+//   //   const parent = this.getCurser().parent;
+//   //   if (parent !== null) {
+//   //     this.cursor = parent;
+//   //   }
+//   //   return this.getCurser();
+//   // }
+//
+//   // public move(task: Task): void {
+//   //   this.cursor = task.id.toString();
+//   // }
+//
+//   // findTask(filter: (task: Task) => boolean): Task[] {
+//   //   return [];
+//   // }
+//
+//   // public setStyle(task: Task, style: NodeStyle) {
+//   //   this.styleMap.set(task.id.toString(), style);
+//   // }
+//   //
+//   // public getStyle(task: Task): NodeStyle | undefined {
+//   //   return this.styleMap.get(task.id.toString());
+//   // }
+//   //
+//   // public getNode(node: string): Task | undefined {
+//   //   return this.tasksMap.get(node);
+//   // }
+// }
+
+// const taskManager = new TaskManager();
+
+export {TaskDependencyType, TaskStatus};
+export type {Task};
+

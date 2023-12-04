@@ -51,116 +51,93 @@
 //
 // export { taskToEditAtom, taskNowAtAtom, showNodesAtom, showEdgesAtom };
 
-import { TaskEdgeShow, TaskNodeShow } from '../components/Flow/Flow';
-import { atom } from 'jotai';
-import { Position } from 'reactflow';
+
+import {TaskEdgeShow, TaskNodeShow} from '../components/Flow/Flow';
+import {atom} from 'jotai';
+import {Position} from 'reactflow';
 import StartNode from '../components/Nodes/StartNode/StartNode';
 import EndNode from '../components/Nodes/EndNode/EndNode';
 import TaskNode from '../components/Nodes/TaskNode/TaskNode';
-import { OriginNode } from '../components/Nodes/OriginNode/OriginNode';
+import {OriginNode} from '../components/Nodes/OriginNode/OriginNode';
+import {Task, TaskStorage} from "../lib/task/Task.ts";
 
-const startNode: TaskNodeShow = {
-  id: 'start',
-  type: 'start',
-  position: {
-    x: 0,
-    y: 0,
-  },
-  data: {
-    label: '',
-  },
-  targetPosition: Position.Right,
+export const startNode: TaskNodeShow = {
+    id: 'start',
+    type: 'start',
+    position: {
+        x: 0,
+        y: 0,
+    },
+    data: {
+        label: '',
+    },
+    targetPosition: Position.Right,
 };
 
-const endNode: TaskNodeShow = {
-  id: 'end',
-  type: 'end',
-  position: {
-    x: 200,
-    y: 0,
-  },
-  data: {
-    label: '',
-  },
-  sourcePosition: Position.Left,
+export const endNode: TaskNodeShow = {
+    id: 'end',
+    type: 'end',
+    position: {
+        x: 200,
+        y: 0,
+    },
+    data: {
+        label: '',
+    },
+    sourcePosition: Position.Left,
 };
 
-const testTaskNode: TaskNodeShow = {
-  id: 'test',
-  type: 'task',
-  position: {
-    x: 100,
-    y: 0,
-  },
-  data: {
-    label: 'test',
-  },
-};
 
 export const nodeTypes = {
-  start: StartNode,
-  end: EndNode,
-  task: TaskNode,
-  origin: OriginNode,
+    start: StartNode,
+    end: EndNode,
+    task: TaskNode,
+    origin: OriginNode,
 };
 
-const egdesTest: TaskEdgeShow[] = [
-  {
-    id: 'start-test',
-    source: 'start',
-    target: 'test',
-    sourceHandle: 'start-node-target',
-    targetHandle: 'task-node-source',
-    animated: true,
-  },
-  {
-    id: 'test-end',
-    source: 'test',
-    target: 'end',
-    sourceHandle: 'task-node-target',
-    targetHandle: 'end-node-source',
-    animated: true,
-  },
-];
-
-const originNode: TaskNodeShow = {
-  id: 'origin',
-  type: 'origin',
-  position: {
-    x: 0,
-    y: 0,
-  },
-  draggable: false,
-  selectable: false,
-  data: {
-    label: '',
-  },
+export const originNode: TaskNodeShow = {
+    id: 'origin',
+    type: 'origin',
+    position: {
+        x: 0,
+        y: 0,
+    },
+    draggable: false,
+    selectable: false,
+    data: {
+        label: '',
+    },
 };
+
+export let taskStorageGlobalWarp :{value: TaskStorage | null} = {value: null};
 
 const showNodesAtom = atom<TaskNodeShow[]>([originNode, startNode, endNode]);
 const showEdgesAtom = atom<TaskEdgeShow[]>([]);
-const taskStackAtom = atom<string[]>(['Overall']);
+const taskStackAtom = atom<Task[]>([]);
+const modifiedAtom = atom<boolean>(false);
 
 const taskToEditBoardIdAtom = atom<string | null>(null);
 
 const taskToEditBoardAtom = atom(
-  (get) => {
-    const nodes = get(showNodesAtom);
-    const editId = get(taskToEditBoardIdAtom);
-    return nodes.find((node) => node.id === editId) || null;
-  },
-  (get, set, update: TaskNodeShow) => {
-    const nodes = get(showNodesAtom);
-    const editedNodes = nodes.map((node) =>
-      node.id === update.id ? update : node,
-    );
-    set(showNodesAtom, editedNodes);
-  },
+    (get) => {
+        const nodes = get(showNodesAtom);
+        const editId = get(taskToEditBoardIdAtom);
+        return nodes.find((node) => node.id === editId) || null;
+    },
+    (get, set, update: TaskNodeShow) => {
+        const nodes = get(showNodesAtom);
+        const editedNodes = nodes.map((node) =>
+            node.id === update.id ? update : node,
+        );
+        set(showNodesAtom, editedNodes);
+    },
 );
 
 export {
-  taskToEditBoardAtom,
-  taskToEditBoardIdAtom,
-  showNodesAtom,
-  showEdgesAtom,
+    taskToEditBoardAtom,
+    taskToEditBoardIdAtom,
+    showNodesAtom,
+    showEdgesAtom,
+    taskStackAtom,
+    modifiedAtom
 };

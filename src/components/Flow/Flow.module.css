@@ -1,12 +1,23 @@
+:root {
+    --modified-color: #dd5757;
+    --modifiedbase-color: #6bdd57;
+    --modified-size: 15px;
+    --modified-right: 10px;
+    --modified-bottom: 10px;
+    --stack-top: 10px;
+    --stack-left: 10px;
+}
+
 .Flow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  width: 100%;
-  background-color: #ffffff;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: #ffffff;
+    overflow: hidden;
+    position: relative;
 }
 
 
@@ -15,10 +26,37 @@
 }
 
 .edgeInfo {
-  position: absolute;
-  color: #dd5757;
-  bottom: 15px;
-  right: 0;
+    position: absolute;
+    color: #dd5757;
+    bottom: 8px;
+    right: 30px;
+    /* user  unselectable */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
+.modifiedBase {
+
+    position: absolute;
+    background: var(--modifiedbase-color);
+    bottom: var(--modified-bottom);
+    right: var(--modified-right);
+    width: var(--modified-size);
+    height: var(--modified-size);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.modified {
+    background: var(--modified-color);
+}
+
+.Stack {
+    position: absolute;
+    top: var(--stack-top);
+    left: var(--stack-left);
+    z-index: 1;
+}
 

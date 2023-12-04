@@ -1,7 +1,6 @@
 import styles from './AToDo.module.css';
 import Board from '../../components/Board/Board';
 import Flow from '../../components/Flow/Flow';
-import React from 'react';
 import { useAtom } from 'jotai';
 import {
   taskToEditBoardAtom,
