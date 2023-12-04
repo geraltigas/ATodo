@@ -1,60 +1,6 @@
-import Graph from '../graph/Graph';
-import dayjs, {Dayjs} from 'dayjs';
+import dayjs from 'dayjs';
 import {CSSProperties} from "react";
 import {Position} from "reactflow";
-
-enum TaskStatus {
-    Created = 'created',
-    InProgress = 'in-progress',
-    Suspended = 'suspended',
-    Done = 'done',
-}
-
-enum TaskDependencyType {
-    And = 'and',
-}
-
-export interface TaskDependency {
-    dependencyType: TaskDependencyType | string;
-}
-
-export interface NodeStyle {
-    position: {
-        x: number;
-        y: number;
-    };
-}
-
-export function combineDateTime(date: Dayjs | null, time: Dayjs | null): Dayjs {
-    if (date && time) {
-        return dayjs(date)
-            .hour(time.hour())
-            .minute(time.minute())
-            .second(time.second());
-    }
-
-    return dayjs();
-}
-
-export type TaskReference = string;
-
-interface Task {
-    id: TaskReference;
-    name: string;
-    goal: string;
-    date: string | null;
-    time: string | null;
-    status: TaskStatus;
-    // TODO: create a trigger mechanism for status: suspended -> in-progress -> done
-    dependencies: TaskDependency;
-    subtasks: Graph<Task>;
-    parent: Task | null;
-}
-
-export interface TaskStorage {
-    taskStack: Task[];
-    styleMap: [TaskReference, NodeStyle][];
-}
 
 // const deepCopyTaskDependency = (obj: TaskDependency, parent: Task): TaskDependency => {
 //   return {
@@ -96,10 +42,6 @@ export interface TaskStorage {
 //   copy.subtasks = deepCopySubtasks(obj.subtasks, copy);
 //   return copy;
 // };
-
-export const deepCopyTask = (obj: Task): Task => {
-    return JSON.parse(JSON.stringify(obj));
-};
 
 export interface TaskEdgeShow {
     id: string;

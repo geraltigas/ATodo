@@ -1,82 +1,32 @@
 import styles from './Flow.module.css';
-import {
-    applyNodeChanges,
-    Background,
-    BackgroundVariant, Connection,
-    Controls,
-    ReactFlow,
-} from 'reactflow';
-import React, {
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
-import {
-    Dialog,
-    Snackbar,
-    Step,
-    StepConnector,
-    stepConnectorClasses,
-    StepLabel,
-    Stepper,
-    styled
-} from '@mui/material';
+import {applyNodeChanges, Background, BackgroundVariant, Connection, Controls, ReactFlow,} from 'reactflow';
+import React, {useCallback, useEffect, useRef, useState,} from 'react';
+import {Dialog, Snackbar, Step, StepLabel, Stepper,} from '@mui/material';
 import TaskCreater from '../TaskCreater/TaskCreater';
-import {
-    NodeStyle,
-    Task,
-    TaskDependencyType,
-    TaskEdgeShow,
-    TaskNodeShow,
-    TaskStatus,
-    TaskStorage
-} from '../../lib/task/Task';
+import {TaskEdgeShow, TaskNodeShow,} from '../../lib/task/Task';
 import {useAtom} from 'jotai';
 import {
     modifiedAtom,
-    nodeTypes, originNode,
+    nodeTypes,
+    originNode,
     showEdgesAtom,
-    showNodesAtom, startNode, taskStackAtom, taskStorageGlobalWarp,
+    showNodesAtom,
+    startNode,
+    taskStackAtom,
+    taskStorageGlobalWarp,
 } from '../../state/tasksAtoms';
 import dayjs from 'dayjs';
 import {invoke} from "@tauri-apps/api";
 import {parse, stringify} from "flatted";
 
-let callback: (event: KeyboardEvent) => void = (_event: KeyboardEvent) => {
-};
+let callback: (event: KeyboardEvent) => void | null = null;
 
-let releaseCallback: (event: KeyboardEvent) => void = (_event: KeyboardEvent) => {
-
-};
+let releaseCallback: (event: KeyboardEvent) => void | null = null;
 
 const doubleClickTime = 200;
 let doubeClickCheck: boolean = false;
 // const emptyFunction: ()=>void = ()=>{};
 // const doubleClickChecker: ()=>void = emptyFunction;
-
-const QontoConnector = styled(StepConnector)(({theme}) => ({
-    [`&.${stepConnectorClasses.alternativeLabel}`]: {
-        top: 10,
-        left: 'calc(-50% + 16px)',
-        right: 'calc(50% + 16px)',
-    },
-    [`&.${stepConnectorClasses.active}`]: {
-        [`& .${stepConnectorClasses.line}`]: {
-            borderColor: '#784af4',
-        },
-    },
-    [`&.${stepConnectorClasses.completed}`]: {
-        [`& .${stepConnectorClasses.line}`]: {
-            borderColor: '#784af4',
-        },
-    },
-    [`& .${stepConnectorClasses.line}`]: {
-        borderColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#eaeaf0',
-        borderTopWidth: 3,
-        borderRadius: 1,
-    },
-}));
 
 const getShowNodesAndEdges: (task: Task, styleMap: [string, NodeStyle][]) => {
     showNodes: TaskNodeShow[],
@@ -206,7 +156,6 @@ const saveTasks: (showNodes: TaskNodeShow[], showEdges: TaskEdgeShow[], taskStac
     });
 
 
-
     showEdges.forEach((value) => {
         topTask.subtasks.edges = [];
         if (value.source !== "start" && value.target !== "end") {
@@ -264,7 +213,10 @@ export default function Flow({
                         return [...prev];
                     });
                     const _task = taskStack[taskStack.length - 1];
-                    let {showNodes, showEdges} = getShowNodesAndEdges(_task as Task, taskStorageGlobalWarp.value?.styleMap!);
+                    let {
+                        showNodes,
+                        showEdges
+                    } = getShowNodesAndEdges(_task as Task, taskStorageGlobalWarp.value?.styleMap!);
                     setShowNodes(showNodes);
                     setShowEdges(showEdges);
                     break
@@ -399,15 +351,6 @@ export default function Flow({
                             },
                             parent: null,
                         });
-
-                        // const style: NodeStyle = {
-                        //   position: {
-                        //     x: flowRef.current?.offsetWidth ? flowRef.current.offsetWidth / 2 : 0,
-                        //     y: flowRef.current?.offsetHeight ? flowRef.current.offsetHeight / 2 : 0
-                        //   }
-                        // };
-                        // addTask(taskToEditRef.current, style);
-                        // setShowDialog(false);
                     }
                     break;
                 case 'Delete':
@@ -521,7 +464,7 @@ export default function Flow({
 
         if (doubeClickCheck) {
             const _task = taskStack[taskStack.length - 1];
-            const _node = _task.subtasks.nodes.find((value) => value.id === node.id);
+            const _node = _task.subtasks!.nodes.find((value) => value.id === node.id);
             setTaskStack((prev) => {
                 prev.push(_node as Task);
                 return [...prev];
@@ -580,7 +523,7 @@ export default function Flow({
                 autoHideDuration={2000}
                 message={alertText}
             />
-            <Stepper nonLinear connector={<QontoConnector/>} className={styles.Stack}>
+            <Stepper nonLinear className={styles.Stack}>
                 {taskStack.map((task) => (
                     <Step key={task.name} completed={false}>
                         <StepLabel>{task.name}</StepLabel>
