@@ -14,6 +14,8 @@ export const startNode: TaskNodeShow = {
         x: 0,
         y: 0,
     },
+    selectable: false,
+    draggable: false,
     data: {
         label: '',
     },
@@ -75,10 +77,13 @@ interface AppRuntime {
     alertMessage: string;
     showDialog: boolean;
     isInputting: boolean;
+    enteredFlow: boolean;
+    selectedMap: Map<string, boolean>;
+    taskToEdit: Task;
 }
 
 interface nowSelected {
-    type: 'node' | 'edge' | null;
+    type: 'node' | 'edge' | 'delete-node' | 'delete-edge' | 'modify-node' | null;
     reference: Node | Edge | null;
 }
 
@@ -95,7 +100,6 @@ export interface Task {
     date: string;
     time: string;
     status: TaskStatus;
-    // TODO: create a trigger mechanism for status: suspended -> in-progress -> done
     dependencies: TaskDependency;
     subtasks: Graph<Task>;
     parent: Task | null;
@@ -159,6 +163,23 @@ const AppStorageInit: AppStorage = {
     taskStorage: taskStorageInit
 }
 
+export const taskToEditInit: Task = {
+    id: '',
+    name: '',
+    goal: '',
+    date: dayjs().toString(),
+    time: dayjs().toString(),
+    status: TaskStatus.Created,
+    dependencies: {
+        dependencyType: TaskDependencyType.And,
+    },
+    subtasks: {
+        nodes: [],
+        edges: [],
+    },
+    parent: null
+}
+
 const AppRuntimeInit: AppRuntime = {
     isModified: false,
     nowSelected: {
@@ -169,6 +190,9 @@ const AppRuntimeInit: AppRuntime = {
     alertMessage: '',
     showDialog: false,
     isInputting: false,
+    enteredFlow: true,
+    selectedMap: new Map<string, boolean>(),
+    taskToEdit: taskToEditInit
 }
 
 const AppStateAtom = atom<AppState>({
@@ -185,6 +209,30 @@ export const AppStorageAtom = atom(
         })
     }
 );
+
+export const taskToEditAtom = atom(
+    (get) => get(AppStateAtom).AppRuntime.taskToEdit,
+    (get, set, update: Task) => {
+        set(AppStateAtom, {
+            ...get(AppStateAtom),
+            AppRuntime: {
+                ...get(AppStateAtom).AppRuntime,
+                taskToEdit: update
+            }
+        })
+    });
+
+export const selectedMapAtom = atom(
+    (get) => get(AppStateAtom).AppRuntime.selectedMap,
+    (get, set, update: Map<string, boolean>) => {
+        set(AppStateAtom, {
+            ...get(AppStateAtom),
+            AppRuntime: {
+                ...get(AppStateAtom).AppRuntime,
+                selectedMap: update
+            }
+        })
+    });
 
 export const showDialogAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.showDialog,
@@ -234,6 +282,18 @@ export const alertMessageAtom = atom(
         })
     });
 
+export const enteredFlowAtom = atom(
+    (get) => get(AppStateAtom).AppRuntime.enteredFlow,
+    (get, set, update: boolean) => {
+        set(AppStateAtom, {
+            ...get(AppStateAtom),
+            AppRuntime: {
+                ...get(AppStateAtom).AppRuntime,
+                enteredFlow: update
+            }
+        })
+    });
+
 export const taskStackAtom = atom(
     (get) => {
         let nowViewing = get(AppStateAtom).AppStorage.taskStorage.nowViewing;
@@ -248,6 +308,17 @@ export const taskStackAtom = atom(
 export const nowViewingAtom = atom(
     (get) => get(AppStateAtom).AppStorage.taskStorage.nowViewing,
     (get, set, update: Task) => {
+
+        let parent = get(nowViewingAtom).parent
+
+        if (parent !== null) {
+            parent.subtasks.nodes.filter((value) => {
+                return value.id !== update.id
+            })
+            parent.subtasks.nodes.push(update);
+            update.parent = parent;
+        }
+
         set(AppStateAtom, {
             ...get(AppStateAtom),
             AppStorage: {
@@ -276,6 +347,26 @@ export const isModifiedAtom = atom(
 export const nowSelectedAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.nowSelected,
     (get, set, update: nowSelected) => {
+        if (update.type === 'modify-node') {
+            let task: Task = update.reference as Task;
+            let parent: Task | null = task.parent;
+            let subtasks: Graph<Task> = task.subtasks;
+            let oldTask = parent!.subtasks.nodes.find((value) => value.id === task.id)!;
+            // remove old task
+            parent!.subtasks.nodes.splice(parent!.subtasks.nodes.indexOf(oldTask), 1);
+            // add new task
+            parent!.subtasks.nodes.push(task);
+            // change the reference of the subtask of task
+            subtasks.nodes.forEach((value) => {
+                value.parent = task;
+            });
+            set(AppStateAtom, {
+                ...get(AppStateAtom),
+                AppStorage: {
+                    ...get(AppStateAtom).AppStorage,
+                }
+            })
+        }
         set(AppStateAtom, {
             ...get(AppStateAtom),
             AppRuntime: {
@@ -293,7 +384,10 @@ export const showNodesAtom = atom(
 
         const nodeStyleMap = new Map(_nodeStyleMap);
 
+        // console.log(nodeStyleMap);
+
         nowViewing.subtasks!.nodes.forEach((node) => {
+            console.log(node.id, nodeStyleMap.get(node.id));
             showNodes.push({
                 id: node.id,
                 type: 'task',
@@ -301,13 +395,13 @@ export const showNodesAtom = atom(
                 data: {
                     label: node.name,
                     realTask: node,
-                    selected: false,
+                    selected: get(selectedMapAtom).get(node.id) || false
                 },
             });
         });
 
-        showNodes.push(startNode);
         showNodes.push(originNode);
+        showNodes.push(startNode);
 
         let maxX: number = 0;
         let sumY: number = 0;
@@ -361,6 +455,24 @@ export const showNodesAtom = atom(
                 taskStorage: {
                     ...get(AppStateAtom).AppStorage.taskStorage,
                     styleMap: styleMap
+                }
+            }
+        })
+    },
+);
+
+export const styleMapAtom = atom(
+    (get) => {
+        return get(AppStateAtom).AppStorage.taskStorage.styleMap;
+    },
+    (get, set, update: [TaskId, NodeStyle][]) => {
+        set(AppStateAtom, {
+            ...get(AppStateAtom),
+            AppStorage: {
+                ...get(AppStateAtom).AppStorage,
+                taskStorage: {
+                    ...get(AppStateAtom).AppStorage.taskStorage,
+                    styleMap: update
                 }
             }
         })

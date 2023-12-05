@@ -3,11 +3,11 @@ import {DateCalendar, TimeClock} from '@mui/x-date-pickers';
 import styles from './TaskCreater.module.css';
 import dayjs from 'dayjs';
 import {useAtom, useSetAtom} from "jotai";
-import {isInputtingAtom, nowSelectedAtom, Task} from "../../state/tasksAtoms.ts";
+import {isInputtingAtom, taskToEditAtom} from "../../state/tasksAtoms.ts";
 
 export default function TaskCreate() {
 
-    const [taskToEdit, setTaskToEdit] = useAtom(nowSelectedAtom);
+    const [taskToEdit, setTaskToEdit] = useAtom(taskToEditAtom);
     const setIsInputting = useSetAtom(isInputtingAtom);
 
     return (
@@ -24,11 +24,11 @@ export default function TaskCreate() {
                         className={styles.input}
                         onChange={
                             (e) => {
-                                let task = {...taskToEdit.reference, name: e.target.value} as Task;
-                                setTaskToEdit({
-                                    type: 'node',
-                                    reference: task,
-                                });
+                                let task = {
+                                    ...taskToEdit,
+                                    name: e.target.value,
+                                }
+                                setTaskToEdit(task);
                             }
                         }
                         onFocus={() => setIsInputting(true)}
@@ -36,16 +36,18 @@ export default function TaskCreate() {
                     />
                     <TextField
                         label="Goal"
+                        variant="outlined"
                         multiline
                         rows={7}
                         className={styles.input + ' ' + styles.textfield}
                         onChange={
                             (e) => {
-                                let task = {...taskToEdit.reference, goal: e.target.value} as Task;
-                                setTaskToEdit({
-                                    type: 'node',
-                                    reference: task,
-                                });
+                                let task = {
+                                    ...taskToEdit,
+                                    goal: e.target.value,
+                                }
+
+                                setTaskToEdit(task);
                             }
                         }
                         onFocus={() => setIsInputting(true)}
@@ -58,14 +60,15 @@ export default function TaskCreate() {
                 <DateCalendar
                     onChange={
                         (e) => {
-                            let task = {...taskToEdit.reference, date: e!.toString()} as Task;
-                            setTaskToEdit({
-                                type: 'node',
-                                reference: task,
-                            });
+                            let task = {
+                                ...taskToEdit,
+                                date: e!.toString(),
+                            }
+
+                            setTaskToEdit(task);
                         }
                     }
-                    value={dayjs((taskToEdit.reference! as Task).date)}
+                    value={dayjs(taskToEdit.date)}
                 />
                 <div className={styles.TimeClock}>
                     <Typography
@@ -76,19 +79,19 @@ export default function TaskCreate() {
                             marginTop: '15px',
                         }}
                     >
-                        {dayjs((taskToEdit.reference! as Task).time).format('HH:mm')}
+                        {dayjs(taskToEdit.time).format('HH:mm')}
                     </Typography>
                     <TimeClock
                         onChange={
                             (e) => {
-                                let task = {...taskToEdit.reference, time: e!.toString()} as Task;
-                                setTaskToEdit({
-                                    type: 'node',
-                                    reference: task,
-                                });
+                                let task = {
+                                    ...taskToEdit,
+                                    time: e!.toString(),
+                                }
+                                setTaskToEdit(task);
                             }
                         }
-                        value={dayjs((taskToEdit.reference! as Task).time)}
+                        value={dayjs(taskToEdit.time)}
                         views={['hours', 'minutes']}
                     />
                 </div>

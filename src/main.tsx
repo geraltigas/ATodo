@@ -24,3 +24,4 @@ invoke<string>("save", {key: "taskStorage", value: strs}).then((res) => {
         return console.log(parse(res));
     });
 });
+// TODO: implementing click and board edit

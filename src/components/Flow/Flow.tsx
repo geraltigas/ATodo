@@ -1,5 +1,5 @@
 import styles from './Flow.module.css';
-import {applyNodeChanges, Background, BackgroundVariant, Connection, Controls, ReactFlow,} from 'reactflow';
+import {applyNodeChanges, Background, BackgroundVariant, Controls, ReactFlow,} from 'reactflow';
 import React, {useEffect, useRef,} from 'react';
 import {Dialog, Snackbar, Step, StepLabel, Stepper,} from '@mui/material';
 import {useAtom, useSetAtom} from 'jotai';
@@ -13,13 +13,12 @@ import {
     showDialogAtom,
     showEdgesAtom,
     showNodesAtom,
-    TaskEdgeShow,
-    TaskNodeShow,
     taskStackAtom,
 } from '../../state/tasksAtoms';
 import TaskCreate from "../TaskCreater/TaskCreate.tsx";
 import {invoke} from "@tauri-apps/api";
 import {parse} from 'flatted';
+import {useOnConnect, useOnEdgeClick, useOnMouseEnter, useOnMouseLeave, useOnNodeClick} from "../../hooks/useEvent.ts";
 // import {parse, stringify} from "flatted";
 
 // let callback: (event: KeyboardEvent) => void | null = null;
@@ -158,7 +157,7 @@ export default function Flow({
     //     }
     // }, []);
 
-    const [nowSelected, _setNowSelected] = useAtom(nowSelectedAtom);
+    const [nowSelected, setNowSelected] = useAtom(nowSelectedAtom);
 
     // const [nowClickEdge, _setNowClickEdge] = useState<string | null>(null);
     // const nowClickEdgeRef = useRef(nowClickEdge);
@@ -344,100 +343,112 @@ export default function Flow({
     //     [showDialog],
     // );
 
-    const onMouseEnter = (
-        _event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    ) => {
-        // document.removeEventListener('keydown', callback);
-        // document.removeEventListener('keyup', releaseCallback);
-        // document.addEventListener('keydown', keyDownChecker);
-        // document.addEventListener('keyup', keyUpChecker);
-        // callback = keyDownChecker;
-        // releaseCallback = keyUpChecker;
-    };
+    const onMouseEnter = useOnMouseEnter();
 
-    const onMouseLeave = (
-        _event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    ) => {
-        // document.removeEventListener('keydown', callback);
-        // document.removeEventListener('keyup', releaseCallback);
-        // callback = (_event: KeyboardEvent) => {
-        // };
-        // releaseCallback = (_event: KeyboardEvent) => {
-        // };
-    };
+    // (
+    // _event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    // ) => {
+    // document.removeEventListener('keydown', callback);
+    // document.removeEventListener('keyup', releaseCallback);
+    // document.addEventListener('keydown', keyDownChecker);
+    // document.addEventListener('keyup', keyUpChecker);
+    // callback = keyDownChecker;
+    // releaseCallback = keyUpChecker;
+    // };
 
-    const onConnect = (_params: Connection) => {
-        // setShowEdges((prev) => [
-        //     ...prev,
-        //     {
-        //         id: `${params.source}-${params.target}`,
-        //         source: params.source!,
-        //         target: params.target!,
-        //         sourceHandle: params.sourceHandle,
-        //         targetHandle: params.targetHandle,
-        //         animated: true,
-        //     },
-        // ]);
-        // setModified(true);
-    };
+    const onMouseLeave = useOnMouseLeave();
+    // (
+    // _event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    // ) => {
+    // document.removeEventListener('keydown', callback);
+    // document.removeEventListener('keyup', releaseCallback);
+    // callback = (_event: KeyboardEvent) => {
+    // };
+    // releaseCallback = (_event: KeyboardEvent) => {
+    // };
+    // };
 
-    const onNodeClick = (_event: React.MouseEvent, _node: TaskNodeShow) => {
+    const onConnect = useOnConnect();
+
+    // (_params: Connection) => {
+    // setShowEdges((prev) => [
+    //     ...prev,
+    //     {
+    //         id: `${params.source}-${params.target}`,
+    //         source: params.source!,
+    //         target: params.target!,
+    //         sourceHandle: params.sourceHandle,
+    //         targetHandle: params.targetHandle,
+    //         animated: true,
+    //     },
+    // ]);
+    // setModified(true);
+    // };
+
+    const onNodeClick = useOnNodeClick();
+
+    // document.addEventListener('', () => {
+    //
+    // });
+    // (_event: React.MouseEvent, _node: TaskNodeShow) => {
 
 
-        // if (
-        //     node.type === 'origin' ||
-        //     node.type === 'start' ||
-        //     node.type === 'end' ||
-        //     nowClickEdge !== null
-        // )
-        //     return;
-        //
-        //
-        // if (doubeClickCheck) {
-        //     const _task = taskStack[taskStack.length - 1];
-        //     const _node = _task.subtasks!.nodes.find((value) => value.id === node.id);
-        //     setTaskStack((prev) => {
-        //         prev.push(_node as Task);
-        //         return [...prev];
-        //     });
-        //     let {showNodes, showEdges} = getShowNodesAndEdges(_node as Task, taskStorageGlobalWarp.value?.styleMap!);
-        //     setShowNodes(showNodes);
-        //     setShowEdges(showEdges);
-        //     doubeClickCheck = false;
-        // } else {
-        //     doubeClickCheck = true;
-        //     setTimeout(() => {
-        //         doubeClickCheck = false;
-        //
-        //     }, doubleClickTime);
-        // }
-        //
-        // if (node.data.selected) {
-        //     setShowNodes((prev) => {
-        //         prev.forEach((value) => {
-        //             value.data.selected = false;
-        //         });
-        //         return [...prev];
-        //     });
-        //     setNowClickNode(null);
-        //     return;
-        // }
-        // setShowNodes((prev) => {
-        //     prev.forEach((value) => {
-        //         value.data.selected = value.id === node.id;
-        //     });
-        //     return [...prev];
-        // });
-        // setNowClickNode(node.id);
-    };
+    // if (
+    //     node.type === 'origin' ||
+    //     node.type === 'start' ||
+    //     node.type === 'end' ||
+    //     nowClickEdge !== null
+    // )
+    //     return;
+    //
+    //
+    // if (doubeClickCheck) {
+    //     const _task = taskStack[taskStack.length - 1];
+    //     const _node = _task.subtasks!.nodes.find((value) => value.id === node.id);
+    //     setTaskStack((prev) => {
+    //         prev.push(_node as Task);
+    //         return [...prev];
+    //     });
+    //     let {showNodes, showEdges} = getShowNodesAndEdges(_node as Task, taskStorageGlobalWarp.value?.styleMap!);
+    //     setShowNodes(showNodes);
+    //     setShowEdges(showEdges);
+    //     doubeClickCheck = false;
+    // } else {
+    //     doubeClickCheck = true;
+    //     setTimeout(() => {
+    //         doubeClickCheck = false;
+    //
+    //     }, doubleClickTime);
+    // }
+    //
+    // if (node.data.selected) {
+    //     setShowNodes((prev) => {
+    //         prev.forEach((value) => {
+    //             value.data.selected = false;
+    //         });
+    //         return [...prev];
+    //     });
+    //     setNowClickNode(null);
+    //     return;
+    // }
+    // setShowNodes((prev) => {
+    //     prev.forEach((value) => {
+    //         value.data.selected = value.id === node.id;
+    //     });
+    //     return [...prev];
+    // });
+    // setNowClickNode(node.id);
+    // };
 
-    const onEdgeClick = (_event: React.MouseEvent, _edge: TaskEdgeShow) => {
-        // if (edge.id === nowClickEdge) {
-        //     setNowClickEdge(null);
-        //     return;
-        // }
-        // setNowClickEdge(edge.id);
-    };
+    const onEdgeClick = useOnEdgeClick();
+
+    // (_event: React.MouseEvent, _edge: TaskEdgeShow) => {
+    // if (edge.id === nowClickEdge) {
+    //     setNowClickEdge(null);
+    //     return;
+    // }
+    // setNowClickEdge(edge.id);
+    // };
 
     const modifiedClassName = modified ? styles.modifiedBase + ' ' + styles.modified : styles.modifiedBase;
 
