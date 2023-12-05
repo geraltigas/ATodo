@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import {CSSProperties} from "react";
-import {Position} from "reactflow";
+import {AppStorage, NodeStyle, Task, TaskDependencyType, TaskId, TaskStatus} from "../../state/tasksAtoms.ts";
 
 // const deepCopyTaskDependency = (obj: TaskDependency, parent: Task): TaskDependency => {
 //   return {
@@ -43,35 +42,8 @@ import {Position} from "reactflow";
 //   return copy;
 // };
 
-export interface TaskEdgeShow {
-    id: string;
-    source: string;
-    target: string;
-    sourceHandle?: string | null | undefined;
-    targetHandle?: string | null | undefined;
-    animated?: boolean;
-}
 
-export interface TaskNodeShow {
-    id: string;
-    position: {
-        x: number;
-        y: number;
-    };
-    type?: string;
-    style?: CSSProperties;
-    draggable?: boolean;
-    selectable?: boolean;
-    data: {
-        label: string;
-        selected?: boolean;
-        realTask?: Task;
-    };
-    sourcePosition?: Position | undefined;
-    targetPosition?: Position | undefined;
-}
-
-export const buildTaskStorage = (): TaskStorage => {
+export const buildTaskStorage = (): AppStorage => {
     const overall: Task = {
         id: dayjs('2023-01-12T00:00:00.123Z').toString(),
         name: 'Overall',
@@ -165,46 +137,48 @@ export const buildTaskStorage = (): TaskStorage => {
     task1.subtasks.nodes.push(task4);
     task1.subtasks.edges.push([task3.id, task4.id]);
 
-    const styleMap = new Map<TaskReference, NodeStyle>();
-
-    styleMap.set(overall.id, {
+    const styleMap: [TaskId, NodeStyle][] = [];
+    styleMap.push([overall.id, {
         position: {
             x: 0,
             y: 0,
         }
-    });
+    }]);
 
-    styleMap.set(task1.id, {
+    styleMap.push([task1.id, {
         position: {
             x: 100,
-            y: 100,
-        }
-    });
-
-    styleMap.set(task2.id, {
-        position: {
-            x: 200,
             y: -150,
         }
-    });
+    }]);
 
-    styleMap.set(task3.id, {
+    styleMap.push([task2.id, {
+        position: {
+            x: 200,
+            y: 150,
+        }
+    }]);
+
+    styleMap.push([task3.id, {
+        position: {
+            x: 100,
+            y: -50,
+        }
+    }]);
+
+    styleMap.push([task4.id, {
         position: {
             x: 100,
             y: 50,
         }
-    });
-
-    styleMap.set(task4.id, {
-        position: {
-            x: 200,
-            y: -50,
-        }
-    });
+    }]);
 
     return {
-        taskStack: [overall],
-        styleMap: Array.from(styleMap.entries()),
+        taskStorage: {
+            overall: overall,
+            nowViewing: overall,
+            styleMap: styleMap,
+        }
     };
 }
 
@@ -297,6 +271,6 @@ export const buildTaskStorage = (): TaskStorage => {
 
 // const taskManager = new TaskManager();
 
-export {TaskDependencyType, TaskStatus};
-export type {Task};
+// export {TaskDependencyType, TaskStatus};
+// export type {Task};
 
