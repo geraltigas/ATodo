@@ -41,6 +41,7 @@ export default function Board() {
     };
 
     const onTimeChange = (date: Dayjs | null) => {
+        console.log(date);
         setNowSelected({
             type: 'modify-node',
             reference: {
@@ -55,19 +56,18 @@ export default function Board() {
             <TextField
                 label={'Name'}
                 variant={'outlined'}
-                value={(nowSelected.reference! as Task).name}
+                defaultValue={(nowSelected.reference! as Task).name}
                 onChange={onNameChange}
             />
             <TextField
                 label="Goal"
                 multiline
                 rows={5}
-                value={(nowSelected.reference! as Task).goal}
+                defaultValue={(nowSelected.reference! as Task).goal}
                 onChange={onGoalChange}
             />
             <DateCalendar
                 onChange={onDateChange}
-                value={dayjs((nowSelected.reference! as Task).date)}
             />
             <div>
                 <Typography
@@ -81,7 +81,7 @@ export default function Board() {
                 </Typography>
                 <TimeClock
                     onChange={onTimeChange}
-                    value={dayjs((nowSelected.reference! as Task).time)}
+                    defaultValue={dayjs((nowSelected.reference! as Task).time)}
                     views={['hours', 'minutes']}
                 />
             </div>

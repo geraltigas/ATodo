@@ -2,3 +2,7 @@
     /*  make it disappear */
     display: none;
 }
+
+.MuiStepper-root {
+    flex-direction: row-reverse !important;
+}

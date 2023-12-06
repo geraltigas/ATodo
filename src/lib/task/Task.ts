@@ -109,7 +109,7 @@ export const buildTaskStorage = (): AppStorage => {
             nodes: [],
             edges: [],
         },
-        parent: overall
+        parent: task1
     };
 
     const task4: Task = {
@@ -126,7 +126,7 @@ export const buildTaskStorage = (): AppStorage => {
             nodes: [],
             edges: [],
         },
-        parent: overall
+        parent: task1
     };
 
     overall.subtasks.nodes.push(task1);

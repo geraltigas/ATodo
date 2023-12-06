@@ -68,6 +68,7 @@ export default function TaskCreate() {
                             setTaskToEdit(task);
                         }
                     }
+                    className={styles.unselectable}
                     value={dayjs(taskToEdit.date)}
                 />
                 <div className={styles.TimeClock}>
@@ -78,6 +79,7 @@ export default function TaskCreate() {
                             textAlign: 'center',
                             marginTop: '15px',
                         }}
+                        className={styles.unselectable}
                     >
                         {dayjs(taskToEdit.time).format('HH:mm')}
                     </Typography>
@@ -91,6 +93,7 @@ export default function TaskCreate() {
                                 setTaskToEdit(task);
                             }
                         }
+                        className={styles.unselectable}
                         value={dayjs(taskToEdit.time)}
                         views={['hours', 'minutes']}
                     />

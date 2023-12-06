@@ -6,6 +6,7 @@ import TaskNode from '../components/Nodes/TaskNode/TaskNode';
 import OriginNode from '../components/Nodes/OriginNode/OriginNode';
 import dayjs from "dayjs";
 import {CSSProperties} from "react";
+import {updateReference} from "../hooks/useEvent.ts";
 
 export const startNode: TaskNodeShow = {
     id: 'start',
@@ -122,7 +123,7 @@ export enum TaskDependencyType {
     And = 'and',
 }
 
-type Edge = [string, string];
+export type Edge = [string, string];
 
 interface Graph<T> {
     nodes: T[];
@@ -159,7 +160,7 @@ const taskStorageInit: TaskStorage = {
     styleMap: []
 }
 
-const AppStorageInit: AppStorage = {
+export const AppStorageInit: AppStorage = {
     taskStorage: taskStorageInit
 }
 
@@ -309,15 +310,32 @@ export const nowViewingAtom = atom(
     (get) => get(AppStateAtom).AppStorage.taskStorage.nowViewing,
     (get, set, update: Task) => {
 
-        let parent = get(nowViewingAtom).parent
+        let parent = update.parent
+        if (update.id === get(nowViewingAtom).id) { // TODO: reference update, should update the children and parent's reference
+            if (parent !== null) {
+                parent.subtasks.nodes.filter((value) => {
+                    return value.id !== update.id
+                })
+                parent.subtasks.nodes.push(update);
+                update.parent = parent;
+            }
+        } else {
 
-        if (parent !== null) {
-            parent.subtasks.nodes.filter((value) => {
-                return value.id !== update.id
-            })
-            parent.subtasks.nodes.push(update);
-            update.parent = parent;
         }
+
+        if (update.id == 'overall') {
+            set(AppStateAtom, {
+                ...get(AppStateAtom),
+                AppStorage: {
+                    ...get(AppStateAtom).AppStorage,
+                    taskStorage: {
+                        ...get(AppStateAtom).AppStorage.taskStorage,
+                        overall: update,
+                    }
+                }
+            })
+        }
+
 
         set(AppStateAtom, {
             ...get(AppStateAtom),
@@ -348,38 +366,109 @@ export const nowSelectedAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.nowSelected,
     (get, set, update: nowSelected) => {
         if (update.type === 'modify-node') {
-            let task: Task = update.reference as Task;
-            let parent: Task | null = task.parent;
-            let subtasks: Graph<Task> = task.subtasks;
-            let oldTask = parent!.subtasks.nodes.find((value) => value.id === task.id)!;
+            console.log("modify node id", update.reference)
+            // let parent: Task | null = task.parent;
+            // let subtasks: Graph<Task> = task.subtasks;
+            // let oldTask = parent!.subtasks.nodes.find((value) => value.id === task.id)!;
+            // // remove old task
+            // parent!.subtasks.nodes.splice(parent!.subtasks.nodes.indexOf(oldTask), 1);
+            // // add new task
+            // parent!.subtasks.nodes.push(task);
+            // // change the reference of the subtask of task
+            // subtasks.nodes.forEach((value) => {
+            //     value.parent = task;
+            // });
+
+            let nowViewing = get(nowViewingAtom);
+            let oldTask = nowViewing.subtasks.nodes.find((value) => value.id === (update.reference! as Task).id)!;
             // remove old task
-            parent!.subtasks.nodes.splice(parent!.subtasks.nodes.indexOf(oldTask), 1);
+            nowViewing.subtasks.nodes.splice(nowViewing.subtasks.nodes.indexOf(oldTask), 1);
             // add new task
-            parent!.subtasks.nodes.push(task);
+            nowViewing.subtasks.nodes.push(update.reference! as Task);
             // change the reference of the subtask of task
-            subtasks.nodes.forEach((value) => {
-                value.parent = task;
-            });
+            updateReference(update.reference as Task);
+            let newNowViewing = {...nowViewing};
+            updateReference(newNowViewing);
+            set(nowViewingAtom, newNowViewing);
             set(AppStateAtom, {
                 ...get(AppStateAtom),
+                AppRuntime: {
+                    ...get(AppStateAtom).AppRuntime,
+                    nowSelected: {
+                        type: 'node',
+                        reference: update.reference
+                    }
+                }
+            });
+            set(isModifiedAtom, true);
+        } else if (update.type === 'delete-node') {
+            console.log("delete node id", update.reference)
+            let task: Task = update.reference as Task;
+            let parent: Task | null = task.parent;
+            // remove old task
+            parent!.subtasks.nodes.splice(parent!.subtasks.nodes.indexOf(task), 1);
+            // change the reference of the subtask of task
+            set(AppStateAtom, {
+                ...get(AppStateAtom),
+                AppRuntime: {
+                    ...get(AppStateAtom).AppRuntime,
+                    nowSelected: {
+                        type: null,
+                        reference: null
+                    }
+                }
+            })
+        } else if (update.type === 'delete-edge') {
+            console.log("delete edge id", update.reference)
+            let edge: Edge = update.reference as Edge;
+            let nowViewing = get(nowViewingAtom);
+            let subtasks: Graph<Task> = nowViewing.subtasks!;
+            console.log(subtasks.edges);
+            // remove edge
+            let index = subtasks.edges.findIndex((value) => {
+                return value[0] === edge[0] && value[1] === edge[1];
+            });
+            subtasks.edges.splice(index, 1);
+
+            console.log(subtasks.edges);
+            set(AppStateAtom, {
                 AppStorage: {
                     ...get(AppStateAtom).AppStorage,
+                    taskStorage: {
+                        ...get(AppStateAtom).AppStorage.taskStorage,
+                        nowViewing: {
+                            ...get(AppStateAtom).AppStorage.taskStorage.nowViewing,
+                            subtasks: {
+                                ...get(AppStateAtom).AppStorage.taskStorage.nowViewing.subtasks!,
+                                edges: subtasks.edges
+                            }
+                        }
+                    }
+                },
+                AppRuntime: {
+                    ...get(AppStateAtom).AppRuntime,
+                    nowSelected: {
+                        type: null,
+                        reference: null
+                    }
+                }
+            })
+        } else {
+            set(AppStateAtom, {
+                ...get(AppStateAtom),
+                AppRuntime: {
+                    ...get(AppStateAtom).AppRuntime,
+                    nowSelected: update
                 }
             })
         }
-        set(AppStateAtom, {
-            ...get(AppStateAtom),
-            AppRuntime: {
-                ...get(AppStateAtom).AppRuntime,
-                nowSelected: update
-            }
-        })
+
     });
 
 export const showNodesAtom = atom(
     (get) => {
         let nowViewing = get(nowViewingAtom);
-        let _nodeStyleMap = get(AppStateAtom).AppStorage.taskStorage.styleMap;
+        let _nodeStyleMap = get(styleMapAtom);
         let showNodes: TaskNodeShow[] = [];
 
         const nodeStyleMap = new Map(_nodeStyleMap);
@@ -387,7 +476,6 @@ export const showNodesAtom = atom(
         // console.log(nodeStyleMap);
 
         nowViewing.subtasks!.nodes.forEach((node) => {
-            console.log(node.id, nodeStyleMap.get(node.id));
             showNodes.push({
                 id: node.id,
                 type: 'task',
@@ -445,9 +533,29 @@ export const showNodesAtom = atom(
         return showNodes;
     },
     (get, set, update: TaskNodeShow[]) => {
-        let styleMap: [string, NodeStyle][] = update.map((node) => {
-            return [node.id, {position: node.position}];
+        let styleMap: [TaskId, NodeStyle][] = [...get(styleMapAtom)];
+
+        update.forEach((value) => {
+            if (value.id === "start" || value.id === "end" || value.id === "origin") {
+                return;
+            }
+            let index = styleMap.findIndex((style) => {
+                return style[0] === value.id;
+            });
+            if (index === -1) {
+                styleMap.push([value.id, {
+                    position: {
+                        x: 0,
+                        y: 0
+                    }
+                }]);
+            } else {
+                styleMap[index] = [value.id, {
+                    position: value.position
+                }];
+            }
         });
+
         set(AppStateAtom, {
             ...get(AppStateAtom),
             AppStorage: {
@@ -534,6 +642,38 @@ export const showEdgesAtom = atom(
                 animated: true,
             });
         });
+
+        if (targetMsource.size === 0 && sourceMtarget.size === 0) {
+            if (nowViewing.subtasks.nodes.length === 0) {
+                showEdges.push({
+                    id: `start-end`,
+                    source: "start",
+                    target: "end",
+                    sourceHandle: "start-node-source",
+                    targetHandle: "end-node-target",
+                    animated: true,
+                });
+            } else {
+                nowViewing.subtasks.nodes.forEach((value) => {
+                    showEdges.push({
+                        id: `${value.id}-end`,
+                        source: value.id,
+                        target: "end",
+                        sourceHandle: "task-node-source",
+                        targetHandle: "end-node-target",
+                        animated: true,
+                    });
+                    showEdges.push({
+                        id: `start-${value.id}`,
+                        source: "start",
+                        target: value.id,
+                        sourceHandle: "start-node-source",
+                        targetHandle: "task-node-target",
+                        animated: true,
+                    });
+                });
+            }
+        }
 
         return showEdges;
     },
