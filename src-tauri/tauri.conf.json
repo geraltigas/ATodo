@@ -1,7 +1,7 @@
 {
   "build": {
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run build:front",
     "devPath": "http://localhost:1420",
     "distDir": "../dist"
   },
@@ -22,7 +22,7 @@
       "targets": "all",
       "identifier": "io.geraltigas.atodo",
       "icon": [
-        "icons/icon.png"
+        "icons/icon.ico"
       ]
     },
     "security": {
@@ -32,7 +32,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "tauri-app",
+        "title": "ATodo",
         "width": 800,
         "height": 600
       }

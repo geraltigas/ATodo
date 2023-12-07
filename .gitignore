@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 store
+
+src-tauri/store

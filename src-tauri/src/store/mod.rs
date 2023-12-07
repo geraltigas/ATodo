@@ -1,7 +1,7 @@
 use std::fs::{self, File};
 use std::io::{Read, Write};
 
-const DIR: &str = "../store";
+const DIR: &str = "./store";
 
 #[tauri::command]
 pub fn save(key: &str, value: &str) -> Result<String, String> {

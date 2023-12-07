@@ -6,9 +6,10 @@
   "scripts": {
     "desktop": "tauri dev",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build:front": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "build": "tauri build"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
