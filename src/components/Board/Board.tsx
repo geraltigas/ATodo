@@ -1,54 +1,42 @@
 import styles from './Board.module.css';
 import React from 'react';
-import {TextField, Typography} from '@mui/material';
-import {DateCalendar, TimeClock} from '@mui/x-date-pickers';
+import {TextField} from '@mui/material';
+import {DateCalendar} from '@mui/x-date-pickers';
 import dayjs, {Dayjs} from 'dayjs';
-import {useAtom} from "jotai";
-import {nowSelectedAtom, Task} from "../../state/tasksAtoms.ts";
+import {useSetAtom} from "jotai";
+import {isInputtingAtom, Task} from "../../state/tasksAtoms.ts";
+import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
-export default function Board() {
+export default function Board({
+                                  showTask,
+                                  setShowTask
+                              }: {
+    showTask: Task,
+    setShowTask: (task: Task) => void
+}) {
 
-    const [nowSelected, setNowSelected] = useAtom(nowSelectedAtom);
+    // const [showTask, setShowTask] = useAtom(nowSelectedAtom);
+    const setIsInputting = useSetAtom(isInputtingAtom);
 
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNowSelected({
-            type: 'modify-node',
-            reference: {
-                ...nowSelected.reference!,
-                name: e.target.value,
-            },
+        setShowTask({
+            ...showTask,
+            name: e.target.value,
         })
     };
 
     const onGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNowSelected({
-            type: 'modify-node',
-            reference: {
-                ...nowSelected.reference!,
-                goal: e.target.value,
-            },
+        setShowTask({
+            ...showTask,
+            goal: e.target.value,
         })
     };
 
     const onDateChange = (date: Dayjs | null) => {
-        setNowSelected({
-            type: 'modify-node',
-            reference: {
-                ...nowSelected.reference!,
-                date: date!.toString(),
-            },
-        });
-    };
-
-    const onTimeChange = (date: Dayjs | null) => {
-        console.log(date);
-        setNowSelected({
-            type: 'modify-node',
-            reference: {
-                ...nowSelected.reference!,
-                time: date!.toString(),
-            },
-        });
+        setShowTask({
+            ...showTask,
+            date: date!.toString(),
+        })
     };
 
     return (
@@ -56,35 +44,47 @@ export default function Board() {
             <TextField
                 label={'Name'}
                 variant={'outlined'}
-                defaultValue={(nowSelected.reference! as Task).name}
+                // defaultValue={(showTask.reference! as Task).name}
+                value={(showTask).name}
                 onChange={onNameChange}
+                onFocus={() => setIsInputting(true)}
+                onBlur={() => setIsInputting(false)}
             />
             <TextField
                 label="Goal"
                 multiline
                 rows={5}
-                defaultValue={(nowSelected.reference! as Task).goal}
+                // defaultValue={(showTask.reference! as Task).goal}
+                value={(showTask).goal}
                 onChange={onGoalChange}
+
+                onFocus={() => setIsInputting(true)}
+                onBlur={() => setIsInputting(false)}
             />
             <DateCalendar
                 onChange={onDateChange}
+                value={dayjs((showTask).date)}
+                className={styles.DateCalendar}
             />
-            <div>
-                <Typography
-                    variant="h5"
-                    gutterBottom
-                    style={{
-                        textAlign: 'center',
-                    }}
-                >
-                    {dayjs((nowSelected.reference! as Task).time).format('HH:mm')}
-                </Typography>
-                <TimeClock
-                    onChange={onTimeChange}
-                    defaultValue={dayjs((nowSelected.reference! as Task).time)}
-                    views={['hours', 'minutes']}
-                />
-            </div>
+            {/*<div>*/}
+            {/*    <Typography*/}
+            {/*        variant="h5"*/}
+            {/*        gutterBottom*/}
+            {/*        style={{*/}
+            {/*            textAlign: 'center',*/}
+            {/*            marginBottom: '0',*/}
+            {/*        }}*/}
+            {/*    >*/}
+            {/*        {dayjs((showTask as Task).time).format('HH:mm')}*/}
+            {/*    </Typography>*/}
+            {/*    <TimeClock*/}
+            {/*        onChange={onTimeChange}*/}
+            {/*        // defaultValue={dayjs((showTask.reference! as Task).time)}*/}
+            {/*        value={dayjs((showTask as Task).time)}*/}
+            {/*        views={['hours', 'minutes']}*/}
+            {/*    />*/}
+            {/*</div>*/}
+            <TimeClockWarp taskToEdit={showTask} setTaskToEdit={setShowTask}/>
         </div>
     );
 }

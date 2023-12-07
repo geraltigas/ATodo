@@ -81,6 +81,7 @@ interface AppRuntime {
     enteredFlow: boolean;
     selectedMap: Map<string, boolean>;
     taskToEdit: Task;
+    copiedTask: Task | null;
 }
 
 interface nowSelected {
@@ -193,7 +194,8 @@ const AppRuntimeInit: AppRuntime = {
     isInputting: false,
     enteredFlow: true,
     selectedMap: new Map<string, boolean>(),
-    taskToEdit: taskToEditInit
+    taskToEdit: taskToEditInit,
+    copiedTask: null
 }
 
 const AppStateAtom = atom<AppState>({
@@ -219,6 +221,18 @@ export const taskToEditAtom = atom(
             AppRuntime: {
                 ...get(AppStateAtom).AppRuntime,
                 taskToEdit: update
+            }
+        })
+    });
+
+export const copiedTaskAtom = atom(
+    (get) => get(AppStateAtom).AppRuntime.copiedTask,
+    (get, set, update: Task) => {
+        set(AppStateAtom, {
+            ...get(AppStateAtom),
+            AppRuntime: {
+                ...get(AppStateAtom).AppRuntime,
+                copiedTask: update
             }
         })
     });
@@ -366,19 +380,6 @@ export const nowSelectedAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.nowSelected,
     (get, set, update: nowSelected) => {
         if (update.type === 'modify-node') {
-            console.log("modify node id", update.reference)
-            // let parent: Task | null = task.parent;
-            // let subtasks: Graph<Task> = task.subtasks;
-            // let oldTask = parent!.subtasks.nodes.find((value) => value.id === task.id)!;
-            // // remove old task
-            // parent!.subtasks.nodes.splice(parent!.subtasks.nodes.indexOf(oldTask), 1);
-            // // add new task
-            // parent!.subtasks.nodes.push(task);
-            // // change the reference of the subtask of task
-            // subtasks.nodes.forEach((value) => {
-            //     value.parent = task;
-            // });
-
             let nowViewing = get(nowViewingAtom);
             let oldTask = nowViewing.subtasks.nodes.find((value) => value.id === (update.reference! as Task).id)!;
             // remove old task
@@ -404,9 +405,33 @@ export const nowSelectedAtom = atom(
         } else if (update.type === 'delete-node') {
             console.log("delete node id", update.reference)
             let task: Task = update.reference as Task;
-            let parent: Task | null = task.parent;
+            let parent: Task = task.parent!;
             // remove old task
-            parent!.subtasks.nodes.splice(parent!.subtasks.nodes.indexOf(task), 1);
+            let index = parent.subtasks.nodes.findIndex((value) => {
+                return value.id === task.id;
+            });
+            parent.subtasks.nodes.splice(index, 1);
+            let newTask = {...parent};
+            // remove related edges
+            let edges: Edge[] = newTask.subtasks.edges;
+            let newEdges: Edge[] = [];
+            edges.forEach((value) => {
+                if (value[0] !== task.id && value[1] !== task.id) {
+                    newEdges.push(value);
+                }
+            });
+            newTask.subtasks.edges = newEdges;
+            // remove styleMap
+            let styleMap: [TaskId, NodeStyle][] = [...get(styleMapAtom)];
+            let newStyleMap: [TaskId, NodeStyle][] = [];
+            styleMap.forEach((value) => {
+                if (value[0] !== task.id) {
+                    newStyleMap.push(value);
+                }
+            });
+            set(styleMapAtom, newStyleMap);
+            updateReference(newTask);
+            set(nowViewingAtom, newTask);
             // change the reference of the subtask of task
             set(AppStateAtom, {
                 ...get(AppStateAtom),
@@ -421,30 +446,17 @@ export const nowSelectedAtom = atom(
         } else if (update.type === 'delete-edge') {
             console.log("delete edge id", update.reference)
             let edge: Edge = update.reference as Edge;
-            let nowViewing = get(nowViewingAtom);
-            let subtasks: Graph<Task> = nowViewing.subtasks!;
-            console.log(subtasks.edges);
+            let newNowViewing = {...get(nowViewingAtom)};
+            let subtasks: Graph<Task> = newNowViewing.subtasks!;
             // remove edge
             let index = subtasks.edges.findIndex((value) => {
                 return value[0] === edge[0] && value[1] === edge[1];
             });
             subtasks.edges.splice(index, 1);
-
-            console.log(subtasks.edges);
+            updateReference(newNowViewing);
+            set(nowViewingAtom, newNowViewing);
             set(AppStateAtom, {
-                AppStorage: {
-                    ...get(AppStateAtom).AppStorage,
-                    taskStorage: {
-                        ...get(AppStateAtom).AppStorage.taskStorage,
-                        nowViewing: {
-                            ...get(AppStateAtom).AppStorage.taskStorage.nowViewing,
-                            subtasks: {
-                                ...get(AppStateAtom).AppStorage.taskStorage.nowViewing.subtasks!,
-                                edges: subtasks.edges
-                            }
-                        }
-                    }
-                },
+                ...get(AppStateAtom),
                 AppRuntime: {
                     ...get(AppStateAtom).AppRuntime,
                     nowSelected: {
@@ -498,29 +510,25 @@ export const showNodesAtom = atom(
         if (nowViewing.subtasks) {
             nowViewing.subtasks.nodes.forEach((value) => {
                 let style: NodeStyle = nodeStyleMap.get(value.id)!;
-                if (style.position.x > maxX) {
-                    maxX = style.position.x;
+                if (style.position.x + value.name.length * 9 > maxX) {
+                    maxX = style.position.x + value.name.length * 9;
                 }
                 sumY += style.position.y;
                 numY++;
             });
-            if (numY === 0) {
-                sumY = 0;
-                numY = 1;
-            }
-        } else {
-            maxX = 50;
-            sumY = 0;
-            numY = 1;
         }
 
         let avgY: number = sumY / numY;
 
+        if (numY === 0) {
+            avgY = -7;
+        }
+
         showNodes.push({
             id: "end",
             position: {
-                x: maxX + 100,
-                y: avgY,
+                x: maxX + 50,
+                y: avgY + 7,
             },
             type: 'end',
             selectable: false,
@@ -529,7 +537,6 @@ export const showNodesAtom = atom(
                 label: "End",
             },
         });
-
         return showNodes;
     },
     (get, set, update: TaskNodeShow[]) => {
@@ -589,6 +596,7 @@ export const styleMapAtom = atom(
 
 export const showEdgesAtom = atom(
     (get) => {
+        let connectedMap: Map<string, boolean> = new Map<string, boolean>();
         let nowViewing = get(nowViewingAtom);
         let showEdges: TaskEdgeShow[] = [];
 
@@ -606,6 +614,8 @@ export const showEdgesAtom = atom(
                 targetHandle: "task-node-target",
                 animated: true,
             });
+            connectedMap.set(edge[0], true);
+            connectedMap.set(edge[1], true);
         });
 
         let sourceSet: Set<string> = new Set<string>();
@@ -630,6 +640,7 @@ export const showEdgesAtom = atom(
                 targetHandle: "task-node-target",
                 animated: true,
             });
+            connectedMap.set(value, true);
         });
 
         targetMsource.forEach((value) => {
@@ -641,6 +652,7 @@ export const showEdgesAtom = atom(
                 targetHandle: "end-node-target",
                 animated: true,
             });
+            connectedMap.set(value, true);
         });
 
         if (targetMsource.size === 0 && sourceMtarget.size === 0) {
@@ -671,9 +683,34 @@ export const showEdgesAtom = atom(
                         targetHandle: "task-node-target",
                         animated: true,
                     });
+                    connectedMap.set(value.id, true);
                 });
             }
         }
+
+        nowViewing.subtasks.nodes.forEach((value) => {
+            if (!connectedMap.has(value.id)) {
+                // start to node
+                showEdges.push({
+                    id: `start-${value.id}`,
+                    source: "start",
+                    target: value.id,
+                    sourceHandle: "start-node-source",
+                    targetHandle: "task-node-target",
+                    animated: true,
+                });
+                // node to end
+                showEdges.push({
+                    id: `${value.id}-end`,
+                    source: value.id,
+                    target: "end",
+                    sourceHandle: "task-node-source",
+                    targetHandle: "end-node-target",
+                    animated: true,
+                });
+            }
+        });
+
 
         return showEdges;
     },
@@ -729,35 +766,3 @@ export interface TaskNodeShow {
     sourcePosition?: Position | undefined;
     targetPosition?: Position | undefined;
 }
-
-
-// const showNodesAtom = atom<TaskNodeShow[]>([originNode, startNode, endNode]);
-// const showEdgesAtom = atom<TaskEdgeShow[]>([]);
-// const taskStackAtom = atom<Task[]>([]);
-// const modifiedAtom = atom<boolean>(false);
-//
-// const taskToEditBoardIdAtom = atom<string | null>(null);
-//
-// const taskToEditBoardAtom = atom(
-//     (get) => {
-//         const nodes = get(showNodesAtom);
-//         const editId = get(taskToEditBoardIdAtom);
-//         return nodes.find((node) => node.id === editId) || null;
-//     },
-//     (get, set, update: TaskNodeShow) => {
-//         const nodes = get(showNodesAtom);
-//         const editedNodes = nodes.map((node) =>
-//             node.id === update.id ? update : node,
-//         );
-//         set(showNodesAtom, editedNodes);
-//     },
-// );
-
-export {
-    // taskToEditBoardAtom,
-    // taskToEditBoardIdAtom,
-    // showNodesAtom,
-    // showEdgesAtom,
-    // taskStackAtom,
-    // modifiedAtom
-};

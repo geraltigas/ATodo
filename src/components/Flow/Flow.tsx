@@ -49,7 +49,6 @@ export default function Flow() {
             {nowSelected.type === 'edge' && <div className={styles.edgeInfo}>Selected</div>}
             <Snackbar
                 open={showAlert}
-                autoHideDuration={2000}
                 message={alertText}
             />
             <Stepper nonLinear className={styles.Stack}>
@@ -75,7 +74,7 @@ export default function Flow() {
                 onEdgeClick={onEdgeClick}
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
-                snapGrid={[2, 2]}
+                snapGrid={[10, 10]}
                 snapToGrid={true}
                 fitView
             >

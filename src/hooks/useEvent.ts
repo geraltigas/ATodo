@@ -1,9 +1,10 @@
 // let events = new Map<string, CallBack>();
 import React, {useCallback, useEffect} from "react";
-import {useAtom, useAtomValue} from "jotai";
+import {useAtom, useAtomValue, useSetAtom} from "jotai";
 import {
     alertMessageAtom,
     AppStorageAtom,
+    copiedTaskAtom,
     Edge,
     enteredFlowAtom,
     isInputtingAtom,
@@ -55,6 +56,8 @@ const useEvent = () => {
     useDocumentOnSpaceDown();
     useDocumentOnMouse3Down();
     useDocumentOnCtrlSDown();
+    useDocumentOnCtrlCDown();
+    useDocumentOnCtrlVDown();
 
 }
 
@@ -112,6 +115,11 @@ export const useOnNodeClick = () => {
         } else if (nowSelected.type === 'node' && (nowSelected.reference! as Task).id !== node.data.realTask.id) {
             newMap = new Map(selectedMap);
             newMap.delete((nowSelected.reference! as Task).id);
+            newMap.set(node.data.realTask.id, true);
+            setNowSelected({
+                type: 'node',
+                reference: node.data.realTask!
+            })
             setSelectedMap(newMap);
         }
 
@@ -181,9 +189,12 @@ const useDocumentOnEnterDown = () => {
     const [taskToEdit, setTaskToEdit] = useAtom(taskToEditAtom);
     const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
     const [styleMap, setStyleMap] = useAtom(styleMapAtom);
+    const setIsModified = useSetAtom(isModifiedAtom);
+    const isInputting = useAtomValue(isInputtingAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'Enter' && showDialog) {
+        if (event.key === 'Enter' && showDialog && !isInputting) {
+            console.log("add node")
             let subtasks = nowViewing.subtasks.nodes;
             let id = dayjs().toString();
             console.log("add node id", id)
@@ -206,9 +217,10 @@ const useDocumentOnEnterDown = () => {
             setNowViewing(newNowViewing);
             setTaskToEdit({...taskToEditInit});
             setShowDialog(false);
-            setStyleMap([...styleMap, [id, {position: {x: 0, y: 0}}]]);
+            setStyleMap([...styleMap, [id, {position: {x: 50, y: 50}}]]);
+            setIsModified(true);
         }
-    }, [taskToEdit, showDialog, nowViewing, styleMap]);
+    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(enterMapKey)) {
@@ -216,7 +228,7 @@ const useDocumentOnEnterDown = () => {
         }
         documentKeyBoardEventsReference.set(enterMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [taskToEdit, showDialog, nowViewing, styleMap]);
+    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting]);
 }
 
 const deleteMapKey = 'delete-keydown';
@@ -224,6 +236,7 @@ const deleteMapKey = 'delete-keydown';
 const useDocumentOnDeleteDown = () => {
 
     const [nowSelected, setNowSelected] = useAtom(nowSelectedAtom);
+    const setIsModified = useSetAtom(isModifiedAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
         if (event.key === 'Delete' && nowSelected.type === 'node') {
@@ -232,6 +245,12 @@ const useDocumentOnDeleteDown = () => {
                 type: 'delete-node',
                 reference: nowSelected.reference
             })
+
+            // let index = styleMap.findIndex((style) => style[0] === (nowSelected.reference! as Task).id);
+            // let newStyleMap = [...styleMap];
+            // newStyleMap.splice(index, 1);
+            // setStyleMap(newStyleMap);
+            setIsModified(true);
             return;
         }
 
@@ -241,6 +260,7 @@ const useDocumentOnDeleteDown = () => {
                 type: 'delete-edge',
                 reference: nowSelected.reference
             })
+            setIsModified(true);
             return;
         }
     }, [nowSelected]);
@@ -260,19 +280,24 @@ const useDocumentOnSpaceDown = () => {
 
     const [nowSelected, setNowSelected] = useAtom(nowSelectedAtom);
     const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
+    const setIsModified = useSetAtom(isModifiedAtom);
+    const isInputting = useAtomValue(isInputtingAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
-        if (event.key === ' ' && nowSelected.type === 'node') {
-            console.log("space node")
+        console.log("space")
+        console.log(event.key, nowSelected.type, isInputting)
+        if (event.key === ' ' && nowSelected.type === 'node' && !isInputting) {
+            console.log("enter node")
             setNowSelected({
                 type: null,
                 reference: null
             })
             console.log("nowSelected", nowSelected.reference)
             setNowViewing(nowSelected.reference as Task);
+            setIsModified(true);
             return;
         }
-    }, [nowSelected, nowViewing]);
+    }, [nowSelected, nowViewing, isInputting]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(spaceMapKey)) {
@@ -280,7 +305,7 @@ const useDocumentOnSpaceDown = () => {
         }
         documentKeyBoardEventsReference.set(spaceMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [nowSelected, nowViewing]);
+    }, [nowSelected, nowViewing, isInputting]);
 }
 
 const ctrlSMapKey = 'ctrl-s-keydown';
@@ -321,6 +346,73 @@ const useDocumentOnCtrlSDown = () => {
     }, [isModified, appStorage, showAlert, alertMessage]);
 }
 
+const ctrlCMapKey = 'ctrl-c-keydown';
+
+const useDocumentOnCtrlCDown = () => {
+    const [copiedTask, setCopiedTask] = useAtom(copiedTaskAtom);
+    const nowSelected = useAtomValue(nowSelectedAtom);
+
+    const callback = useCallback((event: KeyboardEvent) => {
+        if (event.ctrlKey && event.key === 'c') {
+            if (nowSelected.type === 'node') {
+                setCopiedTask(nowSelected.reference as Task);
+                console.log("copied", nowSelected.reference);
+            }
+        }
+    }, [copiedTask, nowSelected]);
+
+    useEffect(() => {
+        if (documentKeyBoardEventsReference.has(ctrlCMapKey)) {
+            document.removeEventListener('keydown', documentKeyBoardEventsReference.get(ctrlCMapKey)!.func);
+        }
+        documentKeyBoardEventsReference.set(ctrlCMapKey, {type: 'keydown', func: callback});
+        document.addEventListener('keydown', callback);
+    }, [copiedTask, nowSelected]);
+}
+
+const ctrlVMapKey = 'ctrl-v-keydown';
+
+const useDocumentOnCtrlVDown = () => {
+    const [copiedTask, setCopiedTask] = useAtom(copiedTaskAtom);
+    const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
+    const [styleMap, setStyleMap] = useAtom(styleMapAtom);
+    const setIsModified = useSetAtom(isModifiedAtom);
+
+    const callback = useCallback((event: KeyboardEvent) => {
+        if (event.ctrlKey && event.key === 'v' && copiedTask) {
+            let subtasks = nowViewing.subtasks.nodes;
+            let id = dayjs().toString();
+            subtasks.push({
+                ...copiedTask,
+                id: id
+            });
+            let newNowViewing = {
+                ...nowViewing,
+                subtasks: {
+                    ...nowViewing.subtasks,
+                    // nodes: subtasks
+                }
+            }
+            newNowViewing.subtasks.nodes = subtasks;
+            subtasks.forEach((task) => {
+                task.parent = newNowViewing;
+            })
+            setNowViewing(newNowViewing);
+            setCopiedTask({...taskToEditInit});
+            setStyleMap([...styleMap, [id, {position: {x: 50, y: 50}}]]);
+            setIsModified(true);
+        }
+    }, [copiedTask, nowViewing, styleMap]);
+
+    useEffect(() => {
+        if (documentKeyBoardEventsReference.has(ctrlVMapKey)) {
+            document.removeEventListener('keydown', documentKeyBoardEventsReference.get(ctrlVMapKey)!.func);
+        }
+        documentKeyBoardEventsReference.set(ctrlVMapKey, {type: 'keydown', func: callback});
+        document.addEventListener('keydown', callback);
+    }, [copiedTask, nowViewing, styleMap]);
+}
+
 
 // ------------------ mouse event ------------------
 
@@ -329,12 +421,14 @@ const mouse3MapKey = 'mouse3-mousedown';
 const useDocumentOnMouse3Down = () => {
 
     const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
+    const setIsModified = useSetAtom(isModifiedAtom);
 
     const callback = useCallback((event: MouseEvent) => {
         if (event.button === 3) {
             console.log("mouse3")
             if (nowViewing.parent !== null) {
                 setNowViewing(nowViewing.parent);
+                setIsModified(true);
             }
         }
     }, [nowViewing]);

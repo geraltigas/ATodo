@@ -1,27 +1,38 @@
 :root {
-  --board-width: 450px;
-  --board-background-color: #ffffff;
-  --board-padding-x: 10px;
-  --board-padding-y: 20px;
-  --board-child-margin-top: 15px;
+    --board-width: 300px;
+    --board-background-color: #ffffff;
+    --board-padding-x: 10px;
+    --board-padding-y: 20px;
+    --board-child-margin-top: 15px;
 }
 
 .Board {
-  width: var(--board-width);
-  padding: var(--board-padding-y) var(--board-padding-x);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  height: 100%;
-  position: relative;
-  left: 0;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--board-background-color);
-  overflow-y: hidden;
-  overflow-x: hidden;
+    width: var(--board-width);
+    min-width: var(--board-width);
+    padding: var(--board-padding-y) var(--board-padding-x);
+    padding-bottom: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    height: 100vh;
+    position: relative;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--board-background-color);
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.Board::-webkit-scrollbar {
+    display: none;
+}
+
+.DateCalendar {
+    min-height: 310px;
+    margin-top: 0 !important;
 }
 
 /*child*/
 .Board > *:not(:first-child):not(:last-child) {
-  margin-top: var(--board-child-margin-top);
+    margin-top: var(--board-child-margin-top);
 }

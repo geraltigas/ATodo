@@ -8,6 +8,7 @@ export const useDataInit = () => {
     useEffect(() => {
         storage.getAppStorage("taskStorage").then((res) => {
             setAppStorage(res);
+            console.log(res)
         }).catch((err) => {
             setAppStorage(err)
         })

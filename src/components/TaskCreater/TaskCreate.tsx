@@ -1,9 +1,10 @@
 import {TextField, Typography} from '@mui/material';
-import {DateCalendar, TimeClock} from '@mui/x-date-pickers';
+import {DateCalendar} from '@mui/x-date-pickers';
 import styles from './TaskCreater.module.css';
 import dayjs from 'dayjs';
 import {useAtom, useSetAtom} from "jotai";
 import {isInputtingAtom, taskToEditAtom} from "../../state/tasksAtoms.ts";
+import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
 export default function TaskCreate() {
 
@@ -71,33 +72,7 @@ export default function TaskCreate() {
                     className={styles.unselectable}
                     value={dayjs(taskToEdit.date)}
                 />
-                <div className={styles.TimeClock}>
-                    <Typography
-                        variant="h4"
-                        gutterBottom
-                        style={{
-                            textAlign: 'center',
-                            marginTop: '15px',
-                        }}
-                        className={styles.unselectable}
-                    >
-                        {dayjs(taskToEdit.time).format('HH:mm')}
-                    </Typography>
-                    <TimeClock
-                        onChange={
-                            (e) => {
-                                let task = {
-                                    ...taskToEdit,
-                                    time: e!.toString(),
-                                }
-                                setTaskToEdit(task);
-                            }
-                        }
-                        className={styles.unselectable}
-                        value={dayjs(taskToEdit.time)}
-                        views={['hours', 'minutes']}
-                    />
-                </div>
+                <TimeClockWarp taskToEdit={taskToEdit} setTaskToEdit={setTaskToEdit}/>
             </div>
         </div>
     );
