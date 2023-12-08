@@ -30,11 +30,22 @@
     },
     "windows": [
       {
+        "label": "ATodo",
         "fullscreen": false,
         "resizable": true,
         "title": "ATodo",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "url": "atodo/index.html"
+      },
+      {
+        "label": "Worker",
+        "fullscreen": false,
+        "resizable": true,
+        "title": "Worker",
+        "width": 800,
+        "height": 600,
+        "url": "worker/index.html"
       }
     ]
   }
