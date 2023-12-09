@@ -15,6 +15,17 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "window": {
+        "all": false,
+        "close": true,
+        "hide": true,
+        "show": true,
+        "maximize": true,
+        "minimize": true,
+        "unmaximize": true,
+        "unminimize": true,
+        "startDragging": true
       }
     },
     "bundle": {
@@ -30,13 +41,15 @@
     },
     "windows": [
       {
-        "label": "ATodo",
+        "label": "worker",
         "fullscreen": false,
         "resizable": true,
-        "title": "ATodo",
+        "transparent": true,
+        "decorations": false,
+        "title": "Worker",
         "width": 800,
         "height": 600,
-        "url": "atodo/index.html"
+        "url": "worker/index.html"
       }
     ]
   }

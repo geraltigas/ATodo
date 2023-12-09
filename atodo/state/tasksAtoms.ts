@@ -82,6 +82,7 @@ interface AppRuntime {
     selectedMap: Map<string, boolean>;
     taskToEdit: Task;
     copiedTask: Task | null;
+    workerOpen: boolean;
 }
 
 interface nowSelected {
@@ -195,7 +196,8 @@ const AppRuntimeInit: AppRuntime = {
     enteredFlow: true,
     selectedMap: new Map<string, boolean>(),
     taskToEdit: taskToEditInit,
-    copiedTask: null
+    copiedTask: null,
+    workerOpen: false,
 }
 
 const AppStateAtom = atom<AppState>({
@@ -212,6 +214,18 @@ export const AppStorageAtom = atom(
         })
     }
 );
+
+export const workerOpenAtom = atom(
+    (get) => get(AppStateAtom).AppRuntime.workerOpen,
+    (get, set, update: boolean) => {
+        set(AppStateAtom, {
+            ...get(AppStateAtom),
+            AppRuntime: {
+                ...get(AppStateAtom).AppRuntime,
+                workerOpen: update
+            }
+        })
+    });
 
 export const taskToEditAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.taskToEdit,

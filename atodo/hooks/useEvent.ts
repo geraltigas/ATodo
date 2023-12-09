@@ -19,7 +19,8 @@ import {
     TaskEdgeShow,
     TaskNodeShow,
     taskToEditAtom,
-    taskToEditInit
+    taskToEditInit,
+    workerOpenAtom
 } from "../state/tasksAtoms.ts";
 import {Connection} from "reactflow";
 import dayjs from "dayjs";
@@ -190,8 +191,12 @@ const useDocumentOnEnterDown = () => {
     const [taskToEdit, setTaskToEdit] = useAtom(taskToEditAtom);
     const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
     const [styleMap, setStyleMap] = useAtom(styleMapAtom);
+    const setAlertMessage = useSetAtom(alertMessageAtom)
+    const setShowAlert = useSetAtom(showAlertAtom);
+    const setWorkerOpen = useSetAtom(workerOpenAtom);
     const setIsModified = useSetAtom(isModifiedAtom);
     const isInputting = useAtomValue(isInputtingAtom);
+    const isModified = useAtomValue(isModifiedAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
         if (event.key === 'Enter' && showDialog && !isInputting) {
@@ -223,13 +228,28 @@ const useDocumentOnEnterDown = () => {
             return
         }
         if (event.key === 'Enter' && !showDialog && !isInputting) {
-            console.log("normal enter")
-            invoke<string>("open_worker").then((res) => {
-                console.log(res);
+            if (isModified) {
+                setShowAlert(true);
+                setAlertMessage("You have unsaved changes!");
+                setTimeout(() => {
+                    setShowAlert(false);
+                }, 2000);
+                return;
+            }
+            invoke<string>("open_worker").then((_res) => {
+                setWorkerOpen(true);
+                invoke<string>("close_atodo").then((_res) => {
+                });
+            }).catch((err) => {
+                setShowAlert(true);
+                setAlertMessage("Failed to open worker!:" + err);
+                setTimeout(() => {
+                    setShowAlert(false);
+                }, 2000);
             });
             return;
         }
-    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting]);
+    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting, isModified]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(enterMapKey)) {
@@ -237,7 +257,7 @@ const useDocumentOnEnterDown = () => {
         }
         documentKeyBoardEventsReference.set(enterMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting]);
+    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting, isModified]);
 }
 
 const deleteMapKey = 'delete-keydown';

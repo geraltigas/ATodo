@@ -1,7 +1,10 @@
+import styles from "./Worker.module.css"
+
 const Worker = () => {
     return (
-        <div>
-            <h1>Worker</h1>
+        <div className={styles.WorkerBackground}>
+            <div data-tauri-drag-region className="test">
+            </div>
         </div>
     )
 }

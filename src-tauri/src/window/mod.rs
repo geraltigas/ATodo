@@ -1,49 +1,59 @@
-use std::sync::Mutex;
-
-use lazy_static::lazy_static;
 use tauri::{AppHandle, WindowBuilder, WindowUrl};
-
-lazy_static! {
-    static ref WINDOW: Mutex<Option<tauri::Window>> = Mutex::new(None);
-}
+use tauri::Manager;
 
 #[tauri::command]
-pub fn open_worker(app: AppHandle) -> Result<String, String> {
-    // print
-    println!("open_worker");
-
-    let mut window = WINDOW.lock().map_err(|e| e.to_string())?;
-
-    if window.is_none() {
-        println!("open_worker create new window");
-        let new_window = WindowBuilder::new(&app, "worker", WindowUrl::App("worker/index.html".into()))
-            // .fullscreen(false)
-            // .resizable(true)
-            // .title("Worker")
-            // .inner_size(800f64, 600f64)
-            .build().unwrap();
-        /*  .map_err(|e| {
-              println!("open_worker create new window error");
-              e.to_string()
-          })?;*/
-
-        println!("open_worker set window");
-        *window = Some(new_window);
-        println!("open_worker set window end");
+pub async fn open_worker(app: AppHandle) -> Result<String, String> {
+    // check worker created
+    let worker_window = app.get_window("worker");
+    if worker_window.is_some() {
+        return Ok("Worker window already opened".to_string());
     }
 
-    println!("open_worker end");
+    WindowBuilder::new(&app, "worker", WindowUrl::App("worker/index.html".into()))
+        .fullscreen(false)
+        .resizable(true)
+        .title("Worker")
+        .inner_size(800f64, 600f64)
+        .build()
+        .map_err(|e| {
+            e.to_string()
+        })?;
 
     Ok("Worker window opened".to_string())
 }
 
 #[tauri::command]
-pub fn close_worker() -> Result<String, String> {
-    let mut window = WINDOW.lock().map_err(|e| e.to_string())?;
+pub async fn close_worker(app: AppHandle) -> Result<String, String> {
+    let worker_window = app.get_window("worker").unwrap();
+    worker_window.close().map_err(|e| e.to_string())?;
+    Ok("Worker window closed".to_string())
+}
 
-    if let Some(w) = window.take() {
-        w.close().map_err(|e| e.to_string())?;
+#[tauri::command]
+pub async fn close_atodo(app: AppHandle) -> Result<String, String> {
+    let worker_window = app.get_window("atodo").unwrap();
+    worker_window.close().map_err(|e| e.to_string())?;
+    Ok("ATodo window closed".to_string())
+}
+
+#[tauri::command]
+pub async fn open_atodo(app: AppHandle) -> Result<String, String> {
+    // check worker created
+    let worker_window = app.get_window("atodo");
+    if worker_window.is_some() {
+        return Ok("ATodo window already opened".to_string());
     }
 
-    Ok("Worker window closed".to_string())
+    WindowBuilder::new(&app, "atodo", WindowUrl::App("atodo/index.html".into()))
+        .fullscreen(false)
+        .resizable(true)
+        .title("ATodo")
+        .inner_size(800f64, 600f64)
+        .build()
+        .map_err(|e| {
+            e.to_string()
+        })?;
+
+
+    Ok("ATodo window opened".to_string())
 }
