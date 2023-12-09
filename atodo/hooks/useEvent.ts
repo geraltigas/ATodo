@@ -24,6 +24,7 @@ import {
 import {Connection} from "reactflow";
 import dayjs from "dayjs";
 import {storage} from "../interface/storage.ts";
+import {invoke} from "@tauri-apps/api";
 
 type KeyBoardCallBack = (event: KeyboardEvent) => void;
 const documentKeyBoardEventsReference: Map<string, { type: string, func: KeyBoardCallBack }> = new Map();
@@ -219,6 +220,14 @@ const useDocumentOnEnterDown = () => {
             setShowDialog(false);
             setStyleMap([...styleMap, [id, {position: {x: 50, y: 50}}]]);
             setIsModified(true);
+            return
+        }
+        if (event.key === 'Enter' && !showDialog && !isInputting) {
+            console.log("normal enter")
+            invoke<string>("open_worker").then((res) => {
+                console.log(res);
+            });
+            return;
         }
     }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting]);
 
