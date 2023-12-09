@@ -337,7 +337,7 @@ export const nowViewingAtom = atom(
 
         }
 
-        if (update.id == 'overall') {
+        if (update.parent === null) {
             set(AppStateAtom, {
                 ...get(AppStateAtom),
                 AppStorage: {

@@ -284,8 +284,6 @@ const useDocumentOnSpaceDown = () => {
     const isInputting = useAtomValue(isInputtingAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
-        console.log("space")
-        console.log(event.key, nowSelected.type, isInputting)
         if (event.key === ' ' && nowSelected.type === 'node' && !isInputting) {
             console.log("enter node")
             setNowSelected({

@@ -37,15 +37,6 @@
         "width": 800,
         "height": 600,
         "url": "atodo/index.html"
-      },
-      {
-        "label": "Worker",
-        "fullscreen": false,
-        "resizable": true,
-        "title": "Worker",
-        "width": 800,
-        "height": 600,
-        "url": "worker/index.html"
       }
     ]
   }
