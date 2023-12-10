@@ -26,25 +26,26 @@ export default function TimeClockWarp({
                 className={styles.unselectable}
             >
                 <div onClick={() => setView('hours')} className={styles.unselectable}>
-                    {dayjs(taskToEdit.time).format('HH')}
+                    {dayjs(taskToEdit.deadline).format('HH')}
                 </div>
                 :
                 <div onClick={() => setView('minutes')} className={styles.unselectable}>
-                    {dayjs(taskToEdit.time).format('mm')}
+                    {dayjs(taskToEdit.deadline).format('mm')}
                 </div>
             </div>
             <TimeClock
                 onChange={
                     (e) => {
+                        let date = dayjs(taskToEdit.deadline);
                         let task = {
                             ...taskToEdit,
-                            time: e!.toString(),
+                            deadline: date.set('hour', e!.hour()).set('minute', e!.minute()).set('second', 0).toString(),
                         }
                         setTaskToEdit(task);
                     }
                 }
                 className={styles.unselectable}
-                value={dayjs(taskToEdit.time)}
+                value={dayjs(taskToEdit.deadline)}
                 views={['hours', 'minutes']}
                 view={view}
                 ampm={false}

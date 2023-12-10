@@ -1,6 +1,6 @@
 import styles from './Flow.module.css';
 import {applyNodeChanges, Background, BackgroundVariant, Controls, ReactFlow,} from 'reactflow';
-import {Dialog, Snackbar, Step, StepLabel, Stepper,} from '@mui/material';
+import {Snackbar, Step, StepLabel, Stepper,} from '@mui/material';
 import {useAtom, useAtomValue} from 'jotai';
 import {
     alertMessageAtom,
@@ -8,12 +8,10 @@ import {
     nodeTypes,
     nowSelectedAtom,
     showAlertAtom,
-    showDialogAtom,
     showEdgesAtom,
     showNodesAtom,
     taskStackAtom,
 } from '../../state/tasksAtoms';
-import TaskCreate from "../TaskCreater/TaskCreate.tsx";
 import {useOnConnect, useOnEdgeClick, useOnMouseEnter, useOnMouseLeave, useOnNodeClick} from "../../hooks/useEvent.ts";
 import {useDataInit} from "./FlowHooks.ts";
 
@@ -24,7 +22,6 @@ export default function Flow() {
     const showEdges = useAtomValue(showEdgesAtom);
     const taskStack = useAtomValue(taskStackAtom);
     const nowSelected = useAtomValue(nowSelectedAtom);
-    const showDialog = useAtomValue(showDialogAtom);
     const showAlert = useAtomValue(showAlertAtom);
     const alertText = useAtomValue(alertMessageAtom);
 
@@ -81,11 +78,6 @@ export default function Flow() {
                 <Background gap={10} color="black" variant={BackgroundVariant.Dots}/>
                 <Controls/>
             </ReactFlow>
-            <Dialog open={showDialog}>
-                <div className={styles.Dialog}>
-                    <TaskCreate/>
-                </div>
-            </Dialog>
         </div>
     );
 }

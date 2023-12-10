@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./styles.css";
+import {Scheduler} from "./lib/Scheduler.ts";
 // import {parse} from "flatted";
 
 
@@ -12,6 +13,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <App/>
     </React.StrictMode>,
 );
+
+Scheduler.loadAppStorage();
+
+
 //
 // invoke<string>("save", {key: "taskStorage", value: strs}).then((res) => {
 //     console.log(res);

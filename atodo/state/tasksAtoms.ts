@@ -100,8 +100,9 @@ export interface Task {
     id: TaskId;
     name: string;
     goal: string;
-    date: string;
-    time: string;
+    deadline: string;
+    // date: string;
+    // time: string;
     status: TaskStatus;
     dependencies: TaskDependency;
     subtasks: Graph<Task>;
@@ -127,7 +128,7 @@ export enum TaskDependencyType {
 
 export type Edge = [string, string];
 
-interface Graph<T> {
+export interface Graph<T> {
     nodes: T[];
     edges: Edge[];
 }
@@ -143,8 +144,9 @@ const overallInit: Task = {
     id: dayjs('2003-01-12T00:00:00.000Z').toString(),
     name: 'Overall',
     goal: 'Good Game',
-    date: dayjs('2103-01-12T00:00:00.000Z').toString(),
-    time: dayjs('2103-01-12T00:00:00.000Z').toString(),
+    deadline: dayjs('2003-01-12T00:00:00.000Z').toString(),
+    // date: dayjs('2103-01-12T00:00:00.000Z').toString(),
+    // time: dayjs('2103-01-12T00:00:00.000Z').toString(),
     status: TaskStatus.Created,
     dependencies: {
         dependencyType: TaskDependencyType.And,
@@ -170,8 +172,9 @@ export const taskToEditInit: Task = {
     id: '',
     name: '',
     goal: '',
-    date: dayjs().toString(),
-    time: dayjs().toString(),
+    deadline: dayjs().toString(),
+    // date: dayjs().toString(),
+    // time: dayjs().toString(),
     status: TaskStatus.Created,
     dependencies: {
         dependencyType: TaskDependencyType.And,
@@ -263,18 +266,6 @@ export const selectedMapAtom = atom(
         })
     });
 
-export const showDialogAtom = atom(
-    (get) => get(AppStateAtom).AppRuntime.showDialog,
-    (get, set, update: boolean) => {
-        set(AppStateAtom, {
-            ...get(AppStateAtom),
-            AppRuntime: {
-                ...get(AppStateAtom).AppRuntime,
-                showDialog: update
-            }
-        })
-    });
-
 export const isInputtingAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.isInputting,
     (get, set, update: boolean) => {
@@ -341,11 +332,10 @@ export const nowViewingAtom = atom(
         let parent = update.parent
         if (update.id === get(nowViewingAtom).id) { // TODO: reference update, should update the children and parent's reference
             if (parent !== null) {
-                parent.subtasks.nodes.filter((value) => {
-                    return value.id !== update.id
-                })
-                parent.subtasks.nodes.push(update);
-                update.parent = parent;
+                let index = parent.subtasks.nodes.findIndex((value) => {
+                    return value.id === update.id;
+                });
+                parent.subtasks.nodes[index] = update;
             }
         } else {
 

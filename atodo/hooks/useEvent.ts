@@ -13,12 +13,12 @@ import {
     nowViewingAtom,
     selectedMapAtom,
     showAlertAtom,
-    showDialogAtom,
     styleMapAtom,
     Task,
+    TaskDependencyType,
     TaskEdgeShow,
     TaskNodeShow,
-    taskToEditAtom,
+    TaskStatus,
     taskToEditInit,
     workerOpenAtom
 } from "../state/tasksAtoms.ts";
@@ -160,20 +160,42 @@ export const useOnEdgeClick = () => {
 const aMapKey = 'a-keydown';
 
 const useDocumentOnADown = () => {
-
-    const [showDialog, setShowDialog] = useAtom(showDialogAtom);
+    const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
+    const [styleMap, setStyleMap] = useAtom(styleMapAtom);
+    const setIsModified = useSetAtom(isModifiedAtom);
     const isInputting = useAtomValue(isInputtingAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'a' || event.key === 'A') {
-            if (isInputting) return;
-            if (showDialog) {
-                setShowDialog(false);
-                return;
+        if (event.key === 'a' && !isInputting) {
+            console.log("add node")
+            let subtasks = nowViewing.subtasks.nodes;
+            let id = dayjs().toString();
+            console.log("add node id", id)
+            subtasks.push({
+                name: "",
+                goal: "",
+                deadline: dayjs().toString(),
+                status: TaskStatus.Created,
+                dependencies: {
+                    dependencyType: TaskDependencyType.And
+                },
+                subtasks: {
+                    nodes: [],
+                    edges: []
+                },
+                parent: nowViewing,
+                id: id
+            });
+            let newNowViewing = {
+                ...nowViewing
             }
-            setShowDialog(true);
+
+            setNowViewing(newNowViewing);
+            setStyleMap([...styleMap, [id, {position: {x: 50, y: 50}}]]);
+            setIsModified(true);
+            return
         }
-    }, [showDialog, isInputting]);
+    }, [isInputting, styleMap, nowViewing]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(aMapKey)) {
@@ -181,53 +203,20 @@ const useDocumentOnADown = () => {
         }
         documentKeyBoardEventsReference.set(aMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [showDialog, isInputting]);
+    }, [isInputting, styleMap, nowViewing]);
 }
 
 const enterMapKey = 'enter-keydown';
 
 const useDocumentOnEnterDown = () => {
-    const [showDialog, setShowDialog] = useAtom(showDialogAtom);
-    const [taskToEdit, setTaskToEdit] = useAtom(taskToEditAtom);
-    const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
-    const [styleMap, setStyleMap] = useAtom(styleMapAtom);
     const setAlertMessage = useSetAtom(alertMessageAtom)
     const setShowAlert = useSetAtom(showAlertAtom);
     const setWorkerOpen = useSetAtom(workerOpenAtom);
-    const setIsModified = useSetAtom(isModifiedAtom);
     const isInputting = useAtomValue(isInputtingAtom);
     const isModified = useAtomValue(isModifiedAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
-        if (event.key === 'Enter' && showDialog && !isInputting) {
-            console.log("add node")
-            let subtasks = nowViewing.subtasks.nodes;
-            let id = dayjs().toString();
-            console.log("add node id", id)
-            subtasks.push({
-                ...taskToEdit,
-                id: id
-            });
-            let newNowViewing = {
-                ...nowViewing,
-                subtasks: {
-                    ...nowViewing.subtasks,
-                    // nodes: subtasks
-                }
-            }
-            newNowViewing.subtasks.nodes = subtasks;
-            subtasks.forEach((task) => {
-                task.parent = newNowViewing;
-            })
-
-            setNowViewing(newNowViewing);
-            setTaskToEdit({...taskToEditInit});
-            setShowDialog(false);
-            setStyleMap([...styleMap, [id, {position: {x: 50, y: 50}}]]);
-            setIsModified(true);
-            return
-        }
-        if (event.key === 'Enter' && !showDialog && !isInputting) {
+        if (event.key === 'Enter' && !isInputting) {
             if (isModified) {
                 setShowAlert(true);
                 setAlertMessage("You have unsaved changes!");
@@ -249,7 +238,7 @@ const useDocumentOnEnterDown = () => {
             });
             return;
         }
-    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting, isModified]);
+    }, [isInputting, isModified]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(enterMapKey)) {
@@ -257,7 +246,7 @@ const useDocumentOnEnterDown = () => {
         }
         documentKeyBoardEventsReference.set(enterMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [taskToEdit, showDialog, nowViewing, styleMap, isInputting, isModified]);
+    }, [isInputting, isModified]);
 }
 
 const deleteMapKey = 'delete-keydown';

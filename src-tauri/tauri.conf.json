@@ -41,12 +41,21 @@
     },
     "windows": [
       {
+        "label": "atodo",
+        "fullscreen": false,
+        "resizable": true,
+        "title": "atodo",
+        "width": 800,
+        "height": 600,
+        "url": "atodo/index.html"
+      },
+      {
         "label": "worker",
         "fullscreen": false,
         "resizable": true,
         "transparent": true,
         "decorations": false,
-        "title": "Worker",
+        "title": "atodo",
         "width": 800,
         "height": 600,
         "url": "worker/index.html"

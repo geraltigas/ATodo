@@ -33,9 +33,10 @@ export default function Board({
     };
 
     const onDateChange = (date: Dayjs | null) => {
+        let time = dayjs(showTask.deadline);
         setShowTask({
             ...showTask,
-            date: date!.toString(),
+            deadline: date!.set('hour', time.hour()).set('minute', time.minute()).set('second', 0).toString(),
         })
     };
 
@@ -63,7 +64,7 @@ export default function Board({
             />
             <DateCalendar
                 onChange={onDateChange}
-                value={dayjs((showTask).date)}
+                value={dayjs((showTask).deadline)}
                 className={styles.DateCalendar}
             />
             {/*<div>*/}
