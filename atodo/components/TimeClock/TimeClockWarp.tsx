@@ -1,4 +1,4 @@
-import dayjs from "dayjs";
+import dayjs, {Dayjs} from "dayjs";
 import {Task} from "../../state/tasksAtoms.ts";
 import {useState} from "react";
 import {TimeClock} from "@mui/x-date-pickers";
@@ -7,9 +7,11 @@ import styles from "./TimeClockWarp.module.css";
 export default function TimeClockWarp({
                                           taskToEdit,
                                           setTaskToEdit,
+                                          maxTime
                                       }: {
     taskToEdit: Task,
-    setTaskToEdit: (task: Task) => void
+    setTaskToEdit: (task: Task) => void,
+    maxTime: Dayjs | undefined
 }) {
     const [view, setView] = useState<'hours' | 'minutes'>('hours');
 
@@ -49,6 +51,7 @@ export default function TimeClockWarp({
                 views={['hours', 'minutes']}
                 view={view}
                 ampm={false}
+                maxTime={maxTime}
             />
         </div>
     )

@@ -96,13 +96,32 @@ export interface TaskStorage {
     styleMap: [TaskId, NodeStyle][];
 }
 
+export interface TimeRecord {
+    minutes: number;
+    seconds: number;
+    hours: number;
+}
+
+export const addTimeRecord = (base: TimeRecord, delta: TimeRecord): void => {
+    base.minutes += delta.minutes;
+    base.seconds += delta.seconds;
+    base.hours += delta.hours;
+    if (base.seconds >= 60) {
+        base.minutes += Math.floor(base.seconds / 60);
+        base.seconds = base.seconds % 60;
+    }
+    if (base.minutes >= 60) {
+        base.hours += Math.floor(base.minutes / 60);
+        base.minutes = base.minutes % 60;
+    }
+}
+
 export interface Task {
     id: TaskId;
     name: string;
     goal: string;
     deadline: string;
-    // date: string;
-    // time: string;
+    timeConsumed: TimeRecord;
     status: TaskStatus;
     dependencies: TaskDependency;
     subtasks: Graph<Task>;
@@ -114,6 +133,7 @@ export type TaskId = string;
 export enum TaskStatus {
     Created = 'created',
     InProgress = 'in-progress',
+    Paused = 'paused',
     Suspended = 'suspended',
     Done = 'done',
 }
@@ -145,8 +165,11 @@ export const overallInit: Task = {
     name: 'Overall',
     goal: 'Good Game',
     deadline: dayjs('2103-01-12T00:00:00.000Z').toString(),
-    // date: dayjs('2103-01-12T00:00:00.000Z').toString(),
-    // time: dayjs('2103-01-12T00:00:00.000Z').toString(),
+    timeConsumed: {
+        minutes: 0,
+        seconds: 0,
+        hours: 0,
+    },
     status: TaskStatus.Created,
     dependencies: {
         dependencyType: TaskDependencyType.And,
@@ -173,8 +196,11 @@ export const taskToEditInit: Task = {
     name: '',
     goal: '',
     deadline: dayjs().toString(),
-    // date: dayjs().toString(),
-    // time: dayjs().toString(),
+    timeConsumed: {
+        minutes: 0,
+        seconds: 0,
+        hours: 0,
+    },
     status: TaskStatus.Created,
     dependencies: {
         dependencyType: TaskDependencyType.And,

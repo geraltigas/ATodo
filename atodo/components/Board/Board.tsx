@@ -3,8 +3,8 @@ import React from 'react';
 import {TextField} from '@mui/material';
 import {DateCalendar} from '@mui/x-date-pickers';
 import dayjs, {Dayjs} from 'dayjs';
-import {useSetAtom} from "jotai";
-import {isInputtingAtom, Task} from "../../state/tasksAtoms.ts";
+import {useAtomValue, useSetAtom} from "jotai";
+import {isInputtingAtom, nowViewingAtom, Task} from "../../state/tasksAtoms.ts";
 import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
 export default function Board({
@@ -17,6 +17,13 @@ export default function Board({
 
     // const [showTask, setShowTask] = useAtom(nowSelectedAtom);
     const setIsInputting = useSetAtom(isInputtingAtom);
+    const nowViewing = useAtomValue(nowViewingAtom);
+
+    const nowViewingBoardDeadline: Dayjs | undefined = nowViewing.parent ? dayjs(nowViewing.parent.deadline) : undefined;
+
+    const isLastDay: boolean = dayjs(showTask.deadline).isSame(dayjs(nowViewing.deadline), 'day');
+
+    const isNowViewingBoard: boolean = nowViewing.id === showTask.id;
 
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowTask({
@@ -66,6 +73,7 @@ export default function Board({
                 onChange={onDateChange}
                 value={dayjs((showTask).deadline)}
                 className={styles.DateCalendar}
+                maxDate={isNowViewingBoard ? nowViewingBoardDeadline : dayjs(nowViewing.deadline)}
             />
             {/*<div>*/}
             {/*    <Typography*/}
@@ -85,7 +93,8 @@ export default function Board({
             {/*        views={['hours', 'minutes']}*/}
             {/*    />*/}
             {/*</div>*/}
-            <TimeClockWarp taskToEdit={showTask} setTaskToEdit={setShowTask}/>
+            <TimeClockWarp taskToEdit={showTask} setTaskToEdit={setShowTask}
+                           maxTime={isLastDay ? dayjs(nowViewing.deadline) : undefined}/>
         </div>
     );
 }

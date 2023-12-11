@@ -96,7 +96,9 @@ export class Scheduler {
         let idTaskMap = new Map<string, Task>();
         let isConnectMap = new Map<string, boolean>();
         if (task.subtasks.nodes.length === 0) {
-            scheduledTasks.add(task);
+            if (task.status !== TaskStatus.Done) {
+                scheduledTasks.add(task);
+            }
             return scheduledTasks;
         }
         task.subtasks.edges.forEach((edge) => {

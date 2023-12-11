@@ -179,6 +179,11 @@ const useDocumentOnADown = () => {
                 dependencies: {
                     dependencyType: TaskDependencyType.And
                 },
+                timeConsumed: {
+                    hours: 0,
+                    minutes: 0,
+                    seconds: 0
+                },
                 subtasks: {
                     nodes: [],
                     edges: []

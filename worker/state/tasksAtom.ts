@@ -12,7 +12,6 @@ interface AppRuntime {
 
 interface AppStorage {
     overall: Task,
-    timer: [string, string][]
 }
 
 interface AppState {
@@ -23,7 +22,6 @@ interface AppState {
 const appStateInit: AppState = {
     appStorage: {
         overall: overallInit,
-        timer: []
     },
     appRuntime: {
         scheduledTasks: [],
@@ -49,21 +47,13 @@ export const windowSizeAtom = atom(
                 windowsSize: update
             }
         })
+
     });
 
-export const schehduledTasksAtom = atom<Task[]>(get => {
+export const scheduledTasksAtom = atom<Task[]>(get => {
     Scheduler.setAppStorage(get(appStateAtom).appStorage.overall);
     Scheduler.schedule();
     return Scheduler.getSchedule();
 });
-
-export const nowShowingTaskAtom = atom<Task>(
-    get => get(schehduledTasksAtom)[0],
-    (get, set, update: Task) => {
-        set(appStateAtom, {
-            ...get(appStateAtom)
-        })
-    });
-
 
 
