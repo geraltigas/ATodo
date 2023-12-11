@@ -69,8 +69,11 @@ export class Scheduler {
         return;
     }
 
+    public static setAppStorage(appStorage: Task) {
+        this.appStorage = appStorage;
+    }
+
     public static schedule() {
-        console.log(this.appStorage!)
         this.scheduledTasks = Array.from(this.scheduleTask(this.appStorage!));
         // reorder this.scheduledTasks
         this.scheduledTasks.sort((a, b) => {

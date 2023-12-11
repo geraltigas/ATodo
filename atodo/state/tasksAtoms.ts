@@ -140,11 +140,11 @@ export interface NodeStyle {
     };
 }
 
-const overallInit: Task = {
+export const overallInit: Task = {
     id: dayjs('2003-01-12T00:00:00.000Z').toString(),
     name: 'Overall',
     goal: 'Good Game',
-    deadline: dayjs('2003-01-12T00:00:00.000Z').toString(),
+    deadline: dayjs('2103-01-12T00:00:00.000Z').toString(),
     // date: dayjs('2103-01-12T00:00:00.000Z').toString(),
     // time: dayjs('2103-01-12T00:00:00.000Z').toString(),
     status: TaskStatus.Created,
@@ -531,7 +531,7 @@ export const showNodesAtom = atom(
         showNodes.push({
             id: "end",
             position: {
-                x: maxX + 50,
+                x: maxX + 80,
                 y: avgY + 7,
             },
             type: 'end',

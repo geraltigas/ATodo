@@ -1,5 +1,6 @@
-use tauri::{AppHandle, WindowBuilder, WindowUrl};
 use tauri::Manager;
+use tauri::{AppHandle, LogicalSize};
+use tauri::{WindowBuilder, WindowUrl};
 
 #[tauri::command]
 pub async fn open_worker(app: AppHandle) -> Result<String, String> {
@@ -15,9 +16,7 @@ pub async fn open_worker(app: AppHandle) -> Result<String, String> {
         .title("Worker")
         .inner_size(800f64, 600f64)
         .build()
-        .map_err(|e| {
-            e.to_string()
-        })?;
+        .map_err(|e| e.to_string())?;
 
     Ok("Worker window opened".to_string())
 }
@@ -50,10 +49,24 @@ pub async fn open_atodo(app: AppHandle) -> Result<String, String> {
         .title("ATodo")
         .inner_size(800f64, 600f64)
         .build()
-        .map_err(|e| {
-            e.to_string()
-        })?;
-
+        .map_err(|e| e.to_string())?;
 
     Ok("ATodo window opened".to_string())
+}
+
+#[tauri::command]
+pub async fn set_window_size(
+    app: AppHandle,
+    label: &str,
+    width: f64,
+    height: f64,
+) -> Result<String, String> {
+    let worker_window = app.get_window(label).ok_or("Window not found")?;
+
+    // 设置新的窗口大小
+    worker_window
+        .set_size(LogicalSize::new(width, height))
+        .map_err(|e| e.to_string())?;
+
+    Ok("Window size and position set".to_string())
 }
