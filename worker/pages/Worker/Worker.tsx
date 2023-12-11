@@ -67,7 +67,7 @@ const Worker = () => {
 
     useEffect(() => {
         if (containerRef.current) {
-            // get container size, pading , border, margin
+            // get container size, padding , border, margin
             let width = containerRef.current.clientWidth;
             let height = containerRef.current.clientHeight;
             // set window size
@@ -83,7 +83,7 @@ const Worker = () => {
     useEffect(() => {
         setTimeout(() => {
             if (containerRef.current) {
-                // get container size, pading , border, margin
+                // get container size, padding , border, margin
                 let width = containerRef.current.clientWidth;
                 let height = containerRef.current.clientHeight;
                 // set window size
@@ -109,9 +109,6 @@ const Worker = () => {
             return !prev;
         })
     }
-
-    const expendClassName = !showExpend ? styles.expand : styles.expand + " " + styles.expandHide;
-
     return (
         <div className={styles.WorkerBackground} style={
             {
@@ -119,13 +116,13 @@ const Worker = () => {
                 height: windowSize.height
             }
         }>
-            <div data-tauri-drag-region className={styles.container} ref={containerRef}>
+            <div data-tauri-drag-region='' className={styles.container} ref={containerRef}>
                 <div className={styles.taskShow}>
-                    {scheduledTasks.length !== 0 && <div className={styles.taskName} data-tauri-drag-region>
+                    {scheduledTasks.length !== 0 && <div className={styles.taskFont} data-tauri-drag-region=''>
                         {scheduledTasks[0].name}
                     </div>}
                     {scheduledTasks.length !== 0 &&
-                        <div className={styles.taskTime} data-tauri-drag-region onClick={() => {
+                        <div className={styles.taskFont} data-tauri-drag-region='' onClick={() => {
                             setShowTimeMode((prev) => {
                                 if (prev === "noSecond") {
                                     return "withSecond";
@@ -137,8 +134,8 @@ const Worker = () => {
                         }}>
                             {time}
                         </div>}
-                    {scheduledTasks.length === 0 && <div data-tauri-drag-region>You are free?</div>}
-                    <div onClick={expendOnClick} className={expendClassName}>
+                    {scheduledTasks.length === 0 && <div data-tauri-drag-region=''>You are free?</div>}
+                    <div onClick={expendOnClick} className={styles.expand}>
                         {showExpend ? <CloseFullscreenIcon/> : <OpenInFullIcon/>}
                     </div>
                 </div>

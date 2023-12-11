@@ -43,7 +43,7 @@
 }
 
 
-.taskName {
+.taskFont {
     /* margin right 10px */
     margin-right: var(--worker-margin-right);
     height: var(--worker-task-name-height);
@@ -57,36 +57,6 @@
     flex-shrink: 0;
 }
 
-
-.taskTime {
-    /*    margin left 10px */
-    margin-right: var(--worker-margin-right);
-    height: var(--worker-task-name-height);
-    line-height: var(--worker-task-name-line-height);
-    text-align: center;
-    color: var(--worker-task-color);
-    font-family: Inter, fantasy;
-    font-size: var(--worker-task-font-size);
-    font-style: normal;
-    font-weight: var(--worker-task-font-weight);
-    flex-shrink: 0;
-    /*!* text in div vertical center  *!*/
-    /*display: flex;*/
-    /*flex-direction: column;*/
-    /*justify-content: center;*/
-    /*align-items: center;*/
-}
-
-.drag {
-    width: fit-content;
-    height: fit-content;
-    /*    center children element */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
 .expand {
     width: fit-content;
     height: fit-content;
@@ -95,8 +65,4 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-.expandHide {
-
 }

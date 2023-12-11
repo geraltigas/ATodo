@@ -1,13 +1,8 @@
-import {AppStorage, Task, TaskStatus} from "../../atodo/state/tasksAtoms.ts";
-import {invoke} from "@tauri-apps/api";
-import {parse} from "flatted";
+import {Task, TaskStatus} from "../../atodo/state/tasksAtoms.ts";
 import dayjs from "dayjs";
 
-function iteratable(tempTasks: Set<Task>): boolean {
-    if (tempTasks.size === 0) {
-        return false;
-    }
-    return true;
+function iterable(tempTasks: Set<Task>): boolean {
+    return tempTasks.size !== 0;
 }
 
 function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskThisLayer: Set<Task>, idTaskMap: Map<string, Task>, targetToSourceMap: Map<string, string[]>) {
@@ -16,7 +11,7 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
         targetNodesNotSourceNodesTemp.add(idTaskMap.get(targetNode)!);
     });
 
-    while (iteratable(targetNodesNotSourceNodesTemp)) {
+    while (iterable(targetNodesNotSourceNodesTemp)) {
         let innerTemp: Set<Task> = new Set();
         targetNodesNotSourceNodesTemp.forEach((targetNode) => {
             switch (targetNode.status) {
@@ -53,21 +48,6 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
 export class Scheduler {
     private static appStorage: Task | null = null;
     private static scheduledTasks: Task[] = [];
-
-    public static loadAppStorage() {
-        invoke<string>("load", {key: "taskStorage"}).then((result) => {
-            this.appStorage = (parse(result) as AppStorage).taskStorage.overall;
-        }).finally(() => {
-            // record the time
-            let date = new Date();
-            console.log("Scheduler: begin schedule")
-            Scheduler.schedule();
-            let date2 = new Date();
-            console.log("Scheduler: schedule done " + (date2.getTime() - date.getTime()) + "ms");
-            console.log(Scheduler.getSchedule());
-        })
-        return;
-    }
 
     public static setAppStorage(appStorage: Task) {
         this.appStorage = appStorage;

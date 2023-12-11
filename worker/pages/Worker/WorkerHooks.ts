@@ -1,4 +1,4 @@
-import {appStateAtom, windowSizeAtom} from "../../state/tasksAtom.ts";
+import {appStateAtom} from "../../state/tasksAtom.ts";
 import {useAtom} from "jotai";
 import {invoke} from "@tauri-apps/api";
 import {AppStorage} from "../../../atodo/state/tasksAtoms.ts";
@@ -28,19 +28,4 @@ export const useDataInit = () => {
 
     }, []);
 
-}
-
-export const useWindowInit = () => {
-
-    const [windowSize, setWindowSize] = useAtom(windowSizeAtom);
-
-    useEffect(() => {
-        invoke<string>("set_window_size", {
-            label: "worker",
-            width: windowSize.width + 1,
-            height: windowSize.height + 1
-        }).then((res) => {
-            console.log(res);
-        })
-    }, []);
 }

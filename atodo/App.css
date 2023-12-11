@@ -28,8 +28,3 @@ body {
     display: flex;
     flex-direction: column;
 }
-
-
-.MuiDialog-paper {
-    max-width: 100vw !important;
-}

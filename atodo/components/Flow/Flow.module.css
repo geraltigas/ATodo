@@ -21,10 +21,6 @@
 }
 
 
-.Dialog {
-
-}
-
 .edgeInfo {
     position: absolute;
     color: #dd5757;
@@ -36,6 +32,7 @@
     -ms-user-select: none;
     user-select: none;
 }
+
 
 .modifiedBase {
 

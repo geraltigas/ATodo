@@ -3,10 +3,10 @@ import {useAtom} from "jotai";
 import Board from "../Board/Board.tsx";
 
 export default function NowSelectedBoard() {
-    const [nowSelected, setNowSelcted] = useAtom(nowSelectedAtom);
+    const [nowSelected, setNowSelected] = useAtom(nowSelectedAtom);
     return (
         <>
-            <Board showTask={nowSelected.reference as Task} setShowTask={(task) => setNowSelcted({
+            <Board showTask={nowSelected.reference as Task} setShowTask={(task) => setNowSelected({
                 type: 'modify-node',
                 reference: task,
             })}/>

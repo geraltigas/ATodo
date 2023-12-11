@@ -5,7 +5,7 @@ import React from "react";
 import {useAtom} from "jotai";
 import {appStateAtom} from "../../state/tasksAtom.ts";
 import {invoke} from "@tauri-apps/api";
-import {parse, stringify} from "flatted";
+import {stringify} from "flatted";
 import {appStoragePersistence} from "../../pages/Worker/WorkerHooks.ts";
 
 const addTimeRecord = (base: TimeRecord, addTimeRecord: TimeRecord) => {
@@ -33,14 +33,14 @@ const isDone = (task: Task): boolean => {
     return isDone;
 }
 
-const isSuspensed = (task: Task): boolean => {
-    let isSuspensed: boolean = true;
+const isSuspended = (task: Task): boolean => {
+    let isSuspended: boolean = true;
     task.subtasks.nodes.forEach((subtask) => {
         if (subtask.status !== TaskStatus.Suspended && subtask.status !== TaskStatus.Done) {
-            isSuspensed = false;
+            isSuspended = false;
         }
     })
-    return isSuspensed;
+    return isSuspended;
 }
 
 function TaskShow(
@@ -82,7 +82,7 @@ function TaskShow(
         temp.status = TaskStatus.Suspended;
         temp.timeConsumed = {...timeRecord};
         while (temp.parent !== null) {
-            if (isSuspensed(temp.parent)) {
+            if (isSuspended(temp.parent)) {
                 temp.parent.status = TaskStatus.Suspended;
             }
             addTimeRecord(temp.parent.timeConsumed, timeRecord)

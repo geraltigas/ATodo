@@ -22,21 +22,6 @@ export const startNode: TaskNodeShow = {
     },
     targetPosition: Position.Right,
 };
-
-export const endNode: TaskNodeShow = {
-    id: 'end',
-    type: 'end',
-    position: {
-        x: 200,
-        y: 0,
-    },
-    data: {
-        label: '',
-    },
-    sourcePosition: Position.Left,
-};
-
-
 export const nodeTypes = {
     start: StartNode,
     end: EndNode,
@@ -63,7 +48,7 @@ interface AppState {
     AppRuntime: AppRuntime;
 }
 
-// persistant
+// persistent
 export interface AppStorage {
     taskStorage: TaskStorage;
 }
@@ -100,20 +85,6 @@ export interface TimeRecord {
     minutes: number;
     seconds: number;
     hours: number;
-}
-
-export const addTimeRecord = (base: TimeRecord, delta: TimeRecord): void => {
-    base.minutes += delta.minutes;
-    base.seconds += delta.seconds;
-    base.hours += delta.hours;
-    if (base.seconds >= 60) {
-        base.minutes += Math.floor(base.seconds / 60);
-        base.seconds = base.seconds % 60;
-    }
-    if (base.minutes >= 60) {
-        base.hours += Math.floor(base.minutes / 60);
-        base.minutes = base.minutes % 60;
-    }
 }
 
 export interface Task {
@@ -255,8 +226,7 @@ export const workerOpenAtom = atom(
             }
         })
     });
-
-export const taskToEditAtom = atom(
+atom(
     (get) => get(AppStateAtom).AppRuntime.taskToEdit,
     (get, set, update: Task) => {
         set(AppStateAtom, {
@@ -267,7 +237,6 @@ export const taskToEditAtom = atom(
             }
         })
     });
-
 export const copiedTaskAtom = atom(
     (get) => get(AppStateAtom).AppRuntime.copiedTask,
     (get, set, update: Task) => {
@@ -658,10 +627,10 @@ export const showEdgesAtom = atom(
 
         let intersection: Set<string> = new Set<string>([...sourceSet].filter(x => targetSet.has(x)));
 
-        let sourceMtarget: Set<string> = new Set<string>([...sourceSet].filter(x => !intersection.has(x)));
-        let targetMsource: Set<string> = new Set<string>([...targetSet].filter(x => !intersection.has(x)));
+        let sourcetarget: Set<string> = new Set<string>([...sourceSet].filter(x => !intersection.has(x)));
+        let targetsource: Set<string> = new Set<string>([...targetSet].filter(x => !intersection.has(x)));
 
-        sourceMtarget.forEach((value) => {
+        sourcetarget.forEach((value) => {
             showEdges.push({
                 id: `${value}-start`,
                 source: "start",
@@ -673,7 +642,7 @@ export const showEdgesAtom = atom(
             connectedMap.set(value, true);
         });
 
-        targetMsource.forEach((value) => {
+        targetsource.forEach((value) => {
             showEdges.push({
                 id: `${value}-end`,
                 source: value,
@@ -685,7 +654,7 @@ export const showEdgesAtom = atom(
             connectedMap.set(value, true);
         });
 
-        if (targetMsource.size === 0 && sourceMtarget.size === 0) {
+        if (targetsource.size === 0 && sourcetarget.size === 0) {
             if (nowViewing.subtasks.nodes.length === 0) {
                 showEdges.push({
                     id: `start-end`,
