@@ -13,7 +13,6 @@ pub async fn open_worker(app: AppHandle) -> Result<String, String> {
     WindowBuilder::new(&app, "worker", WindowUrl::App("worker/index.html".into()))
         .fullscreen(false)
         .resizable(true)
-        .transparent(true)
         .decorations(false)
         .title("Worker")
         .inner_size(800f64, 600f64)

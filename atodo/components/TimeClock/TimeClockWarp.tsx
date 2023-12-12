@@ -7,11 +7,13 @@ import styles from "./TimeClockWarp.module.css";
 export default function TimeClockWarp({
                                           taskToEdit,
                                           setTaskToEdit,
-                                          maxTime
+                                          maxTime,
+                                          minTime,
                                       }: {
     taskToEdit: Task,
     setTaskToEdit: (task: Task) => void,
-    maxTime: Dayjs | undefined
+    maxTime: Dayjs | undefined,
+    minTime: Dayjs | undefined,
 }) {
     const [view, setView] = useState<'hours' | 'minutes'>('hours');
 
@@ -52,6 +54,7 @@ export default function TimeClockWarp({
                 view={view}
                 ampm={false}
                 maxTime={maxTime}
+                minTime={minTime}
             />
         </div>
     )

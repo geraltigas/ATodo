@@ -7,6 +7,116 @@ import {useAtomValue, useSetAtom} from "jotai";
 import {isInputtingAtom, nowViewingAtom, Task, TaskStatus} from "../../state/tasksAtoms.ts";
 import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
+const globalMinDate = dayjs('1970-01-01T00:00:00');
+const globalMaxDate = dayjs('2100-01-01T00:00:00');
+
+// make sure the length of tasks is greater than 0
+const getMaxDate = (tasks: Task[]): Dayjs => {
+    if (tasks.length === 0) {
+        return globalMinDate;
+    }
+    let maxDate: Dayjs = dayjs(tasks[0].deadline);
+    tasks.forEach((task) => {
+        let taskDate = dayjs(task.deadline);
+        if (taskDate.isAfter(maxDate)) {
+            maxDate = taskDate;
+        }
+    });
+    return maxDate;
+}
+
+const getMinDate = (tasks: Task[]): Dayjs => {
+    if (tasks.length === 0) {
+        return globalMaxDate;
+    }
+    let minDate: Dayjs = dayjs(tasks[0].deadline);
+    tasks.forEach((task) => {
+        let taskDate = dayjs(task.deadline);
+        if (taskDate.isBefore(minDate)) {
+            minDate = taskDate;
+        }
+    });
+    return minDate;
+}
+
+const getMinTime = (showTaskDeadline: Dayjs, minDate: Dayjs): Dayjs | undefined => {
+    let isFirstDay = showTaskDeadline.isSame(minDate, 'day');
+    if (isFirstDay) {
+        return minDate;
+    } else {
+        return undefined;
+    }
+}
+
+const getMaxTime = (showTaskDeadline: Dayjs, maxDate: Dayjs): Dayjs | undefined => {
+    let isLastDay = showTaskDeadline.isSame(maxDate, 'day');
+    if (isLastDay) {
+        return maxDate;
+    } else {
+        return undefined;
+    }
+}
+
+const timeConstraints = (showTask: Task, _nowViewing: Task): {
+    minTime: Dayjs | undefined,
+    maxTime: Dayjs | undefined,
+    minDate: Dayjs,
+    maxDate: Dayjs,
+} => {
+    if (showTask.parent === null) {
+        let maxDate = getMaxDate(showTask.subtasks.nodes);
+        let showTaskDeadline = dayjs(showTask.deadline);
+        return {
+            minTime: getMinTime(showTaskDeadline, globalMinDate),
+            maxTime: getMaxTime(showTaskDeadline, maxDate),
+            minDate: getMaxDate(showTask.subtasks.nodes),
+            maxDate: globalMaxDate,
+        };
+    }
+
+    let sources: Task[] = [];
+    let targets: Task[] = [];
+    let siblings: Task[] = showTask.parent.subtasks.nodes;
+    let siblingsEdges: [string, string][] = showTask.parent.subtasks.edges;
+    siblingsEdges.forEach(([sourceId, targetId]) => {
+        if (sourceId === showTask.id) {
+            targets.push(siblings.find((sibling) => sibling.id === targetId)!);
+        }
+        if (targetId === showTask.id) {
+            sources.push(siblings.find((sibling) => sibling.id === sourceId)!);
+        }
+    });
+
+    let maxDateOfChildren = getMaxDate(showTask.subtasks.nodes);
+    let maxDateOfSource = getMaxDate(sources);
+    let minDateOfTargets = getMinDate(targets);
+    let parentDeadline = dayjs(showTask.parent.deadline);
+
+    let minDate: Dayjs;
+    let maxDate: Dayjs;
+
+    if (maxDateOfChildren.isAfter(maxDateOfSource)) {
+        minDate = maxDateOfChildren;
+    } else {
+        minDate = maxDateOfSource;
+    }
+
+    if (minDateOfTargets.isBefore(parentDeadline)) {
+        maxDate = minDateOfTargets;
+    } else {
+        maxDate = parentDeadline;
+    }
+
+    let showTaskDeadline = dayjs(showTask.deadline);
+
+    return {
+        minTime: getMinTime(showTaskDeadline, minDate),
+        maxTime: getMaxTime(showTaskDeadline, maxDate),
+        minDate: minDate,
+        maxDate: maxDate,
+    };
+}
+
 export default function Board({
                                   showTask,
                                   setShowTask
@@ -18,11 +128,6 @@ export default function Board({
     const setIsInputting = useSetAtom(isInputtingAtom);
     const nowViewing = useAtomValue(nowViewingAtom);
 
-    const nowViewingBoardDeadline: Dayjs | undefined = nowViewing.parent ? dayjs(nowViewing.parent.deadline) : undefined;
-
-    const isLastDay: boolean = dayjs(showTask.deadline).isSame(dayjs(nowViewing.deadline), 'day');
-
-    const isNowViewingBoard: boolean = nowViewing.id === showTask.id;
 
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowTask({
@@ -53,6 +158,8 @@ export default function Board({
         })
     }
 
+    let {minTime, maxTime, minDate, maxDate} = timeConstraints(showTask, nowViewing);
+
     return (
         <div className={styles.Board}>
             <TextField
@@ -77,10 +184,11 @@ export default function Board({
                 onChange={onDateChange}
                 value={dayjs((showTask).deadline)}
                 className={styles.DateCalendar}
-                maxDate={isNowViewingBoard ? nowViewingBoardDeadline : dayjs(nowViewing.deadline)}
+                maxDate={maxDate}
+                minDate={minDate}
             />
             <TimeClockWarp taskToEdit={showTask} setTaskToEdit={setShowTask}
-                           maxTime={isLastDay ? dayjs(nowViewing.deadline) : undefined}/>
+                           maxTime={maxTime} minTime={minTime}/>
             <FormControl className={styles.FormControl}>
                 <FormLabel>State</FormLabel>
                 <RadioGroup

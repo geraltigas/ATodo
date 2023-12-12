@@ -28,9 +28,6 @@ const TaskNode: React.FC<NodeProps> = ({data}) => {
             break;
     }
 
-    console.log(status)
-    console.log(classNames)
-
     const realTask: Task = data.realTask;
 
     return (

@@ -43,7 +43,7 @@
       {
         "label": "atodo",
         "fullscreen": false,
-        "resizable": false,
+        "resizable": true,
         "title": "ATodo",
         "width": 800,
         "height": 600,

@@ -174,7 +174,7 @@ const useDocumentOnADown = () => {
             subtasks.push({
                 name: "",
                 goal: "",
-                deadline: dayjs().toString(),
+                deadline: nowViewing.deadline,
                 status: TaskStatus.Created,
                 dependencies: {
                     dependencyType: TaskDependencyType.And

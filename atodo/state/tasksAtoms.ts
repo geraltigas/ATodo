@@ -135,7 +135,7 @@ export const overallInit: Task = {
     id: dayjs('2003-01-12T00:00:00.000Z').toString(),
     name: 'Overall',
     goal: 'Good Game',
-    deadline: dayjs('2103-01-12T00:00:00.000Z').toString(),
+    deadline: dayjs('2100-01-01T00:00:00.000Z').toString(),
     timeConsumed: {
         minutes: 0,
         seconds: 0,
