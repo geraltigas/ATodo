@@ -1,13 +1,35 @@
 import {Handle, NodeProps, Position} from 'reactflow';
 import React from 'react';
 import styles from './TaskNode.module.css';
-import {Task} from "../../../state/tasksAtoms.ts";
+import {Task, TaskStatus} from "../../../state/tasksAtoms.ts";
 
 const TaskNode: React.FC<NodeProps> = ({data}) => {
     const classNames = [styles.TaskNode];
+    const status: TaskStatus = data.realTask.status;
     if (data.selected) {
         classNames.push(styles.focused);
     }
+
+    switch (status) {
+        case TaskStatus.Created:
+            classNames.push(styles.TaskNodeCreated);
+            break;
+        case TaskStatus.Done:
+            classNames.push(styles.TaskNodeDone);
+            break;
+        case TaskStatus.InProgress:
+            classNames.push(styles.TaskNodeInProgress);
+            break;
+        case TaskStatus.Suspended:
+            classNames.push(styles.TaskNodeSuspended);
+            break;
+        case TaskStatus.Paused:
+            classNames.push(styles.TaskNodePaused);
+            break;
+    }
+
+    console.log(status)
+    console.log(classNames)
 
     const realTask: Task = data.realTask;
 

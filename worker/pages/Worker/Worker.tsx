@@ -7,7 +7,8 @@ import {invoke} from "@tauri-apps/api";
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import TaskShow from "../../components/TaskShow/TaskShow.tsx";
-import {TimeRecord} from "../../../atodo/state/tasksAtoms.ts";
+import {Task, TaskStatus, TimeRecord} from "../../../atodo/state/tasksAtoms.ts";
+import useEvent, {useOnMouseEnter, useOnMouseLeave} from "../../hooks/useEvent.ts";
 
 const timeRecord: (timeRecord: TimeRecord, setShowTimeConsumed: (_: TimeRecord) => void) => void = (timeRecord: TimeRecord, setShowTimeConsumed: (_: TimeRecord) => void) => {
     if (timeRecord.seconds === 59) {
@@ -24,10 +25,15 @@ const timeRecord: (timeRecord: TimeRecord, setShowTimeConsumed: (_: TimeRecord) 
     setShowTimeConsumed({...timeRecord});
 }
 
+let timeOutId: NodeJS.Timeout[] = [];
+
+let lastTask: Task | null = null;
+
 
 const Worker = () => {
 
     useDataInit();
+    useEvent();
     // useWindowInit();
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -52,9 +58,18 @@ const Worker = () => {
 
     useEffect(() => {
         if (timeRecordOn) {
-            setTimeout(() => {
+            timeOutId.forEach((id) => {
+                clearTimeout(id);
+            })
+            timeOutId = [];
+            timeOutId.unshift(setTimeout(() => {
                 timeRecord(showTimeConsumed, setShowTimeConsumed)
-            }, 1000)
+            }, 1000))
+        } else {
+            timeOutId.forEach((id) => {
+                clearTimeout(id);
+            })
+            timeOutId = [];
         }
     }, [timeRecordOn, showTimeConsumed]);
 
@@ -98,8 +113,13 @@ const Worker = () => {
     }, [appState])
 
     useEffect(() => {
-        if (scheduledTasks.length !== 0) {
-            setShowTimeConsumed(scheduledTasks[0].timeConsumed)
+        if (lastTask && lastTask.id === scheduledTasks[0].id) {
+            return;
+        }
+        lastTask = scheduledTasks[0];
+        setShowTimeConsumed(scheduledTasks[0].timeConsumed)
+        if (scheduledTasks[0].status === TaskStatus.InProgress) {
+            setTimeRecordOn(true);
         }
     }, [scheduledTasks]);
 
@@ -109,20 +129,25 @@ const Worker = () => {
             return !prev;
         })
     }
+
+    const onMouseEnter = useOnMouseEnter();
+    const onMouseLeave = useOnMouseLeave();
+
+
     return (
         <div className={styles.WorkerBackground} style={
             {
                 width: windowSize.width,
                 height: windowSize.height
             }
-        }>
+        } onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
             <div data-tauri-drag-region='' className={styles.container} ref={containerRef}>
                 <div className={styles.taskShow}>
                     {scheduledTasks.length !== 0 && <div className={styles.taskFont} data-tauri-drag-region=''>
                         {scheduledTasks[0].name}
                     </div>}
                     {scheduledTasks.length !== 0 &&
-                        <div className={styles.taskFont} data-tauri-drag-region='' onClick={() => {
+                        <div className={styles.taskFont} onClick={() => {
                             setShowTimeMode((prev) => {
                                 if (prev === "noSecond") {
                                     return "withSecond";

@@ -23,6 +23,26 @@ const addTimeRecord = (base: TimeRecord, addTimeRecord: TimeRecord) => {
     return base;
 }
 
+const minusTimeRecord = (base: TimeRecord, minusTimeRecord: TimeRecord) => {
+    let delta: TimeRecord = {
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+    }
+    delta.hours = base.hours - minusTimeRecord.hours;
+    delta.minutes = base.minutes - minusTimeRecord.minutes;
+    delta.seconds = base.seconds - minusTimeRecord.seconds;
+    if (delta.seconds < 0) {
+        delta.seconds += 60;
+        delta.minutes--;
+    }
+    if (delta.minutes < 0) {
+        delta.minutes += 60;
+        delta.hours--;
+    }
+    return delta;
+}
+
 const isDone = (task: Task): boolean => {
     let isDone: boolean = true;
     task.subtasks.nodes.forEach((subtask) => {
@@ -80,12 +100,13 @@ function TaskShow(
     const onSuspendClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
         let temp: Task | null = scheduledTasks[0];
         temp.status = TaskStatus.Suspended;
-        temp.timeConsumed = {...timeRecord};
+        let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed);
+        addTimeRecord(temp.timeConsumed, delta)
         while (temp.parent !== null) {
             if (isSuspended(temp.parent)) {
                 temp.parent.status = TaskStatus.Suspended;
             }
-            addTimeRecord(temp.parent.timeConsumed, timeRecord)
+            addTimeRecord(temp.parent.timeConsumed, delta)
             temp = temp.parent;
         }
         setAppStatus({...appStatus});
@@ -100,10 +121,11 @@ function TaskShow(
     const onPauseClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
         let temp: Task | null = scheduledTasks[0];
         temp.status = TaskStatus.Paused;
-        temp.timeConsumed = {...timeRecord};
+        let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed);
+        addTimeRecord(temp.timeConsumed, delta)
         while (temp !== null) {
             temp.status = TaskStatus.Paused;
-            addTimeRecord(temp.timeConsumed, timeRecord);
+            addTimeRecord(temp.timeConsumed, delta)
             temp = temp.parent;
         }
         setAppStatus({...appStatus});
@@ -118,12 +140,13 @@ function TaskShow(
     const onDoneClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
         let temp: Task | null = scheduledTasks[0];
         temp.status = TaskStatus.Done;
-        temp.timeConsumed = {...timeRecord};
+        let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed);
+        addTimeRecord(temp.timeConsumed, delta)
         while (temp.parent !== null) {
             if (isDone(temp.parent)) {
                 temp.parent.status = TaskStatus.Done;
             }
-            addTimeRecord(temp.parent.timeConsumed, timeRecord)
+            addTimeRecord(temp.parent.timeConsumed, delta)
             temp = temp.parent;
         }
         setAppStatus({...appStatus});

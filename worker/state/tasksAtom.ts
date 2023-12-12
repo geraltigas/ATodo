@@ -7,7 +7,8 @@ interface AppRuntime {
     windowsSize: {
         width: number;
         height: number;
-    }
+    },
+    isMouseEnter: boolean;
 }
 
 interface AppStorage {
@@ -28,8 +29,9 @@ const appStateInit: AppState = {
         windowsSize: {
             width: 800,
             height: 600
-        }
-    }
+        },
+        isMouseEnter: false
+    },
 }
 
 export const appStateAtom = atom<AppState>(appStateInit);
@@ -55,5 +57,17 @@ export const scheduledTasksAtom = atom<Task[]>(get => {
     Scheduler.schedule();
     return Scheduler.getSchedule();
 });
+
+export const isMouseEnterAtom = atom(
+    get => get(appStateAtom).appRuntime.isMouseEnter,
+    (get, set, update: boolean) => {
+        set(appStateAtom, {
+            ...get(appStateAtom),
+            appRuntime: {
+                ...get(appStateAtom).appRuntime,
+                isMouseEnter: update
+            }
+        })
+    });
 
 
