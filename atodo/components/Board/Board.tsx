@@ -1,10 +1,10 @@
 import styles from './Board.module.css';
 import React from 'react';
-import {TextField} from '@mui/material';
+import {FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField} from '@mui/material';
 import {DateCalendar} from '@mui/x-date-pickers';
 import dayjs, {Dayjs} from 'dayjs';
 import {useAtomValue, useSetAtom} from "jotai";
-import {isInputtingAtom, nowViewingAtom, Task} from "../../state/tasksAtoms.ts";
+import {isInputtingAtom, nowViewingAtom, Task, TaskStatus} from "../../state/tasksAtoms.ts";
 import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
 export default function Board({
@@ -15,7 +15,6 @@ export default function Board({
     setShowTask: (task: Task) => void
 }) {
 
-    // const [showTask, setShowTask] = useAtom(nowSelectedAtom);
     const setIsInputting = useSetAtom(isInputtingAtom);
     const nowViewing = useAtomValue(nowViewingAtom);
 
@@ -47,12 +46,18 @@ export default function Board({
         })
     };
 
+    const onStatusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setShowTask({
+            ...showTask,
+            status: e.target.value as TaskStatus,
+        })
+    }
+
     return (
         <div className={styles.Board}>
             <TextField
                 label={'Name'}
                 variant={'outlined'}
-                // defaultValue={(showTask.reference! as Task).name}
                 value={(showTask).name}
                 onChange={onNameChange}
                 onFocus={() => setIsInputting(true)}
@@ -62,7 +67,6 @@ export default function Board({
                 label="Goal"
                 multiline
                 rows={5}
-                // defaultValue={(showTask.reference! as Task).goal}
                 value={(showTask).goal}
                 onChange={onGoalChange}
 
@@ -75,26 +79,21 @@ export default function Board({
                 className={styles.DateCalendar}
                 maxDate={isNowViewingBoard ? nowViewingBoardDeadline : dayjs(nowViewing.deadline)}
             />
-            {/*<div>*/}
-            {/*    <Typography*/}
-            {/*        variant="h5"*/}
-            {/*        gutterBottom*/}
-            {/*        style={{*/}
-            {/*            textAlign: 'center',*/}
-            {/*            marginBottom: '0',*/}
-            {/*        }}*/}
-            {/*    >*/}
-            {/*        {dayjs((showTask as Task).time).format('HH:mm')}*/}
-            {/*    </Typography>*/}
-            {/*    <TimeClock*/}
-            {/*        onChange={onTimeChange}*/}
-            {/*        // defaultValue={dayjs((showTask.reference! as Task).time)}*/}
-            {/*        value={dayjs((showTask as Task).time)}*/}
-            {/*        views={['hours', 'minutes']}*/}
-            {/*    />*/}
-            {/*</div>*/}
             <TimeClockWarp taskToEdit={showTask} setTaskToEdit={setShowTask}
                            maxTime={isLastDay ? dayjs(nowViewing.deadline) : undefined}/>
+            <FormControl className={styles.FormControl}>
+                <FormLabel>State</FormLabel>
+                <RadioGroup
+                    value={showTask.status}
+                    onChange={onStatusChange}
+                >
+                    <FormControlLabel value={TaskStatus.Created} control={<Radio/>} label={"Created"}/>
+                    <FormControlLabel value={TaskStatus.InProgress} control={<Radio/>} label={"InProgress"}/>
+                    <FormControlLabel value={TaskStatus.Suspended} control={<Radio/>} label={"Suspended"}/>
+                    <FormControlLabel value={TaskStatus.Paused} control={<Radio/>} label={"Paused"}/>
+                    <FormControlLabel value={TaskStatus.Done} control={<Radio/>} label={"Done"}/>
+                </RadioGroup>
+            </FormControl>
         </div>
     );
 }
