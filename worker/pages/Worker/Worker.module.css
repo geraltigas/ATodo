@@ -35,7 +35,7 @@
     padding: var(--worker-task-container-padding);
 
     /*!*vertical center*!*/
-    width: fit-content;
+    width: 100%;
     height: fit-content;
     align-items: center;
     display: flex;
@@ -63,6 +63,20 @@
     /*    center children element */
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.rightButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.leftShow {
+    display: flex;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
 }

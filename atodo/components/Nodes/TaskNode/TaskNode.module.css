@@ -14,6 +14,7 @@
     --task-node-color: #ffffff;
 }
 
+/*noinspection CssUnusedSymbol*/
 .TaskNode {
     color: var(--task-node-color);
     border-radius: var(--start-border-radius);
@@ -45,26 +46,32 @@
     align-items: center;
 }
 
+/*noinspection CssUnusedSymbol*/
 .TaskNodeCreated {
     background-color: var(--task-node-background-color-created);
 }
 
+/*noinspection CssUnusedSymbol*/
 .TaskNodeDone {
     background-color: var(--task-node-background-color-done);
 }
 
+/*noinspection CssUnusedSymbol*/
 .TaskNodeInProgress {
     background-color: var(--task-node-background-color-in-progress);
 }
 
+/*noinspection CssUnusedSymbol*/
 .TaskNodeSuspended {
     background-color: var(--task-node-background-color-suspended);
 }
 
+/*noinspection CssUnusedSymbol*/
 .TaskNodePaused {
     background-color: var(--task-node-background-color-paused);
 }
 
+/*noinspection CssUnusedSymbol*/
 .focused {
     border: 1px solid #ffffff;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);

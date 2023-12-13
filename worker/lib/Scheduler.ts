@@ -48,13 +48,24 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
 export class Scheduler {
     private static appStorage: Task | null = null;
     private static scheduledTasks: Task[] = [];
+    private static suspendedTasks: Task[] = [];
 
     public static setAppStorage(appStorage: Task) {
         this.appStorage = appStorage;
     }
 
     public static schedule() {
-        this.scheduledTasks = Array.from(this.scheduleTask(this.appStorage!));
+        this.scheduledTasks = [];
+        this.suspendedTasks = [];
+        let temp = Array.from(this.scheduleTask(this.appStorage!));
+        temp.forEach((task) => {
+            if (task.status !== TaskStatus.Suspended) {
+                this.scheduledTasks.push(task);
+            } else {
+                this.suspendedTasks.push(task);
+            }
+        })
+
         // reorder this.scheduledTasks
         this.scheduledTasks.sort((a, b) => {
             // combine dayjs date and time
@@ -66,6 +77,10 @@ export class Scheduler {
 
     public static getSchedule(): Task[] {
         return this.scheduledTasks;
+    }
+
+    public static getSuspendedTasks(): Task[] {
+        return this.suspendedTasks;
     }
 
     private static scheduleTask(task: Task): Set<Task> {

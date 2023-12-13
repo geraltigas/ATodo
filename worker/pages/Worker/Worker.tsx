@@ -9,6 +9,8 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import TaskShow from "../../components/TaskShow/TaskShow.tsx";
 import {Task, TaskStatus, TimeRecord} from "../../../atodo/state/tasksAtoms.ts";
 import useEvent, {useOnMouseEnter, useOnMouseLeave} from "../../hooks/useEvent.ts";
+import SuspendedTasks from "../../components/SuspendedTasks/SuspendedTasks.tsx";
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
 const timeRecord: (timeRecord: TimeRecord, setShowTimeConsumed: (_: TimeRecord) => void) => void = (timeRecord: TimeRecord, setShowTimeConsumed: (_: TimeRecord) => void) => {
     if (timeRecord.seconds === 59) {
@@ -41,6 +43,7 @@ const Worker = () => {
     const windowSize = useAtomValue(windowSizeAtom);
     const [appState, setAppState] = useAtom(appStateAtom);
     const scheduledTasks = useAtomValue(scheduledTasksAtom);
+    const [showSuspendedTasks, setShowSuspendedTasks] = useState(false);
 
     useEffect(() => {
         console.log("scheduledTasks changed", scheduledTasks)
@@ -93,7 +96,7 @@ const Worker = () => {
             }).then(_r => {
             })
         }
-    }, [showExpend])
+    }, [showExpend, showSuspendedTasks])
 
     useEffect(() => {
         setTimeout(() => {
@@ -113,6 +116,15 @@ const Worker = () => {
     }, [appState])
 
     useEffect(() => {
+        if (scheduledTasks.length === 0) {
+            setTimeRecordOn(false);
+            setShowTimeConsumed({
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+            })
+            return;
+        }
         if (lastTask && lastTask.id === scheduledTasks[0].id) {
             return;
         }
@@ -133,6 +145,11 @@ const Worker = () => {
     const onMouseEnter = useOnMouseEnter();
     const onMouseLeave = useOnMouseLeave();
 
+    const toggleShowSuspendedTasks = () => {
+        setShowSuspendedTasks((prev) => {
+            return !prev;
+        })
+    }
 
     return (
         <div className={styles.WorkerBackground} style={
@@ -143,30 +160,38 @@ const Worker = () => {
         } onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
             <div data-tauri-drag-region='' className={styles.container} ref={containerRef}>
                 <div className={styles.taskShow}>
-                    {scheduledTasks.length !== 0 && <div className={styles.taskFont} data-tauri-drag-region=''>
-                        {scheduledTasks[0].name}
-                    </div>}
-                    {scheduledTasks.length !== 0 &&
-                        <div className={styles.taskFont} onClick={() => {
-                            setShowTimeMode((prev) => {
-                                if (prev === "noSecond") {
-                                    return "withSecond";
-                                } else {
-                                    return "noSecond";
-                                }
-                            })
-                            setAppState({...appState})
-                        }}>
-                            {time}
+                    <div className={styles.leftShow}>
+                        {scheduledTasks.length !== 0 && <div className={styles.taskFont} data-tauri-drag-region=''>
+                            {scheduledTasks[0].name}
                         </div>}
-                    {scheduledTasks.length === 0 && <div data-tauri-drag-region=''>You are free?</div>}
-                    <div onClick={expendOnClick} className={styles.expand}>
-                        {showExpend ? <CloseFullscreenIcon/> : <OpenInFullIcon/>}
+                        {scheduledTasks.length !== 0 &&
+                            <div className={styles.taskFont} onClick={() => {
+                                setShowTimeMode((prev) => {
+                                    if (prev === "noSecond") {
+                                        return "withSecond";
+                                    } else {
+                                        return "noSecond";
+                                    }
+                                })
+                                setAppState({...appState})
+                            }}>
+                                {time}
+                            </div>}
+                        {scheduledTasks.length === 0 && <div data-tauri-drag-region=''>You are free?</div>}
+                    </div>
+                    <div className={styles.rightButtons}>
+                        <div onClick={toggleShowSuspendedTasks} className={styles.expand}>
+                            <FormatListBulletedIcon/>
+                        </div>
+                        <div onClick={expendOnClick} className={styles.expand}>
+                            {showExpend ? <CloseFullscreenIcon/> : <OpenInFullIcon/>}
+                        </div>
                     </div>
                 </div>
                 {showExpend && scheduledTasks.length !== 0 &&
                     <TaskShow scheduledTasks={scheduledTasks} setTimeRecordOn={setTimeRecordOn}
                               timeRecord={showTimeConsumed}/>}
+                {showSuspendedTasks && <SuspendedTasks/>}
             </div>
         </div>
     )

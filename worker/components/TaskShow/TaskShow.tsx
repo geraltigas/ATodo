@@ -8,6 +8,22 @@ import {invoke} from "@tauri-apps/api";
 import {stringify} from "flatted";
 import {appStoragePersistence} from "../../pages/Worker/WorkerHooks.ts";
 
+export const openTaskBoardAndSave = (task: Task) => {
+    let str = stringify(appStoragePersistence);
+    invoke<string>("save", {key: "nowViewingTask", value: task.id}).then((res) => {
+        console.log(res)
+        invoke<string>("save", {key: "taskStorage", value: str}).then((res) => {
+            console.log(res)
+            invoke<string>("open_atodo").then((_res) => {
+                invoke<string>("close_worker").then((_res) => {
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+        });
+    });
+}
+
 const addTimeRecord = (base: TimeRecord, addTimeRecord: TimeRecord) => {
     base.hours += addTimeRecord.hours;
     base.minutes += addTimeRecord.minutes;
@@ -71,7 +87,7 @@ function TaskShow(
     }: {
         scheduledTasks: Task[],
         timeRecord: TimeRecord,
-        setTimeRecordOn: (timeRecordOn: boolean) => void
+        setTimeRecordOn: (timeRecordOn: boolean) => void,
     }) {
 
     const [appStatus, setAppStatus] = useAtom(appStateAtom);
@@ -101,7 +117,7 @@ function TaskShow(
         let temp: Task | null = scheduledTasks[0];
         temp.status = TaskStatus.Suspended;
         let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed);
-        addTimeRecord(temp.timeConsumed, delta)
+        addTimeRecord(temp.timeConsumed, delta);
         while (temp.parent !== null) {
             if (isSuspended(temp.parent)) {
                 temp.parent.status = TaskStatus.Suspended;
@@ -110,12 +126,7 @@ function TaskShow(
             temp = temp.parent;
         }
         setAppStatus({...appStatus});
-        let str = stringify(appStoragePersistence);
-        invoke<string>("save", {key: "taskStorage", value: str}).then((res) => {
-            console.log(res)
-        })
-        setTimeRecordOn(false)
-        console.log('Suspend')
+        openTaskBoardAndSave(scheduledTasks[0]);
     }
 
     const onPauseClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
@@ -157,7 +168,6 @@ function TaskShow(
         setTimeRecordOn(false)
         console.log('Done')
     }
-
 
     return (
         <div>

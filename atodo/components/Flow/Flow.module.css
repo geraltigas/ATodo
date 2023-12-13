@@ -34,6 +34,7 @@
 }
 
 
+/*noinspection CssUnusedSymbol*/
 .modifiedBase {
 
     position: absolute;
@@ -46,6 +47,7 @@
     z-index: 1;
 }
 
+/*noinspection CssUnusedSymbol*/
 .modified {
     background: var(--modified-color);
 }

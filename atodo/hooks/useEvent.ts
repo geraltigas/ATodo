@@ -174,7 +174,7 @@ const useDocumentOnADown = () => {
             subtasks.push({
                 name: "",
                 goal: "",
-                deadline: nowViewing.deadline,
+                deadline: (dayjs(nowViewing.deadline).add(30, 'minute')).toString(),
                 status: TaskStatus.Created,
                 dependencies: {
                     dependencyType: TaskDependencyType.And
@@ -189,7 +189,8 @@ const useDocumentOnADown = () => {
                     edges: []
                 },
                 parent: nowViewing,
-                id: id
+                id: id,
+                info: null
             });
             let newNowViewing = {
                 ...nowViewing

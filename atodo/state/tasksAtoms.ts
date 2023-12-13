@@ -87,6 +87,79 @@ export interface TimeRecord {
     hours: number;
 }
 
+export enum SuspendedType {
+    Time = 'time',
+    Email = 'email',
+    QQ = 'qq',
+    WeChat = 'wechat',
+    Constructing = 'constructing',
+}
+
+export interface TimeTrigger {
+    time: string;
+}
+
+export interface EmailTrigger {
+    email: string;
+}
+
+export interface QQTrigger {
+    qqId: string;
+}
+
+export interface WeChatTrigger {
+    weChatId: string;
+}
+
+export interface ConstructingTrigger {
+    why: string;
+}
+
+export const getInitSuspendedInfo = (type: SuspendedType): SuspendedInfo => {
+    switch (type) {
+        case SuspendedType.Time:
+            return {
+                type: SuspendedType.Time,
+                trigger: {
+                    time: dayjs().add(1, 'hour').toString(),
+                }
+            }
+        case SuspendedType.Email:
+            return {
+                type: SuspendedType.Email,
+                trigger: {
+                    email: '',
+                }
+            }
+        case SuspendedType.QQ:
+            return {
+                type: SuspendedType.QQ,
+                trigger: {
+                    qqId: '',
+                }
+            }
+        case SuspendedType.WeChat:
+            return {
+                type: SuspendedType.WeChat,
+                trigger: {
+                    weChatId: '',
+                }
+            }
+        case SuspendedType.Constructing:
+            return {
+                type: SuspendedType.Constructing,
+                trigger: {
+                    why: '',
+                }
+            }
+    }
+}
+
+interface SuspendedInfo {
+    type: SuspendedType;
+    trigger: TimeTrigger | EmailTrigger | QQTrigger | WeChatTrigger | ConstructingTrigger;
+}
+
 export interface Task {
     id: TaskId;
     name: string;
@@ -97,6 +170,7 @@ export interface Task {
     dependencies: TaskDependency;
     subtasks: Graph<Task>;
     parent: Task | null;
+    info: SuspendedInfo | null;
 }
 
 export type TaskId = string;
@@ -149,7 +223,8 @@ export const overallInit: Task = {
         nodes: [],
         edges: [],
     },
-    parent: null
+    parent: null,
+    info: null,
 }
 
 const taskStorageInit: TaskStorage = {
@@ -180,7 +255,8 @@ export const taskToEditInit: Task = {
         nodes: [],
         edges: [],
     },
-    parent: null
+    parent: null,
+    info: null,
 }
 
 const AppRuntimeInit: AppRuntime = {

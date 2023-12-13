@@ -1,10 +1,20 @@
 import styles from './Board.module.css';
 import React from 'react';
-import {FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField} from '@mui/material';
-import {DateCalendar} from '@mui/x-date-pickers';
+import {FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography} from '@mui/material';
+import {DateCalendar, DatePicker, TimePicker} from '@mui/x-date-pickers';
 import dayjs, {Dayjs} from 'dayjs';
 import {useAtomValue, useSetAtom} from "jotai";
-import {isInputtingAtom, nowViewingAtom, Task, TaskStatus} from "../../state/tasksAtoms.ts";
+import {
+    ConstructingTrigger,
+    EmailTrigger,
+    getInitSuspendedInfo,
+    isInputtingAtom,
+    nowViewingAtom,
+    SuspendedType,
+    Task,
+    TaskStatus,
+    TimeTrigger
+} from "../../state/tasksAtoms.ts";
 import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
 const globalMinDate = dayjs('1970-01-01T00:00:00');
@@ -127,8 +137,7 @@ export default function Board({
 
     const setIsInputting = useSetAtom(isInputtingAtom);
     const nowViewing = useAtomValue(nowViewingAtom);
-
-
+    
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowTask({
             ...showTask,
@@ -160,6 +169,159 @@ export default function Board({
 
     let {minTime, maxTime, minDate, maxDate} = timeConstraints(showTask, nowViewing);
 
+    let suspendedInfo: React.JSX.Element = (<div></div>);
+    if (showTask.status === TaskStatus.Suspended) {
+        switch (showTask.info?.type) {
+            case SuspendedType.Constructing:
+                suspendedInfo = (<TextField
+                        label="Why"
+                        multiline
+                        rows={5}
+                        value={(showTask.info?.trigger as ConstructingTrigger).why}
+                        onChange={(e) => {
+                            setShowTask({
+                                ...showTask,
+                                info: {
+                                    ...showTask.info!,
+                                    trigger: {
+                                        ...showTask.info!.trigger,
+                                        why: e.target.value,
+                                    }
+                                }
+                            })
+                        }}
+                        className={styles.textField}
+                        onFocus={() => setIsInputting(true)}
+                        onBlur={() => setIsInputting(false)}
+                    />
+                );
+                break;
+            case SuspendedType.Time:
+                let now = dayjs();
+                let triggerTime: Dayjs = dayjs((showTask.info.trigger as TimeTrigger).time);
+                let isFirstDay = triggerTime.isSame(now, 'day');
+                let isLastDay = triggerTime.isSame(showTask.deadline, 'day');
+                let minTime = isFirstDay ? now : undefined;
+                let maxTime = isLastDay ? dayjs(showTask.deadline) : undefined;
+                suspendedInfo = (
+                    <div>
+                        <DatePicker
+                            label="Date"
+                            minDate={now}
+                            maxDate={dayjs(showTask.deadline)}
+                            value={triggerTime}
+                            className={styles.marginTop}
+                            onChange={(date) => {
+                                setShowTask({
+                                    ...showTask,
+                                    info: {
+                                        ...showTask.info!,
+                                        trigger: {
+                                            ...showTask.info!.trigger,
+                                            time: date!.toString(),
+                                        }
+                                    }
+                                })
+                            }}
+                        />
+                        <TimePicker
+                            label="Time"
+                            value={triggerTime}
+                            minTime={minTime}
+                            maxTime={maxTime}
+                            className={styles.marginTop}
+                            onChange={(date) => {
+                                setShowTask({
+                                    ...showTask,
+                                    info: {
+                                        ...showTask.info!,
+                                        trigger: {
+                                            ...showTask.info!.trigger,
+                                            time: date!.toString(),
+                                        }
+                                    }
+                                })
+                            }}
+                        />
+                    </div>);
+                break;
+            case SuspendedType.Email:
+                suspendedInfo = (<TextField
+                        label="Email"
+                        multiline
+                        rows={5}
+                        value={(showTask.info?.trigger as EmailTrigger).email}
+                        className={styles.textField}
+                        onChange={(e) => {
+                            setShowTask({
+                                ...showTask,
+                                info: {
+                                    ...showTask.info!,
+                                    trigger: {
+                                        ...showTask.info!.trigger,
+                                        email: e.target.value,
+                                    }
+                                }
+                            })
+                        }}
+                        onFocus={() => setIsInputting(true)}
+                        onBlur={() => setIsInputting(false)}
+                    />
+                );
+                break;
+            case SuspendedType.QQ:
+                suspendedInfo = (<TextField
+                        label="QQ"
+                        multiline
+                        rows={5}
+                        className={styles.textField}
+                        value={(showTask.info?.trigger as EmailTrigger).email}
+                        onChange={(e) => {
+                            setShowTask({
+                                ...showTask,
+                                info: {
+                                    ...showTask.info!,
+                                    trigger: {
+                                        ...showTask.info!.trigger,
+                                        email: e.target.value,
+                                    }
+                                }
+                            })
+                        }}
+                        onFocus={() => setIsInputting(true)}
+                        onBlur={() => setIsInputting(false)}
+                    />
+                );
+                break;
+            case SuspendedType.WeChat:
+                suspendedInfo = (<TextField
+                        label="WeChat"
+                        multiline
+                        rows={5}
+                        className={styles.textField}
+                        value={(showTask.info?.trigger as EmailTrigger).email}
+                        onChange={(e) => {
+                            setShowTask({
+                                ...showTask,
+                                info: {
+                                    ...showTask.info!,
+                                    trigger: {
+                                        ...showTask.info!.trigger,
+                                        email: e.target.value,
+                                    }
+                                }
+                            })
+                        }}
+                        onFocus={() => setIsInputting(true)}
+                        onBlur={() => setIsInputting(false)}
+                    />
+                );
+                break;
+            default:
+                break;
+        }
+    }
+
     return (
         <div className={styles.Board}>
             <TextField
@@ -176,7 +338,6 @@ export default function Board({
                 rows={5}
                 value={(showTask).goal}
                 onChange={onGoalChange}
-
                 onFocus={() => setIsInputting(true)}
                 onBlur={() => setIsInputting(false)}
             />
@@ -202,6 +363,32 @@ export default function Board({
                     <FormControlLabel value={TaskStatus.Done} control={<Radio/>} label={"Done"}/>
                 </RadioGroup>
             </FormControl>
+            {showTask.status === TaskStatus.Suspended &&
+                <div>
+                    <FormControl className={styles.FormControl}>
+                        <FormLabel>Suspended Type</FormLabel>
+                        <RadioGroup
+                            value={showTask.info?.type}
+                            onChange={(e) => {
+                                setShowTask({
+                                    ...showTask,
+                                    info: getInitSuspendedInfo(e.target.value as SuspendedType)
+                                })
+                            }}
+                        >
+                            <FormControlLabel value={SuspendedType.Time} control={<Radio/>} label={"Time"}/>
+                            <FormControlLabel value={SuspendedType.Constructing} control={<Radio/>}
+                                              label={"Constructing"}/>
+                            <FormControlLabel value={SuspendedType.Email} control={<Radio/>} label={"Email"}/>
+                            <FormControlLabel value={SuspendedType.QQ} control={<Radio/>} label={"QQ"}/>
+                            <FormControlLabel value={SuspendedType.WeChat} control={<Radio/>} label={"WeChat"}/>
+                        </RadioGroup>
+                    </FormControl>
+                    <Typography variant={"h6"} className={styles.SuspendedInfo}>Suspended Info</Typography>
+                    {suspendedInfo}
+                </div>
+            }
+            <div className={styles.footer}></div>
         </div>
     );
 }

@@ -58,6 +58,10 @@ export const scheduledTasksAtom = atom<Task[]>(get => {
     return Scheduler.getSchedule();
 });
 
+export const suspendedTasksAtom = atom<Task[]>(_get => {
+    return Scheduler.getSuspendedTasks();
+});
+
 export const isMouseEnterAtom = atom(
     get => get(appStateAtom).appRuntime.isMouseEnter,
     (get, set, update: boolean) => {
