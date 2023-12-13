@@ -372,16 +372,17 @@ const ctrlCMapKey = 'ctrl-c-keydown';
 
 const useDocumentOnCtrlCDown = () => {
     const [copiedTask, setCopiedTask] = useAtom(copiedTaskAtom);
+    const isInputting = useAtomValue(isInputtingAtom);
     const nowSelected = useAtomValue(nowSelectedAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
         if (event.ctrlKey && event.key === 'c') {
-            if (nowSelected.type === 'node') {
+            if (nowSelected.type === 'node' && !isInputting) {
                 setCopiedTask(nowSelected.reference as Task);
                 console.log("copied", nowSelected.reference);
             }
         }
-    }, [copiedTask, nowSelected]);
+    }, [copiedTask, nowSelected, isInputting]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(ctrlCMapKey)) {
@@ -389,7 +390,7 @@ const useDocumentOnCtrlCDown = () => {
         }
         documentKeyBoardEventsReference.set(ctrlCMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [copiedTask, nowSelected]);
+    }, [copiedTask, nowSelected, isInputting]);
 }
 
 const ctrlVMapKey = 'ctrl-v-keydown';
@@ -399,6 +400,7 @@ const useDocumentOnCtrlVDown = () => {
     const [nowViewing, setNowViewing] = useAtom(nowViewingAtom);
     const [styleMap, setStyleMap] = useAtom(styleMapAtom);
     const setIsModified = useSetAtom(isModifiedAtom);
+    const isInputting = useAtomValue(isInputtingAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
         if (event.ctrlKey && event.key === 'v' && copiedTask) {
@@ -424,7 +426,7 @@ const useDocumentOnCtrlVDown = () => {
             setStyleMap([...styleMap, [id, {position: {x: 50, y: 50}}]]);
             setIsModified(true);
         }
-    }, [copiedTask, nowViewing, styleMap]);
+    }, [copiedTask, nowViewing, styleMap, isInputting]);
 
     useEffect(() => {
         if (documentKeyBoardEventsReference.has(ctrlVMapKey)) {
@@ -432,7 +434,7 @@ const useDocumentOnCtrlVDown = () => {
         }
         documentKeyBoardEventsReference.set(ctrlVMapKey, {type: 'keydown', func: callback});
         document.addEventListener('keydown', callback);
-    }, [copiedTask, nowViewing, styleMap]);
+    }, [copiedTask, nowViewing, styleMap, isInputting]);
 }
 
 

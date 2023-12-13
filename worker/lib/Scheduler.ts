@@ -1,4 +1,4 @@
-import {Task, TaskStatus} from "../../atodo/state/tasksAtoms.ts";
+import {SuspendedType, Task, TaskStatus} from "../../atodo/state/tasksAtoms.ts";
 import dayjs from "dayjs";
 
 function iterable(tempTasks: Set<Task>): boolean {
@@ -37,7 +37,24 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
                     scheduledTaskThisLayer.add(targetNode);
                     break;
                 case TaskStatus.Suspended:
-                    scheduledTaskThisLayer.add(targetNode);
+                    if (targetNode.info?.type === SuspendedType.Constructing) {
+                        let tempBool = true;
+                        if (!targetToSourceMap.has(targetNode.id)) {
+                            scheduledTaskThisLayer.add(targetNode);
+                            break;
+                        }
+                        targetToSourceMap.get(targetNode.id)!.forEach((sourceNode) => {
+                            if (idTaskMap.get(sourceNode)!.status !== TaskStatus.Done) {
+                                tempBool = false;
+                                innerTemp.add(idTaskMap.get(sourceNode)!);
+                            }
+                        })
+                        if (tempBool) {
+                            scheduledTaskThisLayer.add(targetNode);
+                        }
+                    } else {
+                        scheduledTaskThisLayer.add(targetNode);
+                    }
                     break;
             }
         });
