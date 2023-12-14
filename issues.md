@@ -1,0 +1,1 @@
+- selected board would not change actively when noViewing board changed
