@@ -1,10 +1,14 @@
 import {defineConfig} from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import removeConsole from "vite-plugin-remove-console";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-    plugins: [react()],
+    plugins: [
+        react(),
+        removeConsole()
+    ],
 
     // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
     //

@@ -169,11 +169,13 @@ function TaskShow(
         console.log('Done')
     }
 
+    console.log(scheduledTasks[0].goal)
+
     return (
         <div>
-            <div className={styles.showGoal}>
+            <pre className={styles.showGoal}>
                 {scheduledTasks[0].goal}
-            </div>
+            </pre>
             <div className={styles.buttons}>
                 {showStart &&
                     <Button size="small" variant="contained" color="primary" onClick={onStartClick}>Start</Button>}

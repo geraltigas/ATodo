@@ -403,7 +403,7 @@ const useDocumentOnCtrlVDown = () => {
     const isInputting = useAtomValue(isInputtingAtom);
 
     const callback = useCallback((event: KeyboardEvent) => {
-        if (event.ctrlKey && event.key === 'v' && copiedTask) {
+        if (event.ctrlKey && event.key === 'v' && copiedTask && !isInputting) {
             let subtasks = nowViewing.subtasks.nodes;
             let id = dayjs().toString();
             subtasks.push({

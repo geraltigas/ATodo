@@ -11,14 +11,22 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
         targetNodesNotSourceNodesTemp.add(idTaskMap.get(targetNode)!);
     });
 
+    console.log("iterateSearching start from tasks: ", targetNodesNotSourceNodesTemp)
+    let iterationNum = 0;
+
     while (iterable(targetNodesNotSourceNodesTemp)) {
+        iterationNum++;
+        console.log("- iteration: " + iterationNum)
+        console.log("-- targetNodesNotSourceNodesTemp: ", targetNodesNotSourceNodesTemp)
         let innerTemp: Set<Task> = new Set();
         targetNodesNotSourceNodesTemp.forEach((targetNode) => {
+            console.log("-- now Searching task: " + targetNode.name + " status: " + targetNode.status)
             switch (targetNode.status) {
                 case TaskStatus.Created:
                     let tempBool = true;
                     if (!targetToSourceMap.has(targetNode.id)) {
                         scheduledTaskThisLayer.add(targetNode);
+                        console.log("-- task has no source tasks, add to scheduledTasksThisLayer: " + targetNode.name)
                         break;
                     }
                     targetToSourceMap.get(targetNode.id)!.forEach((sourceNode) => {
@@ -28,18 +36,25 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
                         }
                     })
                     if (tempBool) {
+                        console.log("-- task has source tasks, but all source tasks are done, add to scheduledTasksThisLayer: " + targetNode.name)
                         scheduledTaskThisLayer.add(targetNode);
+                    } else {
+                        console.log("-- task has source tasks, but not all source tasks are done, add source tasks to iteration")
                     }
                     break;
                 case TaskStatus.Done:
+                    console.log("-- task is done, give up: " + targetNode.name)
                     break;
                 case TaskStatus.InProgress:
+                    console.log("-- task is in progress, add to scheduledTasksThisLayer: " + targetNode.name)
                     scheduledTaskThisLayer.add(targetNode);
                     break;
                 case TaskStatus.Suspended:
                     if (targetNode.info?.type === SuspendedType.Constructing) {
+                        console.log("-- task is suspended, but type is constructing, keep on searching: " + targetNode.name)
                         let tempBool = true;
                         if (!targetToSourceMap.has(targetNode.id)) {
+                            console.log("-- task has no source tasks, add to scheduledTasksThisLayer: " + targetNode.name)
                             scheduledTaskThisLayer.add(targetNode);
                             break;
                         }
@@ -50,11 +65,18 @@ function iterateSearching(targetNodesNotSourceNodes: Set<string>, scheduledTaskT
                             }
                         })
                         if (tempBool) {
+                            console.log("-- task has source tasks, but all source tasks are done, add to scheduledTasksThisLayer: " + targetNode.name)
                             scheduledTaskThisLayer.add(targetNode);
+                        } else {
+                            console.log("-- task has source tasks, but not all source tasks are done, add source tasks to iteration")
                         }
                     } else {
                         scheduledTaskThisLayer.add(targetNode);
                     }
+                    break;
+                case TaskStatus.Paused:
+                    console.log("-- task is paused, add to scheduledTasksThisLayer: " + targetNode.name)
+                    scheduledTaskThisLayer.add(targetNode);
                     break;
             }
         });
@@ -74,6 +96,7 @@ export class Scheduler {
     public static schedule() {
         this.scheduledTasks = [];
         this.suspendedTasks = [];
+        console.error("start schedule")
         let temp = Array.from(this.scheduleTask(this.appStorage!));
         temp.forEach((task) => {
             if (task.status !== TaskStatus.Suspended) {
@@ -107,9 +130,13 @@ export class Scheduler {
         let targetToSourceMap = new Map<string, string[]>();
         let idTaskMap = new Map<string, Task>();
         let isConnectMap = new Map<string, boolean>();
+        console.log("start scheduleTask: " + task.name)
         if (task.subtasks.nodes.length === 0) {
             if (task.status !== TaskStatus.Done) {
+                console.log("root task has no subtasks, add to scheduledTasks: " + task.name)
                 scheduledTasks.add(task);
+            } else {
+                console.log("root task has no subtasks and task is done, return empty scheduledTasks: " + task.name)
             }
             return scheduledTasks;
         }
@@ -129,25 +156,31 @@ export class Scheduler {
             isConnectMap.set(source, true);
             isConnectMap.set(target, true);
         });
+
         if (task.subtasks.edges.length === 0) {
-            // scheduledTasks = scheduledTasks.concat(task.subtasks.nodes)
-            // union operator
+            console.log("task has no connected task, add all tasks to scheduledTasksThisLayer")
             scheduledTaskThisLayer = new Set([...scheduledTaskThisLayer, ...task.subtasks.nodes]);
+        } else {
+            console.log("task has connected task")
+            task.subtasks.nodes.forEach((node) => {
+                idTaskMap.set(node.id, node);
+                if (!isConnectMap.has(node.id)) {
+                    scheduledTaskThisLayer.add(node);
+                    console.log("- task has connected task, but node is not connected, add to scheduledTasksThisLayer: " + node.name)
+                }
+            });
+
+            let sourceNodes = new Set(task.subtasks.edges.map((edge) => edge[0]));
+            let targetNodes = new Set(task.subtasks.edges.map((edge) => edge[1]));
+
+            let targetNodesNotSourceNodes: Set<string> = new Set([...targetNodes].filter(x => !sourceNodes.has(x)));
+
+            console.log("iterate searching start from targetNodesNotSourceNodes, add to scheduledTasksThisLayer")
+            iterateSearching(targetNodesNotSourceNodes, scheduledTaskThisLayer, idTaskMap, targetToSourceMap)
         }
-        task.subtasks.nodes.forEach((node) => {
-            idTaskMap.set(node.id, node);
-            if (!isConnectMap.has(node.id)) {
-                scheduledTaskThisLayer.add(node);
-            }
-        });
 
-        let sourceNodes = new Set(task.subtasks.edges.map((edge) => edge[0]));
-        let targetNodes = new Set(task.subtasks.edges.map((edge) => edge[1]));
 
-        let targetNodesNotSourceNodes: Set<string> = new Set([...targetNodes].filter(x => !sourceNodes.has(x)));
-
-        iterateSearching(targetNodesNotSourceNodes, scheduledTaskThisLayer, idTaskMap, targetToSourceMap)
-
+        console.log("scheduledTasksThisLayer: ", scheduledTaskThisLayer)
         scheduledTaskThisLayer.forEach((task) => {
             scheduledTasks = new Set([...scheduledTasks, ...this.scheduleTask(task)]);
         })
