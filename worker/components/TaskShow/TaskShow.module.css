@@ -14,4 +14,6 @@
 .showGoal {
     /*left right margin 10px , top bottom 0px*/
     margin: var(--worker-show-goal-margin);
+    /*    selectable  */
+    user-select: text;
 }
