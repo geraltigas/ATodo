@@ -50,7 +50,14 @@ export const windowSizeAtom = atom(
             }
         })
 
-    });
+    }
+);
+
+export class UpdateOverall {
+    public static value: () => void = () => {
+        console.log("UpdateOverall not initialized")
+    }
+}
 
 export const scheduledTasksAtom = atom<Task[]>(get => {
     Scheduler.setAppStorage(get(appStateAtom).appStorage.overall);

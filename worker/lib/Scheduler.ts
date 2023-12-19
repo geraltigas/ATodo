@@ -1,5 +1,6 @@
 import {SuspendedType, Task, TaskStatus} from "../../atodo/state/tasksAtoms.ts";
 import dayjs from "dayjs";
+import {SuspendedTasksBuffer} from "./SuspendedTasksManager.ts";
 
 function iterable(tempTasks: Set<Task>): boolean {
     return tempTasks.size !== 0;
@@ -96,7 +97,6 @@ export class Scheduler {
     public static schedule() {
         this.scheduledTasks = [];
         this.suspendedTasks = [];
-        console.error("start schedule")
         let temp = Array.from(this.scheduleTask(this.appStorage!));
         temp.forEach((task) => {
             if (task.status !== TaskStatus.Suspended) {
@@ -105,6 +105,8 @@ export class Scheduler {
                 this.suspendedTasks.push(task);
             }
         })
+
+        SuspendedTasksBuffer.init(this.suspendedTasks);
 
         // reorder this.scheduledTasks
         this.scheduledTasks.sort((a, b) => {

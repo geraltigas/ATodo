@@ -89,10 +89,10 @@ export interface TimeRecord {
 
 export enum SuspendedType {
     Time = 'time',
+    Cyclicality = 'cyclicality',
     Email = 'email',
-    QQ = 'qq',
-    WeChat = 'wechat',
     Constructing = 'constructing',
+    Unsupported = 'unsupported',
 }
 
 export interface TimeTrigger {
@@ -103,16 +103,18 @@ export interface EmailTrigger {
     email: string;
 }
 
-export interface QQTrigger {
-    qqId: string;
-}
-
-export interface WeChatTrigger {
-    weChatId: string;
-}
-
 export interface ConstructingTrigger {
     why: string;
+}
+
+export interface UnsupportedTrigger {
+    why: string;
+}
+
+export interface CyclicalityTrigger {
+    interval: string;
+    nowAt: number;
+    lastTime: string;
 }
 
 export const getInitSuspendedInfo = (type: SuspendedType): SuspendedInfo => {
@@ -131,18 +133,11 @@ export const getInitSuspendedInfo = (type: SuspendedType): SuspendedInfo => {
                     email: '',
                 }
             }
-        case SuspendedType.QQ:
+        case SuspendedType.Unsupported:
             return {
-                type: SuspendedType.QQ,
+                type: SuspendedType.Unsupported,
                 trigger: {
-                    qqId: '',
-                }
-            }
-        case SuspendedType.WeChat:
-            return {
-                type: SuspendedType.WeChat,
-                trigger: {
-                    weChatId: '',
+                    why: '',
                 }
             }
         case SuspendedType.Constructing:
@@ -152,12 +147,22 @@ export const getInitSuspendedInfo = (type: SuspendedType): SuspendedInfo => {
                     why: '',
                 }
             }
+        case SuspendedType.Cyclicality:
+            return {
+                type: SuspendedType.Cyclicality,
+                trigger: {
+                    interval: "1",
+                    nowAt: 0,
+                    // dayjs() take the date , and set time to 4 am
+                    lastTime: dayjs().hour(4).minute(0).second(0).millisecond(0).toString(),
+                }
+            }
     }
 }
 
 interface SuspendedInfo {
     type: SuspendedType;
-    trigger: TimeTrigger | EmailTrigger | QQTrigger | WeChatTrigger | ConstructingTrigger;
+    trigger: TimeTrigger | EmailTrigger | ConstructingTrigger | UnsupportedTrigger | CyclicalityTrigger;
 }
 
 export interface Task {
@@ -401,7 +406,7 @@ export const nowViewingAtom = atom(
     (get, set, update: Task) => {
 
         let parent = update.parent
-        if (update.id === get(nowViewingAtom).id) { // TODO: reference update, should update the children and parent's reference
+        if (update.id === get(nowViewingAtom).id) {
             if (parent !== null) {
                 let index = parent.subtasks.nodes.findIndex((value) => {
                     return value.id === update.id;

@@ -66,3 +66,9 @@
 .marginTop {
     margin-top: 10px !important;
 }
+
+.cycleDateCalendar {
+    position: relative;
+    top: 0;
+    right: 10px
+}

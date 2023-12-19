@@ -6,6 +6,7 @@ import dayjs, {Dayjs} from 'dayjs';
 import {useAtomValue, useSetAtom} from "jotai";
 import {
     ConstructingTrigger,
+    CyclicalityTrigger,
     EmailTrigger,
     getInitSuspendedInfo,
     isInputtingAtom,
@@ -13,7 +14,8 @@ import {
     SuspendedType,
     Task,
     TaskStatus,
-    TimeTrigger
+    TimeTrigger,
+    UnsupportedTrigger
 } from "../../state/tasksAtoms.ts";
 import TimeClockWarp from "../TimeClock/TimeClockWarp.tsx";
 
@@ -137,7 +139,7 @@ export default function Board({
 
     const setIsInputting = useSetAtom(isInputtingAtom);
     const nowViewing = useAtomValue(nowViewingAtom);
-    
+
     const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setShowTask({
             ...showTask,
@@ -164,6 +166,7 @@ export default function Board({
         setShowTask({
             ...showTask,
             status: e.target.value as TaskStatus,
+            info: null,
         })
     }
 
@@ -269,13 +272,13 @@ export default function Board({
                     />
                 );
                 break;
-            case SuspendedType.QQ:
+            case SuspendedType.Unsupported:
                 suspendedInfo = (<TextField
-                        label="QQ"
+                        label="Why"
                         multiline
                         rows={5}
                         className={styles.textField}
-                        value={(showTask.info?.trigger as EmailTrigger).email}
+                        value={(showTask.info?.trigger as UnsupportedTrigger).why}
                         onChange={(e) => {
                             setShowTask({
                                 ...showTask,
@@ -283,7 +286,7 @@ export default function Board({
                                     ...showTask.info!,
                                     trigger: {
                                         ...showTask.info!.trigger,
-                                        email: e.target.value,
+                                        why: e.target.value,
                                     }
                                 }
                             })
@@ -293,28 +296,54 @@ export default function Board({
                     />
                 );
                 break;
-            case SuspendedType.WeChat:
-                suspendedInfo = (<TextField
-                        label="WeChat"
-                        multiline
-                        rows={5}
-                        className={styles.textField}
-                        value={(showTask.info?.trigger as EmailTrigger).email}
-                        onChange={(e) => {
-                            setShowTask({
-                                ...showTask,
-                                info: {
-                                    ...showTask.info!,
-                                    trigger: {
-                                        ...showTask.info!.trigger,
-                                        email: e.target.value,
+            case SuspendedType.Cyclicality:
+                suspendedInfo = (
+                    <div>
+                        <DateCalendar
+                            onChange={(date) => {
+                                setShowTask({
+                                    ...showTask,
+                                    info: {
+                                        ...showTask.info!,
+                                        trigger: {
+                                            ...showTask.info!.trigger,
+                                            lastTime: date!.hour(4).minute(0).second(0).toString(),
+                                        }
                                     }
+                                })
+                            }}
+                            value={dayjs((showTask.info?.trigger as CyclicalityTrigger).lastTime)}
+                            className={styles.cycleDateCalendar}
+                        />
+                        <TextField
+                            label="Interval Days"
+                            multiline
+                            rows={5}
+                            className={styles.textField}
+                            value={(showTask.info?.trigger as CyclicalityTrigger).interval}
+                            onChange={(e) => {
+                                // check if the input is valid : 1 2 3 4 5, only number and space
+                                let reg = /^[0-9 ]+$/;
+                                if (!reg.test(e.target.value)) {
+                                    return;
                                 }
-                            })
-                        }}
-                        onFocus={() => setIsInputting(true)}
-                        onBlur={() => setIsInputting(false)}
-                    />
+                                setShowTask({
+                                    ...showTask,
+                                    info: {
+                                        ...showTask.info!,
+                                        trigger: {
+                                            ...showTask.info!.trigger,
+                                            interval: e.target.value,
+                                            nowAt: 0,
+                                            lastTime: dayjs().hour(4).minute(0).second(0).toString(),
+                                        }
+                                    }
+                                })
+                            }}
+                            onFocus={() => setIsInputting(true)}
+                            onBlur={() => setIsInputting(false)}
+                        />
+                    </div>
                 );
                 break;
             default:
@@ -377,11 +406,12 @@ export default function Board({
                             }}
                         >
                             <FormControlLabel value={SuspendedType.Time} control={<Radio/>} label={"Time"}/>
+                            <FormControlLabel value={SuspendedType.Cyclicality} control={<Radio/>}
+                                              label={"Cyclicality"}/>
                             <FormControlLabel value={SuspendedType.Constructing} control={<Radio/>}
                                               label={"Constructing"}/>
                             <FormControlLabel value={SuspendedType.Email} control={<Radio/>} label={"Email"}/>
-                            <FormControlLabel value={SuspendedType.QQ} control={<Radio/>} label={"QQ"}/>
-                            <FormControlLabel value={SuspendedType.WeChat} control={<Radio/>} label={"WeChat"}/>
+                            <FormControlLabel value={SuspendedType.Unsupported} control={<Radio/>} label={"Undefined"}/>
                         </RadioGroup>
                     </FormControl>
                     <Typography variant={"h6"} className={styles.SuspendedInfo}>Suspended Info</Typography>

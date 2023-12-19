@@ -1,7 +1,7 @@
 import styles from "./Worker.module.css"
 import {useDataInit} from "./WorkerHooks.ts";
 import {useAtom, useAtomValue} from "jotai";
-import {appStateAtom, scheduledTasksAtom, windowSizeAtom} from "../../state/tasksAtom.ts";
+import {appStateAtom, scheduledTasksAtom, UpdateOverall, windowSizeAtom} from "../../state/tasksAtom.ts";
 import {useEffect, useRef, useState} from "react";
 import {invoke} from "@tauri-apps/api";
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
@@ -42,6 +42,9 @@ const Worker = () => {
 
     const windowSize = useAtomValue(windowSizeAtom);
     const [appState, setAppState] = useAtom(appStateAtom);
+    UpdateOverall.value = () => {
+        setAppState({...appState});
+    }
     const scheduledTasks = useAtomValue(scheduledTasksAtom);
     const [showSuspendedTasks, setShowSuspendedTasks] = useState(false);
 
