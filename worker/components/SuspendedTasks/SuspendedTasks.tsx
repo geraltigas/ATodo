@@ -20,12 +20,16 @@ const SuspendedTasks = () => {
         <div className={styles.SuspendedTasks}>
             {suspendedTasks.map((task, index) => {
                 return (
-                    <div key={index} onClick={onClick(task)}>
-                        <div>{task.name}:{task.info?.type}</div>
+                    <div key={index} onClick={onClick(task)} className={styles.card}>
+                        <div className={styles.fontOneLine}>
+                            <pre className={styles.redFont + ' ' + styles.noMargin}>{task.name}:</pre>
+                            <pre className={styles.noMargin}>{task.info?.type}</pre>
+                        </div>
                         {Object.entries(task.info!.trigger).map(([key, value], index) => {
                             return (
-                                <div key={index}>
-                                    <div>{key}:{value}</div>
+                                <div key={index} className={styles.fontOneLine}>
+                                    <pre className={styles.redFont + ' ' + styles.noMargin}>{key}:</pre>
+                                    <pre className={styles.noMargin}>{value}</pre>
                                 </div>
                             )
                         })}
