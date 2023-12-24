@@ -20,11 +20,11 @@ export class SuspendedTasksBuffer {
                         console.log("time trigger")
                         task.status = TaskStatus.InProgress;
                         task.info = null;
-                        UpdateOverall.value();
                         let str = stringify(appStoragePersistence);
                         invoke<string>("save", {key: "taskStorage", value: str}).then((res) => {
                             console.log(res)
                         })
+                        UpdateOverall.value();
                         let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id);
                         if (setIntervalId !== undefined) {
                             clearInterval(setIntervalId);
@@ -40,23 +40,25 @@ export class SuspendedTasksBuffer {
                 cb();
             } else if (task.info?.type === SuspendedType.Cyclicality) {
                 let cb = () => {
+                    console.log("cb")
                     let lastTime = dayjs((task.info!.trigger as CyclicalityTrigger).lastTime);
                     let nowAt = (task.info!.trigger as CyclicalityTrigger).nowAt;
                     let interval = (task.info!.trigger as CyclicalityTrigger).interval;
                     let now = dayjs();
                     let nextTime = lastTime.add(interval.split(" ").filter((s) => s !== "").map((s) => parseInt(s))[nowAt], "day");
                     if (now.isAfter(nextTime)) {
+                        console.log("cyclicality trigger")
                         task.status = TaskStatus.InProgress;
                         task.info!.trigger = {
                             interval: interval,
                             nowAt: (nowAt + 1) % interval.length,
                             lastTime: now.format()
                         }
-                        UpdateOverall.value();
                         let str = stringify(appStoragePersistence);
                         invoke<string>("save", {key: "taskStorage", value: str}).then((res) => {
                             console.log(res)
                         })
+                        UpdateOverall.value();
                         let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id);
                         if (setIntervalId !== undefined) {
                             clearInterval(setIntervalId);
