@@ -4,6 +4,7 @@ import {UpdateOverall} from "../state/tasksAtom.ts";
 import {stringify} from "flatted";
 import {appStoragePersistence} from "../pages/Worker/WorkerHooks.ts";
 import {invoke} from "@tauri-apps/api";
+import {SCHEDULED_REFRESH_INTERVAL} from "./Constants.ts";
 
 export class SuspendedTasksBuffer {
     private static intervalIds: Map<string, NodeJS.Timeout> = new Map();
@@ -21,15 +22,16 @@ export class SuspendedTasksBuffer {
                         task.status = TaskStatus.InProgress;
                         task.info = null;
                         let str = stringify(appStoragePersistence);
+                        UpdateOverall.value();
                         invoke<string>("save", {key: "taskStorage", value: str}).then((res) => {
                             console.log(res)
                         })
-                        UpdateOverall.value();
                         let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id);
                         if (setIntervalId !== undefined) {
                             clearInterval(setIntervalId);
                         }
                     }
+                    setTimeout(UpdateOverall.value, SCHEDULED_REFRESH_INTERVAL);
                 }
                 if (SuspendedTasksBuffer.intervalIds.has(task.id)) {
                     let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id);
@@ -55,15 +57,17 @@ export class SuspendedTasksBuffer {
                             lastTime: now.format()
                         }
                         let str = stringify(appStoragePersistence);
+
                         invoke<string>("save", {key: "taskStorage", value: str}).then((res) => {
                             console.log(res)
                         })
-                        UpdateOverall.value();
+
                         let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id);
                         if (setIntervalId !== undefined) {
                             clearInterval(setIntervalId);
                         }
                     }
+                    setTimeout(UpdateOverall.value, SCHEDULED_REFRESH_INTERVAL);
                 }
                 if (SuspendedTasksBuffer.intervalIds.has(task.id)) {
                     let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id);

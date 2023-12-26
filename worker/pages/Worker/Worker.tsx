@@ -42,9 +42,13 @@ const Worker = () => {
 
     const windowSize = useAtomValue(windowSizeAtom);
     const [appState, setAppState] = useAtom(appStateAtom);
+    if (!UpdateOverall.value) {
+        setAppState({...appState})
+    }
     UpdateOverall.value = () => {
         setAppState({...appState});
     }
+
     const scheduledTasks = useAtomValue(scheduledTasksAtom);
     const [showSuspendedTasks, setShowSuspendedTasks] = useState(false);
 
