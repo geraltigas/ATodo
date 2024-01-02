@@ -4,3 +4,4 @@
   task.
 - add tasks archive: we can store a task from the schedule to the archive, when we need it, we can restore it to the
   schedule.
+- when the task is not paused and click enter to open ATodo, the time record would double.
