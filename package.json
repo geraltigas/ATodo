@@ -23,18 +23,14 @@
     "dayjs": "^1.11.10",
     "flatted": "^3.2.9",
     "jotai": "^2.6.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0",
+    "preact": "^10.19.3",
     "reactflow": "^11.10.1"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.6",
-    "@types/react": "^18.2.15",
-    "@types/react-dom": "^18.2.7",
-    "@vitejs/plugin-react": "^4.0.3",
+    "@preact/preset-vite": "^2.7.0",
     "typescript": "^5.0.2",
-    "vite": "^4.4.4",
+    "vite": "^5.0.5",
     "vite-plugin-remove-console": "^2.2.0"
   }
 }
