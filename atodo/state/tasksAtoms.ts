@@ -22,6 +22,7 @@ export const startNode: TaskNodeShow = {
     },
     targetPosition: Position.Right,
 };
+
 export const nodeTypes = {
     start: StartNode,
     end: EndNode,
