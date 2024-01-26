@@ -1,0 +1,74 @@
+:root {
+    --board-width: 320px;
+    --board-background-color: #ffffff;
+    --board-padding-x: 10px;
+    --board-padding-y: 20px;
+    --board-child-margin-top: 15px;
+    --board-form-control-margin-left: 10px;
+}
+
+.Board {
+    width: var(--board-width);
+    min-width: var(--board-width);
+    height: 100%;
+    /*padding: var(--board-padding-y) var(--board-padding-x);*/
+    /*padding-bottom: 10px;*/
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--board-background-color);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    /*    unselectable   */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.Board::-webkit-scrollbar {
+    display: none;
+}
+
+.DateCalendar {
+    min-height: 330px;
+    margin-top: 0 !important;
+}
+
+/*first layer child*/
+.Board > * {
+    margin-left: var(--board-padding-x) !important;
+    margin-right: var(--board-padding-x) !important;
+    margin-top: var(--board-child-margin-top) !important;
+}
+
+.FormControl {
+    padding-left: var(--board-form-control-margin-left) !important;
+}
+
+.footer {
+    width: 100%;
+    height: 50px !important;
+    background-color: #ffffff;
+}
+
+.SuspendedInfo {
+    /*margin-bottom: 10px !important;*/
+}
+
+.textField {
+    width: 100%;
+}
+
+.marginTop {
+    margin-top: 10px !important;
+}
+
+.cycleDateCalendar {
+    position: relative;
+    top: 0;
+    right: 10px
+}

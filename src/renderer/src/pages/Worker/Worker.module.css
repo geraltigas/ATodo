@@ -1,0 +1,82 @@
+:root {
+    --worker-border-radius: 5px;
+    --worker-background-color: #FFF;
+    --worker-margin-right: 10px;
+    --worker-task-name-height: 24px;
+    --worker-task-name-line-height: 24px;
+    --worker-task-color: #000;
+    --worker-task-font-size: 24px;
+    --worker-task-font-weight: 400;
+    --worker-task-container-padding: 5px 5px 5px 5px;
+}
+
+.WorkerBackground {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--worker-border-radius);
+    background: var(--worker-background-color);
+    width: fit-content;
+    height: fit-content;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.taskShow {
+    /*top right bottom 15px, left 0px*/
+    padding: var(--worker-task-container-padding);
+
+    /*!*vertical center*!*/
+    width: 100%;
+    height: fit-content;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+}
+
+
+.taskFont {
+    /* margin right 10px */
+    margin-right: var(--worker-margin-right);
+    height: var(--worker-task-name-height);
+    line-height: var(--worker-task-name-line-height);
+    text-align: center;
+    color: var(--worker-task-color);
+    font-family: Inter, fantasy;
+    font-size: var(--worker-task-font-size);
+    font-style: normal;
+    font-weight: var(--worker-task-font-weight);
+    flex-shrink: 0;
+}
+
+.expand {
+    width: fit-content;
+    height: fit-content;
+    /*    center children element */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.rightButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.leftShow {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}

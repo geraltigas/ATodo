@@ -1,0 +1,53 @@
+:root {
+  --head-bar-color: #ebebeb;
+  --head-bar-opacity: 0;
+  --head-bar-height: 35px;
+}
+
+.HeadBar {
+  /*the same as parent width*/
+  width: 100%;
+  height: var(--head-bar-height);
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+  /*  make this element float out(overlap with other elements) and transparent */
+  position: absolute; /* or 'absolute' */
+  top: 0; /* Adjust as needed */
+  left: 0; /* Adjust as needed */
+  z-index: 1000; /* Higher than other elements */
+  /* elements to right */
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.draggable {
+  opacity: var(--head-bar-opacity);
+  width: 100%;
+}
+
+.Menu {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  -webkit-app-region: no-drag;
+}
+
+.MenuButton {
+  opacity: 1;
+  background: var(--head-bar-color);
+  height: 100%;
+  width: 35px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  -webkit-app-region: no-drag;
+  background-color: var(--head-bar-color);
+}
+
+
+/* on hover */
+.MenuButton:hover {
+  background-color: rgba(255, 255, 255, 1.2);
+}

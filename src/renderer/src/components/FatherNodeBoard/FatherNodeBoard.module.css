@@ -1,0 +1,26 @@
+:root {
+    --father-node-board-size: 30px;
+}
+
+.Board {
+    position: relative;
+}
+
+.showFatherNodeBoard {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateX(60%);
+    z-index: 2;
+    width: var(--father-node-board-size);
+    height: var(--father-node-board-size);
+    background-color: var(--task-node-handle-background-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.showFatherNodeBoard:hover {
+    background-color: var(--task-node-handle-hover-background-color);
+}

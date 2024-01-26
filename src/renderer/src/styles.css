@@ -1,0 +1,14 @@
+/*noinspection CssUnusedSymbol*/
+.react-flow__attribution {
+    /*  make it disappear */
+    display: none;
+}
+
+/*noinspection CssUnusedSymbol*/
+.MuiStepper-root {
+    flex-direction: row-reverse !important;
+}
+
+.MuiDateCalendar-root {
+    margin: 0 !important;
+}

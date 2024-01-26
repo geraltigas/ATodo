@@ -1,0 +1,56 @@
+:root {
+  --end-node-handle-size: 10px;
+  --end-node-size-height: 30px;
+  --end-node-size-width: 40px;
+  --start-border-radius: 10%;
+  --end-node-background-color: #00ff00;
+  --end-node-handle-background-color: #e4e4e4;
+  --end-node-handle-hover-background-color: #a5a5a5;
+}
+
+.EndNode {
+  background-color: var(--end-node-background-color);
+  border-radius: var(--start-border-radius);
+  width: var(--end-node-size-width);
+  height: var(--end-node-size-height);
+  /*border: 1px solid black;*/
+  /*position: absolute;*/
+  /*z-index: 1;*/
+  /*margin: 0;*/
+  /*padding: 0;*/
+  /*display: flex;*/
+  /*justify-content: center;*/
+  /*align-items: center;*/
+  /*font-size: 1.5rem;*/
+  /*font-weight: bold;*/
+  /*color: black;*/
+  /*cursor: pointer;*/
+  /*transition: all 0.2s ease-in-out;*/
+  /*box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);*/
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.EndNode .EndNodeHandle {
+  background-color: var(--end-node-handle-background-color);
+  width: var(--end-node-handle-size);
+  height: var(--end-node-handle-size);
+  /*move right 15 px*/
+  /*position: relative;*/
+  /*!*right: 15px;*!*/
+  /*margin: 0 !important;*/
+}
+
+
+.EndNode .EndNodeHandle:hover {
+  background-color: var(--end-node-handle-hover-background-color);
+  width: var(--end-node-handle-size);
+  height: var(--end-node-handle-size);
+  /*move right 15 px*/
+  /*position: relative;*/
+  /*!*right: 15px;*!*/
+  /*margin: 0 !important;*/
+}

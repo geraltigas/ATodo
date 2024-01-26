@@ -1,0 +1,19 @@
+:root {
+    --worker-show-goal-margin: 0px 2px 0px 2px;
+    --worker-show-buttons-margin: 2px;
+    --worker-show-buttons-gap: 2px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin: var(--worker-show-buttons-margin);
+    gap: var(--worker-show-buttons-gap);
+}
+
+.showGoal {
+    /*left right margin 10px , top bottom 0px*/
+    margin: var(--worker-show-goal-margin);
+    /*    selectable  */
+    user-select: text;
+}

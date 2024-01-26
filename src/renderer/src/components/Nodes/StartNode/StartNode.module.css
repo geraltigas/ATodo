@@ -1,0 +1,56 @@
+:root {
+  --start-node-handle-size: 10px;
+  --start-node-size-height: 30px;
+  --start-node-size-width: 40px;
+  --start-border-radius: 10%;
+  --start-node-background-color: #ff5e5e;
+  --start-node-handle-background-color: #e4e4e4;
+  --start-node-handle-hover-background-color: #a5a5a5;
+}
+
+.StartNode {
+  background-color: var(--start-node-background-color);
+  border-radius: var(--start-border-radius);
+  width: var(--start-node-size-width);
+  height: var(--start-node-size-height);
+  /*border: 1px solid black;*/
+  /*position: absolute;*/
+  /*z-index: 1;*/
+  /*margin: 0;*/
+  /*padding: 0;*/
+  /*display: flex;*/
+  /*justify-content: center;*/
+  /*align-items: center;*/
+  /*font-size: 1.5rem;*/
+  /*font-weight: bold;*/
+  /*color: black;*/
+  /*cursor: pointer;*/
+  /*transition: all 0.2s ease-in-out;*/
+  /*box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);*/
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.StartNode .StartNodeHandle {
+  background-color: var(--start-node-handle-background-color);
+  width: var(--start-node-handle-size);
+  height: var(--start-node-handle-size);
+  /*move right 15 px*/
+  /*position: relative;*/
+  /*!*right: 15px;*!*/
+  /*margin: 0 !important;*/
+}
+
+
+.StartNode .StartNodeHandle:hover {
+  background-color: var(--start-node-handle-hover-background-color);
+  width: var(--start-node-handle-size);
+  height: var(--start-node-handle-size);
+  /*move right 15 px*/
+  /*position: relative;*/
+  /*!*right: 15px;*!*/
+  /*margin: 0 !important;*/
+}
