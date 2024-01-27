@@ -1,13 +1,3 @@
-// export type sql_api = {
-//   init_database: (file_name: string) => Promise<boolean>
-//   check_database: (file_name: string) => Promise<boolean>
-//   select: (sql: string) => Promise<any[]>
-//   rt_bool: (sql: string) => Promise<boolean>
-//   sqls_rt_bool: (sqls: string[]) => Promise<boolean>
-//   DB_FILE: string
-//   DB_INIT_SQL_FILE: string
-// }
-
 export class sql_api {
   public static init_database(file_name: string): Promise<boolean> {
     // @ts-ignore

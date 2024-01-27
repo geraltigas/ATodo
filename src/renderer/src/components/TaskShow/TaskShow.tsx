@@ -1,10 +1,43 @@
 import styles from './TaskShow.module.css'
-// import {Task, TaskStatus, TimeRecord} from "../../../atodo/state/tasksAtoms";
-// import {appStateAtom} from "../../state/tasksAtom.ts";
-// import {invoke} from "@tauri-apps/api";
-// import { stringify } from 'flatted'
 import React from 'react'
-// import {appStoragePersistence} from "../../pages/Worker/WorkerHooks.ts";
+import { tasks_db, timestamp } from '../../../../types/sql'
+import { scheduled_tasks, tick, time_record, TimeRecord } from '../../state/worker'
+import { task_api } from '../../api/task_api'
+import { Button } from '@mui/material'
+import { schedule } from '../../lib/Scheduler'
+import { useNavigate } from 'react-router-dom'
+import { window_control_api } from '../../api/window_control_api'
+
+export const from_timestamp_to_timerecord = (timestamp: number): TimeRecord => {
+  let date = new Date(timestamp * 1000)
+  let year = date.getFullYear() - 1970
+  let month = date.getMonth()
+  let day = date.getDate() - 1
+  let hours = date.getHours() + year * 365 * 24 + month * 30 * 24 + day * 24 - 8
+  return {
+    hours: hours,
+    minutes: date.getMinutes(),
+    seconds: date.getSeconds()
+  }
+}
+
+export const from_timerecord_to_timestamp = (timeRecord: TimeRecord): number => {
+  let date = new Date()
+  let raw_h = timeRecord.hours + 8
+  let year = Math.floor(timeRecord.hours / (365 * 24))
+  raw_h -= year * 365 * 24
+  let month = Math.floor(raw_h / (30 * 24))
+  raw_h -= month * 30 * 24
+  let day = Math.floor(raw_h / 24)
+  raw_h -= day * 24
+  date.setFullYear(1970 + year)
+  date.setMonth(month)
+  date.setDate(day + 1)
+  date.setHours(raw_h)
+  date.setMinutes(timeRecord.minutes)
+  date.setSeconds(timeRecord.seconds)
+  return date.valueOf()
+}
 
 // export const openTaskBoardAndSave = (task: Task) => {
 //     let str = stringify(appStoragePersistence);
@@ -22,166 +55,122 @@ import React from 'react'
 //     });
 // }
 
-// const addTimeRecord = (base: TimeRecord, addTimeRecord: TimeRecord) => {
-//   base.hours += addTimeRecord.hours
-//   base.minutes += addTimeRecord.minutes
-//   base.seconds += addTimeRecord.seconds
-//   if (base.seconds >= 60) {
-//     base.seconds -= 60
-//     base.minutes++
-//   }
-//   if (base.minutes >= 60) {
-//     base.minutes -= 60
-//     base.hours++
-//   }
-//   return base
-// }
+const addTime = (base: timestamp, addTime: timestamp) => {
+  return base + addTime
+}
 
-// const minusTimeRecord = (base: TimeRecord, minusTimeRecord: TimeRecord) => {
-//   let delta: TimeRecord = {
-//     hours: 0,
-//     minutes: 0,
-//     seconds: 0
-//   }
-//   delta.hours = base.hours - minusTimeRecord.hours
-//   delta.minutes = base.minutes - minusTimeRecord.minutes
-//   delta.seconds = base.seconds - minusTimeRecord.seconds
-//   if (delta.seconds < 0) {
-//     delta.seconds += 60
-//     delta.minutes--
-//   }
-//   if (delta.minutes < 0) {
-//     delta.minutes += 60
-//     delta.hours--
-//   }
-//   return delta
-// }
+const minusTime = (base: timestamp, minusTime: timestamp) => {
+  return base - minusTime
+}
 
-// const isDone = (task: Task): boolean => {
-//   let isDone: boolean = true
-//   task.subtasks.nodes.forEach((subtask) => {
-//     if (subtask.status !== TaskStatus.Done) {
-//       isDone = false
-//     }
-//   })
-//   return isDone
-// }
+const isDone = (task: tasks_db): boolean => {
+  let isDone: boolean = true
+  let subtasks = task_api.get_subtasks_from_buffer(task.id)
+  subtasks.forEach((subtask) => {
+    if (subtask.status !== 'done') {
+      isDone = false
+    }
+  })
+  return isDone
+}
 
-// const isSuspended = (task: Task): boolean => {
-//   let isSuspended: boolean = true
-//   task.subtasks.nodes.forEach((subtask) => {
-//     if (subtask.status !== TaskStatus.Suspended && subtask.status !== TaskStatus.Done) {
-//       isSuspended = false
-//     }
-//   })
-//   return isSuspended
-// }
+const isSuspended = (task: tasks_db): boolean => {
+  let isSuspended: boolean = true
+  task_api.get_subtasks_from_buffer(task.parent).forEach((subtask) => {
+    if (subtask.status !== 'suspended' && subtask.status !== 'done') {
+      isSuspended = false
+    }
+  })
+  return isSuspended
+}
 
-function TaskShow(
-  {
-    scheduledTasks,
-    timeRecord,
-    setTimeRecordOn
-  }: {
-    // scheduledTasks: Task[],
-    // timeRecord: TimeRecord,
-    setTimeRecordOn: (timeRecordOn: boolean) => void,
-  }) {
+function TaskShow() {
+  const navigate = useNavigate()
 
-  // const [appStatus, setAppStatus] = useAtom(appStateAtom)
-  //
-  // const showStart: boolean = scheduledTasks[0].status === TaskStatus.Created || scheduledTasks[0].status === TaskStatus.Suspended || scheduledTasks[0].status === TaskStatus.Paused
-  // const showInterrupt: boolean = scheduledTasks[0].status === TaskStatus.InProgress
-  // const showPause: boolean = scheduledTasks[0].status === TaskStatus.InProgress
-  // const showDone: boolean = scheduledTasks[0].status === TaskStatus.InProgress
+  const showStart: boolean = scheduled_tasks.value[0].status === 'created' || scheduled_tasks.value[0].status === 'suspended' || scheduled_tasks.value[0].status === 'paused'
+  const showInterrupt: boolean = scheduled_tasks.value[0].status === 'in_progress'
+  const showPause: boolean = scheduled_tasks.value[0].status === 'in_progress'
+  const showDone: boolean = scheduled_tasks.value[0].status === 'in_progress'
 
   const onStartClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
-    // let temp: Task | null = scheduledTasks[0]
-    // temp.status = TaskStatus.InProgress
-    // while (temp !== null) {
-    //   temp.status = TaskStatus.InProgress
-    //   temp = temp.parent
-    // }
-    // setAppStatus({ ...appStatus })
-    // let str = stringify(appStoragePersistence)
-    // invoke<string>('save', { key: 'taskStorage', value: str }).then((res) => {
-    //   console.log(res)
-    // })
-    // setTimeRecordOn(true)
-    // console.log('Start')
+    let temp: tasks_db | null = scheduled_tasks.value[0]
+    temp.status = 'in_progress'
+    task_api.update_task(temp)
+    while (temp.parent !== -1) {
+      temp.status = 'in_progress'
+      task_api.update_task(temp)
+      temp = task_api.get_task_from_buffer(temp.parent)
+    }
+    tick.value = true
+    schedule()
   }
 
   const onSuspendClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
-    // let temp: Task | null = scheduledTasks[0]
-    // temp.status = TaskStatus.Suspended
-    // let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed)
-    // addTimeRecord(temp.timeConsumed, delta)
-    // while (temp.parent !== null) {
-    //   if (isSuspended(temp.parent)) {
-    //     temp.parent.status = TaskStatus.Suspended
-    //   }
-    //   addTimeRecord(temp.parent.timeConsumed, delta)
-    //   temp = temp.parent
-    // }
-    // setAppStatus({ ...appStatus })
-    // openTaskBoardAndSave(scheduledTasks[0])
+    let temp: tasks_db = scheduled_tasks.value[0]
+    temp.status = 'suspended'
+    task_api.update_task(temp)
+    let delta: timestamp = minusTime(time_record.value, temp.time_consumed)
+    temp.time_consumed = addTime(temp.time_consumed, delta)
+    task_api.update_task(temp)
+    while (temp.parent !== -1) {
+      let parent = task_api.get_task_from_buffer(temp.parent)
+      if (isSuspended(parent)) {
+        parent.status = 'suspended'
+      }
+      parent.time_consumed = addTime(parent.time_consumed, delta)
+      task_api.update_task(parent)
+      temp = parent
+    }
+    window_control_api.edit_suspened_task(scheduled_tasks.value[0].id, navigate)
   }
 
   const onPauseClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
-    // let temp: Task | null = scheduledTasks[0]
-    // temp.status = TaskStatus.Paused
-    // let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed)
-    // addTimeRecord(temp.timeConsumed, delta)
-    // while (temp !== null) {
-    //   temp.status = TaskStatus.Paused
-    //   addTimeRecord(temp.timeConsumed, delta)
-    //   temp = temp.parent
-    // }
-    // setAppStatus({ ...appStatus })
-    // let str = stringify(appStoragePersistence)
-    // invoke<string>('save', { key: 'taskStorage', value: str }).then((res) => {
-    //   console.log(res)
-    // })
-    // setTimeRecordOn(false)
-    // console.log('Pause')
+    let temp: tasks_db = scheduled_tasks.value[0]
+    temp.status = 'paused'
+    let delta: timestamp = minusTime(time_record.value, temp.time_consumed)
+    temp.time_consumed = addTime(temp.time_consumed, delta)
+    task_api.update_task(temp)
+    while (temp.parent !== -1) {
+      temp.status = 'paused'
+      temp.time_consumed = addTime(temp.time_consumed, delta)
+      task_api.update_task(temp)
+      temp = task_api.get_task_from_buffer(temp.parent)
+    }
+    tick.value = false
+    schedule()
   }
 
   const onDoneClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
-    // let temp: Task | null = scheduledTasks[0]
-    // temp.status = TaskStatus.Done
-    // let delta: TimeRecord = minusTimeRecord(timeRecord, temp.timeConsumed)
-    // addTimeRecord(temp.timeConsumed, delta)
-    // while (temp.parent !== null) {
-    //   if (isDone(temp.parent)) {
-    //     temp.parent.status = TaskStatus.Done
-    //   }
-    //   addTimeRecord(temp.parent.timeConsumed, delta)
-    //   temp = temp.parent
-    // }
-    // setAppStatus({ ...appStatus })
-    // let str = stringify(appStoragePersistence)
-    // invoke<string>('save', { key: 'taskStorage', value: str }).then((res) => {
-    //   console.log(res)
-    // })
-    // setTimeRecordOn(false)
-    // console.log('Done')
+    let temp: tasks_db = scheduled_tasks.value[0]
+    temp.status = 'done'
+    let delta: timestamp = minusTime(time_record.value, temp.time_consumed)
+    temp.time_consumed = addTime(temp.time_consumed, delta)
+    task_api.update_task(temp)
+    while (temp.parent !== -1) {
+      let parent = task_api.get_task_from_buffer(temp.parent)
+      if (isDone(parent)) {
+        parent.status = 'done'
+      }
+      parent.time_consumed = addTime(parent.time_consumed, delta)
+      task_api.update_task(parent)
+      temp = parent
+    }
+    schedule()
   }
-
-  console.log(scheduledTasks[0].goal)
 
   return (
     <div>
             <pre className={styles.showGoal}>
-                {scheduledTasks[0].goal}
+                {scheduled_tasks.value[0].goal}
             </pre>
       <div className={styles.buttons}>
-        {/*{showStart &&*/}
-        {/*  <Button size="small" variant="contained" color="primary" onClick={onStartClick}>Start</Button>}*/}
-        {/*{showInterrupt &&*/}
-        {/*  <Button size="small" variant="contained" color="error" onClick={onSuspendClick}>Suspend</Button>}*/}
-        {/*{showPause && <Button size="small" variant="contained" onClick={onPauseClick}>Pause</Button>}*/}
-        {/*{showDone &&*/}
-        {/*  <Button size="small" variant="contained" color="success" onClick={onDoneClick}>Done</Button>}*/}
+        {showStart &&
+          <Button size="small" variant="contained" color="primary" onClick={onStartClick}>Start</Button>}
+        {showInterrupt &&
+          <Button size="small" variant="contained" color="error" onClick={onSuspendClick}>Suspend</Button>}
+        {showPause && <Button size="small" variant="contained" onClick={onPauseClick}>Pause</Button>}
+        {showDone &&
+          <Button size="small" variant="contained" color="success" onClick={onDoneClick}>Done</Button>}
       </div>
     </div>
   )

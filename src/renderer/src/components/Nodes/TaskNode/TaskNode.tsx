@@ -2,7 +2,7 @@ import { Handle, Position } from 'reactflow'
 import styles from './TaskNode.module.css'
 import { tasks_db } from '../../../../../types/sql'
 import { task_api } from '../../../api/task_api'
-import { Node, now_selected } from '../../../state/app'
+import { Node, now_selected } from '../../../state/atodo'
 
 const TaskNode = ({ data }) => {
   const classNames = [styles.TaskNode]

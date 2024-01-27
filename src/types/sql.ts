@@ -18,7 +18,8 @@ export type tasks_db = {
 export type app_state_db = {
   id: 0
   root_task: timestamp
-  now_viewing_task: timestamp
+  now_viewing_task: timestamp,
+  now_selected_task: timestamp
 }
 
 export type root_task_db = {

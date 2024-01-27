@@ -1,5 +1,5 @@
 import Board from '../Board/Board'
-import { Node, now_selected } from '../../state/app'
+import { Node, now_selected } from '../../state/atodo'
 import { useComputed } from '@preact/signals'
 
 export default function NowSelectedBoard() {

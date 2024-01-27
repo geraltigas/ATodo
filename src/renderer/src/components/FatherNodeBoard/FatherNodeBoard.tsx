@@ -3,7 +3,7 @@ import styles from './FatherNodeBoard.module.css'
 import { useState } from 'react'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import LeftArrowIcon from '@mui/icons-material/ArrowLeft'
-import { now_viewing_task } from '../../state/app'
+import { now_viewing_task } from '../../state/atodo'
 
 export default function FatherNodeBoard() {
   const [showFatherNodeBoard, setShowFatherNodeBoard] = useState(false)

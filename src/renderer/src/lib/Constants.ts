@@ -1,0 +1,1 @@
+export const SCHEDULED_REFRESH_INTERVAL = 5

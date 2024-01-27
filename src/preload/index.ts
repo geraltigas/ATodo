@@ -1,26 +1,7 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { check_database, init_database, rt_bool, select, sqls_rt_bool } from '../main/sql/sql'
-import { DB_FILE, DB_INIT_SQL_FILE } from '../main/global'
-
-// Custom APIs for renderer
-const sql = {
-  init_database: init_database,
-  check_database: check_database,
-  select: select,
-  rt_bool: rt_bool,
-  sqls_rt_bool: sqls_rt_bool,
-  DB_FILE: DB_FILE,
-  DB_INIT_SQL_FILE: DB_INIT_SQL_FILE
-}
-
-const win = {
-  fullscreen: () => ipcRenderer.send('window-control', 'set_fullscreen'),
-  miminize: () => ipcRenderer.send('window-control', 'set_miminize'),
-  maximize: () => ipcRenderer.send('window-control', 'set_maximize'),
-  unmaximize: () => ipcRenderer.send('window-control', 'exit_maximize'),
-  close: () => ipcRenderer.send('window-control', 'set_close')
-}
+import { preload_sql_api } from '../main/sql/sql'
+import { preload_window_api } from '../main/window/window'
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -28,8 +9,8 @@ const win = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('sql', sql)
-    contextBridge.exposeInMainWorld('win', win)
+    contextBridge.exposeInMainWorld('sql', preload_sql_api)
+    contextBridge.exposeInMainWorld('win', preload_window_api)
   } catch (error) {
     console.error(error)
   }
@@ -37,7 +18,7 @@ if (process.contextIsolated) {
   // @ts-ignore (define in dts)
   window.electron = electronAPI
   // @ts-ignore (define in dts)
-  window.sql = sql
+  window.sql = preload_sql_api
   // @ts-ignore (define in dts)
-  window.win = win
+  window.win = preload_window_api
 }

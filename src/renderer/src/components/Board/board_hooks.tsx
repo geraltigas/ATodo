@@ -11,18 +11,16 @@ import {
   TimeTrigger,
   UnsupportedTrigger
 } from '../../../../types/sql'
-import { is_inputting } from '../../state/app'
+import { is_inputting } from '../../state/atodo'
 import { DateCalendar, DatePicker, TimePicker } from '@mui/x-date-pickers'
 import { Signal } from '@preact/signals'
+import { to_json, to_obj } from '../../lib/serialize'
 
 export const useOnNameChange = (task_signal) => {
   return useCallback((_e: React.ChangeEvent<HTMLInputElement>) => {
     let temp = { ...task_signal.value }
     temp.name = _e.target.value
-    task_api.update_task(temp).then(_r => {
-    }).catch(_e => {
-      console.error(_e)
-    })
+    task_api.update_task(temp)
     task_signal.value = temp
   }, [task_signal])
 }
@@ -31,10 +29,7 @@ export const useOnGoalChange = (task_signal) => {
   return useCallback((_e: React.ChangeEvent<HTMLInputElement>) => {
     let temp = { ...task_signal.value }
     temp.goal = _e.target.value
-    task_api.update_task(temp).then(_r => {
-    }).catch(_e => {
-      console.error(_e)
-    })
+    task_api.update_task(temp)
     task_signal.value = temp
   }, [task_signal])
 }
@@ -46,27 +41,9 @@ export const useOnDateChange = (task_signal) => {
     }
     let temp = { ...task_signal.value }
     temp.deadline = _date.valueOf()
-    task_api.update_task(temp).then(_r => {
-    }).catch(_e => {
-      console.error(_e)
-    })
+    task_api.update_task(temp)
     task_signal.value = temp
   }, [task_signal])
-}
-
-const to_json = (obj: unknown): string => {
-  let tmp = JSON.stringify(obj)
-  let res = tmp.replace(/"/g, '\'')
-  return res
-}
-
-const to_obj = (str: string): unknown => {
-  if (str === null || str === '') {
-    return null
-  }
-  let tmp = str.replace(/'/g, '"')
-  let res = JSON.parse(tmp)
-  return res
 }
 
 export const useOnStatusChange = (task_signal) => {
@@ -74,10 +51,7 @@ export const useOnStatusChange = (task_signal) => {
     let temp = { ...task_signal.value }
     // @ts-ignore
     temp.status = _e.target.value
-    task_api.update_task(temp).then(_r => {
-    }).catch(_e => {
-      console.error(_e)
-    })
+    task_api.update_task(temp)
     task_signal.value = temp
   }, [task_signal])
 }
@@ -104,10 +78,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                 why: e.target.value
               })
               task_signal.value = { ...show_task }
-              task_api.update_task(show_task).then(_r => {
-              }).catch(_e => {
-                console.error(_e)
-              })
+              task_api.update_task(show_task)
             }}
             className={styles.textField}
             onFocus={() => is_inputting.value = true}
@@ -142,10 +113,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                   time: date!.toString()
                 })
                 task_signal.value = { ...show_task }
-                task_api.update_task(show_task).then(_r => {
-                }).catch(_e => {
-                  console.error(_e)
-                })
+                task_api.update_task(show_task)
               }}
             />
             <TimePicker
@@ -159,10 +127,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                   time: date!.toString()
                 })
                 task_signal.value = { ...show_task }
-                task_api.update_task(show_task).then(_r => {
-                }).catch(_e => {
-                  console.error(_e)
-                })
+                task_api.update_task(show_task)
               }}
             />
           </div>)
@@ -186,10 +151,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                 email: e.target.value
               })
               task_signal.value = { ...show_task }
-              task_api.update_task(show_task).then(_r => {
-              }).catch(_e => {
-                console.error(_e)
-              })
+              task_api.update_task(show_task)
             }}
             onFocus={() => is_inputting.value = true}
             onBlur={() => is_inputting.value = false}
@@ -215,10 +177,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                 why: e.target.value
               })
               task_signal.value = { ...show_task }
-              task_api.update_task(show_task).then(_r => {
-              }).catch(_e => {
-                console.error(_e)
-              })
+              task_api.update_task(show_task)
             }}
             onFocus={() => is_inputting.value = true}
             onBlur={() => is_inputting.value = false}
@@ -234,10 +193,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                   lastTime: date!.hour(4).minute(0).second(0).toString()
                 })
                 task_signal.value = { ...show_task }
-                task_api.update_task(show_task).then(_r => {
-                }).catch(_e => {
-                  console.error(_e)
-                })
+                task_api.update_task(show_task)
               }}
               value={(() => {
                 let tmp = (to_obj(show_task.suspended_info!) as CyclicalityTrigger)
@@ -273,10 +229,7 @@ export const useSuspendedInfoView = (show_task: tasks_db, task_signal: Signal<ta
                   nowAt: 0,
                   lastTime: dayjs().hour(4).minute(0).second(0).toString()
                 })
-                task_api.update_task(show_task).then(_r => {
-                }).catch(_e => {
-                  console.error(_e)
-                })
+                task_api.update_task(show_task)
               }}
               onFocus={() => is_inputting.value = true}
               onBlur={() => is_inputting.value = false}

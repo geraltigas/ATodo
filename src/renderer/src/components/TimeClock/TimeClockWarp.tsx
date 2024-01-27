@@ -44,8 +44,7 @@ export default function TimeClockWarp({ taskToEdit, maxTime, minTime }: {
               ...task_to_edit.value,
               deadline: date.set('hour', _e!.hour()).set('minute', _e!.minute()).set('second', 0).valueOf()
             }
-            task_api.update_task(task_to_edit.value).then(_r => {
-            })
+            task_api.update_task(task_to_edit.value)
           }
         }
         className={styles.unselectable}

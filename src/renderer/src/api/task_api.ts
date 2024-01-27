@@ -1,6 +1,7 @@
 import { task_relation_db, tasks_db, timestamp } from '../../../types/sql'
 import { sql_api } from './sql_api'
-import { edges, is_modified, nodes, now_viewing_task, root_task } from '../state/app'
+import { root_task } from '../state/app'
+import { edges, is_modified, nodes, now_viewing_task } from '../state/atodo'
 import { insert_or_update_task_sql, select_from_family_tree_sql } from '../../../shared/sql'
 import dayjs from 'dayjs'
 
@@ -113,7 +114,7 @@ export class task_api {
     })
   }
 
-  public static get_subtaks_from_buffer(id: timestamp): tasks_db[] {
+  public static get_subtasks_from_buffer(id: timestamp): tasks_db[] {
     let res: tasks_db[] = []
     task_api.task_buffer.forEach((value, _key) => {
       if (value.value.parent === id) {
@@ -182,25 +183,22 @@ export class task_api {
   //   return res
   // }
 
-  public static update_task(task: tasks_db): Promise<boolean> {
-    return new Promise((resolve, _reject) => {
-      if (task_api.task_buffer.has(task.id)) {
-        task_api.task_buffer.set(task.id, {
-          mutated: true,
-          to_delete: false,
-          value: task
-        })
-        is_modified.value = true
-      } else {
-        task_api.task_buffer.set(task.id, {
-          mutated: false,
-          to_delete: false,
-          value: task
-        })
-      }
+  public static update_task(task: tasks_db): void {
+    if (task_api.task_buffer.has(task.id)) {
+      task_api.task_buffer.set(task.id, {
+        mutated: true,
+        to_delete: false,
+        value: task
+      })
       is_modified.value = true
-      resolve(true)
-    })
+    } else {
+      task_api.task_buffer.set(task.id, {
+        mutated: false,
+        to_delete: false,
+        value: task
+      })
+    }
+    is_modified.value = true
   }
 
   public static set_task_position(id: timestamp, x: number, y: number): boolean {
@@ -420,15 +418,5 @@ export class task_api {
           reject(err)
         })
     })
-  }
-
-  private static get_subtasks_relation_from_buffer(id: timestamp) {
-    let res: task_relation_db[] = []
-    task_api.task_relation_buffer.forEach((value, _key) => {
-      if (value.value.source === id) {
-        res.push(value.value)
-      }
-    })
-    return res
   }
 }

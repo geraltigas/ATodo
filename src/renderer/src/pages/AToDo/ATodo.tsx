@@ -3,7 +3,7 @@ import Flow from '../../components/Flow/Flow'
 import useDocumentEvent from '../../hooks/use_event_atodo'
 import NowSelectedBoard from '../../components/NowSelectedBoard/NowSelectedBoard'
 import FatherNodeBoard from '../../components/FatherNodeBoard/FatherNodeBoard'
-import { now_selected } from '../../state/app'
+import { now_selected } from '../../state/atodo'
 
 export default function ATodo() {
 
@@ -13,7 +13,6 @@ export default function ATodo() {
 
   return (
     <div className={styles.Window}>
-
       <div className={styles.AToDo}>
         <FatherNodeBoard />
         <Flow

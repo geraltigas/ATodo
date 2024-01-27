@@ -30,6 +30,7 @@ body {
   /*  radius*/
   border-radius: var(--window-radius);
   overflow: hidden;
+  display: flex;
 }
 
 .App {

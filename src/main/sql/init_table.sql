@@ -38,9 +38,10 @@ create index if not exists tasks_relation_target_idx on tasks_relation (target);
 -- create singleton table for application runtime state
 create table if not exists app_state
 (
-  id               integer primary key check ( id = 0 ),
-  root_task        timestamp,
-  now_viewing_task timestamp
+  id                integer primary key check ( id = 0 ),
+  root_task         timestamp,
+  now_viewing_task  timestamp,
+  now_selected_task timestamp
 );
 
 create table if not exists root_tasks

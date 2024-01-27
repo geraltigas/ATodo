@@ -1,5 +1,5 @@
 import { BaseEdge, getStraightPath } from 'reactflow'
-import { Edge, now_selected } from '../../../state/app'
+import { Edge, now_selected } from '../../../state/atodo'
 
 export default function DefaultEdges({ id, sourceX, sourceY, targetX, targetY }) {
   const [edgePath] = getStraightPath({

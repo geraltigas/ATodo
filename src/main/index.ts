@@ -1,8 +1,9 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { GLOBAL } from './global'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
+import { registe_window_api } from './window/window'
 
 function create_atodo_window(): void {
   // Create the browser window.
@@ -39,38 +40,7 @@ function create_atodo_window(): void {
     GLOBAL.ATODO_WINDOW.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  ipcMain.on('window-control', (_event, arg) => {
-    switch (arg) {
-      case 'set_frameless':
-        GLOBAL.ATODO_WINDOW!.setResizable(false)
-        GLOBAL.ATODO_WINDOW!.setMovable(true)
-        GLOBAL.ATODO_WINDOW!.setMinimizable(false)
-        GLOBAL.ATODO_WINDOW!.setMaximizable(false)
-        GLOBAL.ATODO_WINDOW!.setClosable(true)
-        GLOBAL.ATODO_WINDOW!.setAlwaysOnTop(true, 'screen-saver')
-        GLOBAL.ATODO_WINDOW!.setFullScreenable(false)
-        GLOBAL.ATODO_WINDOW!.setFullScreen(false)
-        GLOBAL.ATODO_WINDOW!.setMenu(null)
-        GLOBAL.ATODO_WINDOW!.setIgnoreMouseEvents(false)
-        GLOBAL.ATODO_WINDOW!.setOpacity(1)
-        break
-      case 'set_fullscreen':
-        GLOBAL.ATODO_WINDOW!.setFullScreen(true)
-        break
-      case 'set_miminize':
-        GLOBAL.ATODO_WINDOW!.minimize()
-        break
-      case 'set_maximize':
-        GLOBAL.ATODO_WINDOW!.maximize()
-        break
-      case 'set_close':
-        GLOBAL.ATODO_WINDOW!.close()
-        break
-      case 'exit_maximize':
-        GLOBAL.ATODO_WINDOW!.unmaximize()
-        break
-    }
-  })
+  registe_window_api()
 }
 
 

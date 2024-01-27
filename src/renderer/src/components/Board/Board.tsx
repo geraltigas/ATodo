@@ -6,7 +6,7 @@ import TimeClockWarp from '../TimeClock/TimeClockWarp'
 import { tasks_db, timestamp } from '../../../../types/sql'
 import { task_api } from '../../api/task_api'
 import { Signal, useSignal, useSignalEffect } from '@preact/signals'
-import { is_inputting } from '../../state/app'
+import { is_inputting } from '../../state/atodo'
 import { timeConstraints } from './time_constraint_lib'
 import {
   useOnDateChange,
@@ -94,10 +94,7 @@ export default function Board({ task_id_signal }: {
                 // @ts-ignore
                 const tmp = { ...task_signal.value, suspended_type: e.target.value } as tasks_db
                 task_signal.value = tmp
-                task_api.update_task(tmp).then(_r => {
-                }).catch(e => {
-                  console.log(e)
-                })
+                task_api.update_task(tmp)
               }}
             >
               <FormControlLabel value={'time'} control={<Radio />} label={'Time'} />

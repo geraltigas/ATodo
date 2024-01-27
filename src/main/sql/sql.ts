@@ -1,4 +1,4 @@
-import { GLOBAL } from '../global'
+import { DB_FILE, DB_INIT_SQL_FILE, GLOBAL } from '../global'
 
 export const init_database = (file_name: string): Promise<boolean> => {
   // read sql_api file from src/main/sql_api/init_table.sql_api
@@ -126,3 +126,12 @@ export const sqls_rt_bool = (sqls: string[]): Promise<boolean> => {
   })
 }
 
+export const preload_sql_api = {
+  init_database: init_database,
+  check_database: check_database,
+  select: select,
+  rt_bool: rt_bool,
+  sqls_rt_bool: sqls_rt_bool,
+  DB_FILE: DB_FILE,
+  DB_INIT_SQL_FILE: DB_INIT_SQL_FILE
+}

@@ -1,7 +1,7 @@
 import { app_state_db, timestamp } from '../../../types/sql'
 import { sql_api } from './sql_api'
 import { task_api } from './task_api'
-import { task_stack } from '../state/app'
+import { task_stack } from '../state/atodo'
 
 export class app_state_api {
   public static get_root_task(): Promise<timestamp> {
@@ -41,6 +41,26 @@ export class app_state_api {
   public static set_now_viewing_task(id: timestamp): Promise<boolean> {
     return sql_api.rt_bool(`UPDATE app_state
                             SET now_viewing_task = ${id}
+                            WHERE id = 0;`)
+  }
+
+  public static get_now_selected_task(): Promise<timestamp | null> {
+    return new Promise((resolve, reject) => {
+      sql_api.select(`SELECT *
+                      FROM app_state
+                      WHERE id = 0;`)
+        .then((res) => {
+          resolve((res[0] as app_state_db).now_selected_task)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  }
+
+  public static set_now_selected_task(id: timestamp | null): Promise<boolean> {
+    return sql_api.rt_bool(`UPDATE app_state
+                            SET now_selected_task = ${id}
                             WHERE id = 0;`)
   }
 

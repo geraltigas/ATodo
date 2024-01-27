@@ -8,8 +8,7 @@ import {
   useOnMouseLeave,
   useOnNodeClick
 } from '../../hooks/use_event_atodo'
-import { useEffect } from 'preact/compat'
-import { data_init, edges, is_modified, Node, nodes, show_alert, task_stack } from '../../state/app'
+import { edges, is_modified, Node, nodes, show_alert, task_stack, use_data_init } from '../../state/atodo'
 import StartNode from '../Nodes/StartNode/StartNode'
 import EndNode from '../Nodes/EndNode/EndNode'
 import TaskNode from '../Nodes/TaskNode/TaskNode'
@@ -31,9 +30,7 @@ const edgeTypes = {
 
 export default function Flow() {
   // init
-  useEffect(() => {
-    data_init()
-  }, [])
+  use_data_init()
 
   // const taskStack = useAtomValue(taskStackAtom)
 

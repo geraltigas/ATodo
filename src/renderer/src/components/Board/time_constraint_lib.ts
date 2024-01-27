@@ -59,7 +59,7 @@ export const timeConstraints = (showTask: tasks_db): {
   maxDate: Dayjs,
 } => {
   if (showTask.parent === null) {
-    let subtasks = task_api.get_subtaks_from_buffer(showTask.id)
+    let subtasks = task_api.get_subtasks_from_buffer(showTask.id)
     let maxDate = getMaxDate(subtasks)
     let showTaskDeadline = dayjs(showTask.deadline)
     return {
@@ -72,7 +72,7 @@ export const timeConstraints = (showTask: tasks_db): {
 
   let sources: tasks_db[] = []
   let targets: tasks_db[] = []
-  let siblings: tasks_db[] = task_api.get_subtaks_from_buffer(showTask.parent)
+  let siblings: tasks_db[] = task_api.get_subtasks_from_buffer(showTask.parent)
   let siblingsEdges: task_relation_db[] = task_api.get_sibling_relations_from_buffer(showTask.parent)
   siblingsEdges.forEach((relation) => {
     if (relation.source === showTask.id) {
@@ -83,7 +83,7 @@ export const timeConstraints = (showTask: tasks_db): {
     }
   })
 
-  let maxDateOfChildren = getMaxDate(task_api.get_subtaks_from_buffer(showTask.id))
+  let maxDateOfChildren = getMaxDate(task_api.get_subtasks_from_buffer(showTask.id))
   let maxDateOfSource = getMaxDate(sources)
   let minDateOfTargets = getMinDate(targets)
   let parentDeadline = showTask.parent === -1 ? globalMaxDate : dayjs(task_api.get_task_from_buffer(showTask.parent).deadline)
