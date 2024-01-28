@@ -6,3 +6,5 @@ out
 .idea
 build
 src/main/sql/storage.db
+storage.db
+init_table.sql

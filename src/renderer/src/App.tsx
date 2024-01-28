@@ -2,11 +2,11 @@ import './App.css'
 import 'reactflow/dist/style.css'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createHashRouter, RouterProvider } from 'react-router-dom'
 import ATodo from './pages/AToDo/ATodo'
 import Worker from './pages/Worker/Worker'
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   { // default route
     path: '/',
     element: <ATodo />

@@ -1,4 +1,4 @@
-import { DB_FILE, DB_INIT_SQL_FILE, GLOBAL } from '../global'
+import { DB_FILE, DB_INIT_SQL, GLOBAL } from '../global'
 
 export const init_database = (file_name: string): Promise<boolean> => {
   // read sql_api file from src/main/sql_api/init_table.sql_api
@@ -21,8 +21,7 @@ export const init_database = (file_name: string): Promise<boolean> => {
         }
         console.log('Connected to the database.')
       })
-      const sqls = fs.readFileSync('src/main/sql_api/init_table.sql_api', 'utf8')
-      await GLOBAL.DB.exec(sqls)
+      await GLOBAL.DB.exec(DB_INIT_SQL)
       resolve(true)
     } catch (error) {
       console.error('Unable to init database:', error)
@@ -133,5 +132,5 @@ export const preload_sql_api = {
   rt_bool: rt_bool,
   sqls_rt_bool: sqls_rt_bool,
   DB_FILE: DB_FILE,
-  DB_INIT_SQL_FILE: DB_INIT_SQL_FILE
+  DB_INIT_SQL: DB_INIT_SQL
 }

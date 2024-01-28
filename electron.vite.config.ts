@@ -1,16 +1,19 @@
 import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import preact from '@preact/preset-vite'
+import removeConsole from 'vite-plugin-remove-console'
 
 export default defineConfig({
   main: {
     plugins: [
-      externalizeDepsPlugin()
+      externalizeDepsPlugin(),
+      removeConsole()
     ]
   },
   preload: {
     plugins: [
-      externalizeDepsPlugin()
+      externalizeDepsPlugin(),
+      removeConsole()
     ]
   },
   renderer: {
@@ -20,7 +23,8 @@ export default defineConfig({
       }
     },
     plugins: [
-      preact()
+      preact(),
+      removeConsole()
     ]
   }
 })

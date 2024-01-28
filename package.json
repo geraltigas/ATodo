@@ -32,8 +32,6 @@
     "@preact/signals": "^1.2.2",
     "dayjs": "^1.11.10",
     "electron-updater": "^6.1.7",
-    "flatted": "^3.2.9",
-    "jotai": "^2.6.2",
     "preact": "^10.19.3",
     "react-router-dom": "^6.21.3",
     "reactflow": "^11.10.1",
@@ -51,6 +49,7 @@
     "prettier": "^3.1.1",
     "ts-mocha": "^10.0.0",
     "typescript": "^5.3.3",
-    "vite": "^5.0.11"
+    "vite": "^5.0.11",
+    "vite-plugin-remove-console": "^2.2.0"
   }
 }

@@ -35,7 +35,6 @@ const SuspendedTasks = () => {
               )
             })}
           </div>
-
         )
       })}
       {suspended_tasks.value.length === 0 && <div>no suspended tasks</div>}
