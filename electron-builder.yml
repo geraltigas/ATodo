@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: atodo
+appId: io.geraltigas.atodo
+productName: ATodo
 directories:
   buildResources: build
 files:
@@ -18,6 +18,12 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  allowToChangeInstallationDirectory: true
+  oneClick: false
+  perMachine: true
+#  set icon
+  installerIcon: ./build/icon.ico
+  uninstallerIcon: ./build/icon.ico
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

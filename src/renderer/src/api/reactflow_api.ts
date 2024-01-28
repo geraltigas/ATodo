@@ -1,15 +1,11 @@
-import { task_relation_db, tasks_db, timestamp } from '../../../types/sql'
-import { task_api } from './task_api'
-import { Edge, edges, edges_init, end_node, Node, nodes, origin_node, start_node } from '../state/atodo'
+import {task_relation_db, tasks_db, timestamp} from '../../../types/sql'
+import {task_api} from './task_api'
+import {Edge, edges, edges_init, end_node, Node, nodes, origin_node, start_node} from '../state/atodo'
 
 export class reactflow_api {
   public static set_showing_task(now_viewing_task: timestamp) {
-    task_api.get_subtasks(now_viewing_task).then((res) => {
-      nodes.value = reactflow_api.inference_nodes_from_tasks(res)
-      task_api.get_subtasks_relation_from_db(now_viewing_task).then((res) => {
-        edges.value = reactflow_api.inference_edges_from_tasks_relation(res)
-      })
-    })
+    nodes.value = reactflow_api.inference_nodes_from_tasks(task_api.get_subtasks_from_buffer(now_viewing_task))
+    edges.value = reactflow_api.inference_edges_from_tasks_relation(task_api.get_subtasks_relations_from_buffer(now_viewing_task))
   }
 
   public static update_subtasks_relation(now_viewing_task: timestamp) {
@@ -18,7 +14,7 @@ export class reactflow_api {
   }
 
   private static inference_nodes_from_tasks(tasks: tasks_db[]): Node[] {
-    let end_node_ = { ...end_node }
+    let end_node_ = {...end_node}
     let nodes_: Node[] = [origin_node, start_node]
 
     let maxX: number = 0
@@ -29,9 +25,8 @@ export class reactflow_api {
       nodes_.push({
         id: task.id.toString(),
         type: 'task',
-        position: { x: task.position_x, y: task.position_y },
+        position: {x: task.position_x, y: task.position_y},
         data: {
-          label: task.name,
           real_task: task.id
         },
         draggable: true,
@@ -83,6 +78,10 @@ export class reactflow_api {
 
     let sourcetarget: Set<string> = new Set<string>([...source_set].filter(x => !intersection.has(x)))
     let targetsource: Set<string> = new Set<string>([...target_set].filter(x => !intersection.has(x)))
+
+    intersection.forEach((value) => {
+      connectedMap.set(value, true)
+    })
 
     sourcetarget.forEach((value) => {
       edges_.push({
@@ -150,7 +149,7 @@ export class reactflow_api {
 
 
     nodes.value.forEach((value) => {
-      // whether can be transfered to number and is connected
+      // if can be transfered to number and is connected
       if (!isNaN(Number(value.id)) && value.id.trim() !== '' && !connectedMap.has(value.id)) {
         // start to node
         edges_.push({

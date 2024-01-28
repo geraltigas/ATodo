@@ -1,10 +1,10 @@
 {
-  "name": "atodo",
+  "name": "ATodo",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "Advanced Todo List",
   "main": "./out/main/index.js",
   "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://geraltigas.github.io",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",

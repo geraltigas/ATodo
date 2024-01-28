@@ -8,3 +8,4 @@ build
 src/main/sql/storage.db
 storage.db
 init_table.sql
+package-lock.json

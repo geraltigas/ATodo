@@ -4,17 +4,15 @@ export const init_database = (file_name: string): Promise<boolean> => {
   // read sql_api file from src/main/sql_api/init_table.sql_api
   return new Promise<boolean>(async (resolve, reject) => {
     try {
-      const fs = require('fs')
       // check if the db file exists
       const db_file = file_name
-      if (fs.existsSync(db_file)) {
-        console.log('Database file already exists.')
-        // delete the db file
-        fs.unlinkSync(db_file)
-        console.log('Database file has been deleted.')
-      }
       // create db file
       const sqlite3 = require('sqlite3').verbose()
+      if (GLOBAL.DB) {
+        GLOBAL.DB.close()
+        // delete GLOBAL.DB and GLOBAL.DB_FILE
+        GLOBAL.DB = null
+      }
       GLOBAL.DB = new sqlite3.Database(db_file, (err: Error | null) => {
         if (err) {
           console.error(err.message)

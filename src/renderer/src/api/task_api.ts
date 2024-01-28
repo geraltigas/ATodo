@@ -1,8 +1,8 @@
-import { task_relation_db, tasks_db, timestamp } from '../../../types/sql'
-import { sql_api } from './sql_api'
-import { root_task } from '../state/app'
-import { edges, is_modified, nodes, now_viewing_task } from '../state/atodo'
-import { insert_or_update_task_sql, select_from_family_tree_sql } from '../../../shared/sql'
+import {task_relation_db, tasks_db, timestamp} from '../../../types/sql'
+import {sql_api} from './sql_api'
+import {root_task} from '../state/app'
+import {edges, is_modified, nodes, now_viewing_task} from '../state/atodo'
+import {insert_or_update_task_sql, select_from_family_tree_sql} from '../../../shared/sql'
 import dayjs from 'dayjs'
 
 type mutated<T> = {
@@ -14,6 +14,14 @@ type mutated<T> = {
 export class task_api {
   private static task_buffer: Map<timestamp, mutated<tasks_db>> = new Map()
   private static task_relation_buffer: Map<string, mutated<task_relation_db>> = new Map()
+
+  public static get_task_buffer(): Map<timestamp, mutated<tasks_db>> {
+    return task_api.task_buffer
+  }
+
+  public static get_task_relation_buffer(): Map<string, mutated<task_relation_db>> {
+    return task_api.task_relation_buffer
+  }
 
   public static get_task(id: timestamp): Promise<tasks_db> {
     return new Promise((resolve, reject) => {
@@ -44,6 +52,16 @@ export class task_api {
         value: task_api.task_buffer.get(id)!.value
       })
     }
+    task_api.task_relation_buffer.forEach((value, _key) => {
+      if (value.value.source === id || value.value.target === id) {
+        if (value.mutated) {
+          value.to_delete = true
+          value.mutated = false
+        } else {
+          value.to_delete = true
+        }
+      }
+    })
     is_modified.value = true
     nodes.value = nodes.value.filter((value) => {
       return value.data.real_task !== id
@@ -81,9 +99,8 @@ export class task_api {
     nodes.value = [...nodes.value, {
       id: task.id.toString(),
       type: 'task',
-      position: { x: task.position_x, y: task.position_y },
+      position: {x: task.position_x, y: task.position_y},
       data: {
-        label: task.name,
         real_task: task.id
       },
       draggable: true,
@@ -247,15 +264,15 @@ export class task_api {
         target: target
       }
     })
-    edges.value = [...edges.value, {
-      id: `${source}-${target}`,
-      source: source.toString(),
-      target: target.toString(),
-      sourceHandle: 'task-node-source',
-      targetHandle: 'task-node-target',
-      type: 'default_e',
-      selected: false
-    }]
+    // edges.value = [...edges.value, {
+    //   id: `${source}-${target}`,
+    //   source: source.toString(),
+    //   target: target.toString(),
+    //   sourceHandle: 'task-node-source',
+    //   targetHandle: 'task-node-target',
+    //   type: 'default_e',
+    //   selected: false
+    // }]
     is_modified.value = true
     return true
   }
@@ -308,7 +325,7 @@ export class task_api {
                      ON CONFLICT (id) DO UPDATE
                        SET source = ${value.value.source},
                            target = ${value.value.target};`)
-        } else {
+        } else if (value.to_delete) {
           sqls.push(`DELETE
                      FROM tasks_relation
                      WHERE id = '${value.value.id}';`)
@@ -327,6 +344,8 @@ export class task_api {
             task_api.task_buffer.delete(key)
           }
         })
+        console.log("after flush")
+        console.log(task_api.task_buffer)
         task_api.task_relation_buffer.forEach((value, key) => {
           if (value.mutated) {
             task_api.task_relation_buffer.set(key, {
@@ -339,6 +358,7 @@ export class task_api {
             task_api.task_relation_buffer.delete(key)
           }
         })
+        console.log(task_api.task_relation_buffer)
         resolve(res)
       }).catch((err) => {
         reject(err)
@@ -392,31 +412,30 @@ export class task_api {
                 value: value as tasks_db
               })
             })
-            resolve(true)
-          }
-        })
-        .catch((err) => {
-          reject(err)
-        })
-      sql_api.select(`SELECT *
+            return sql_api.select(`SELECT *
                       FROM tasks_relation`)
-        .then((res) => {
-          if (res.length === 0) {
-            reject(`No task relation found.`)
-          } else {
-            res.forEach((value) => {
-              task_api.task_relation_buffer.set(`${value.source}-${value.target}`, {
-                mutated: false,
-                to_delete: false,
-                value: value as task_relation_db
-              })
-            })
-            resolve(true)
           }
+        }).then((res) => {
+        if (res.length === 0) {
+          reject(`No task relation found.`)
+        } else {
+          res.forEach((value) => {
+            task_api.task_relation_buffer.set(`${value.source}-${value.target}`, {
+              mutated: false,
+              to_delete: false,
+              value: value as task_relation_db
+            })
+          })
+          resolve(true)
+        }
+      })
+        .catch((err) => {
+          reject(err)
         })
         .catch((err) => {
           reject(err)
         })
+
     })
   }
 }

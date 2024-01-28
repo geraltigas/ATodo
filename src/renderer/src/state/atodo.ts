@@ -50,7 +50,6 @@ export type Node = {
   draggable: boolean;
   selectable: boolean;
   data: {
-    label: string;
     selected?: boolean;
     real_task?: timestamp;
   };
@@ -64,11 +63,9 @@ export const origin_node: Node = {
     x: 0,
     y: 0
   },
+  data:{},
   draggable: false,
   selectable: false,
-  data: {
-    label: ''
-  }
 }
 
 export const start_node: Node = {
@@ -77,12 +74,10 @@ export const start_node: Node = {
     x: 0,
     y: 0
   },
+  data:{},
   type: 'start',
   selectable: false,
   draggable: false,
-  data: {
-    label: ''
-  },
   targetPosition: Position.Right
 }
 
@@ -92,12 +87,10 @@ export const end_node: Node = {
     x: 100,
     y: 0
   },
+  data:{},
   type: 'end',
   selectable: false,
   draggable: true,
-  data: {
-    label: ''
-  }
 }
 
 export const nodes_init: Node[] = [start_node, end_node, origin_node]
@@ -156,7 +149,7 @@ export const use_data_init = () => {
         app_state_api.get_now_selected_task().then((now_selected_task_id) => {
           if (now_selected_task_id) {
             let task_node = nodes.value.find((node) => {
-              return node.data.real_task === now_selected_task_id
+              return node.data!.real_task === now_selected_task_id
             })
             if (task_node) {
               now_selected.value = {
