@@ -1,12 +1,15 @@
 import styles from './ShowTime.module.css'
-import { from_timestamp_to_timerecord } from '../TaskShow/TaskShow'
-import { time_record } from '../../state/worker'
-import { useSignal } from '@preact/signals'
+import {from_timestamp_to_timerecord} from '../TaskShow/TaskShow'
+import {scheduled_tasks, time_record} from '../../state/worker'
+import {useSignal, useSignalEffect} from '@preact/signals'
 
 export const ShowTime = () => {
   const with_second = useSignal(true)
   let time: string
   let showTimeConsumed = from_timestamp_to_timerecord(time_record.value)
+  useSignalEffect(() => {
+    time_record.value = scheduled_tasks.value[0].time_consumed
+  })
   if (!with_second.value) {
     time = (showTimeConsumed.hours === 0 ? '' : (showTimeConsumed.hours < 10 ? '0' + showTimeConsumed.hours.toString() + ':' : showTimeConsumed.hours.toString() + ':')) + (showTimeConsumed.minutes < 10 ? '0' + showTimeConsumed.minutes.toString() : showTimeConsumed.minutes.toString())
   } else {

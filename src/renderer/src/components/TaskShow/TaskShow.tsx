@@ -101,6 +101,10 @@ function TaskShow() {
     }
     tick.value = true
     schedule()
+    task_api.flush_to_db().then((_r) => {
+    }).catch((err) => {
+      console.log(err)
+    })
   }
 
   const onSuspendClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
@@ -120,6 +124,10 @@ function TaskShow() {
       temp = parent
     }
     window_control_api.edit_suspened_task(scheduled_tasks.value[0].id)
+    task_api.flush_to_db().then((_r) => {
+    }).catch((err) => {
+      console.log(err)
+    })
   }
 
   const onPauseClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
@@ -136,6 +144,10 @@ function TaskShow() {
     }
     tick.value = false
     schedule()
+    task_api.flush_to_db().then((_r) => {
+    }).catch((err) => {
+      console.log(err)
+    })
   }
 
   const onDoneClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
@@ -154,6 +166,10 @@ function TaskShow() {
       temp = parent
     }
     schedule()
+    task_api.flush_to_db().then((_r) => {
+    }).catch((err) => {
+      console.log(err)
+    })
   }
 
   return (
