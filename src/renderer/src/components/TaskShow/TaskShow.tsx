@@ -110,9 +110,8 @@ function TaskShow() {
   const onSuspendClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
     let temp: tasks_db = scheduled_tasks.value[0]
     temp.status = 'suspended'
-    task_api.update_task(temp)
     let delta: timestamp = minusTime(time_record.value, temp.time_consumed)
-    temp.time_consumed = addTime(temp.time_consumed, delta)
+    temp.time_consumed = time_record.value
     task_api.update_task(temp)
     while (temp.parent !== -1) {
       let parent = task_api.get_task_from_buffer(temp.parent)
@@ -134,13 +133,14 @@ function TaskShow() {
     let temp: tasks_db = scheduled_tasks.value[0]
     temp.status = 'paused'
     let delta: timestamp = minusTime(time_record.value, temp.time_consumed)
-    temp.time_consumed = addTime(temp.time_consumed, delta)
+    temp.time_consumed = time_record.value
     task_api.update_task(temp)
     while (temp.parent !== -1) {
-      temp.status = 'paused'
-      temp.time_consumed = addTime(temp.time_consumed, delta)
-      task_api.update_task(temp)
-      temp = task_api.get_task_from_buffer(temp.parent)
+      let parent = task_api.get_task_from_buffer(temp.parent)
+      parent.status = 'paused'
+      parent.time_consumed = addTime(parent.time_consumed, delta)
+      task_api.update_task(parent)
+      temp = parent
     }
     tick.value = false
     schedule()
@@ -154,7 +154,7 @@ function TaskShow() {
     let temp: tasks_db = scheduled_tasks.value[0]
     temp.status = 'done'
     let delta: timestamp = minusTime(time_record.value, temp.time_consumed)
-    temp.time_consumed = addTime(temp.time_consumed, delta)
+    temp.time_consumed = time_record.value
     task_api.update_task(temp)
     while (temp.parent !== -1) {
       let parent = task_api.get_task_from_buffer(temp.parent)
