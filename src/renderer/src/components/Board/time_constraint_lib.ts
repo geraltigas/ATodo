@@ -1,6 +1,6 @@
-import dayjs, { Dayjs } from 'dayjs'
-import { task_relation_db, tasks_db } from '../../../../types/sql'
-import { task_api } from '../../api/task_api'
+import dayjs, {Dayjs} from 'dayjs'
+import {task_relation_db, tasks_db} from '../../../../types/sql'
+import {task_api} from '../../api/task_api'
 
 const globalMinDate = dayjs('1970-01-01T00:00:00')
 const globalMaxDate = dayjs('2100-01-01T00:00:00')
@@ -58,7 +58,7 @@ export const timeConstraints = (showTask: tasks_db): {
   minDate: Dayjs,
   maxDate: Dayjs,
 } => {
-  if (showTask.parent === null) {
+  if (showTask.parent === -1) {
     let subtasks = task_api.get_subtasks_from_buffer(showTask.id)
     let maxDate = getMaxDate(subtasks)
     let showTaskDeadline = dayjs(showTask.deadline)
@@ -73,12 +73,12 @@ export const timeConstraints = (showTask: tasks_db): {
   let sources: tasks_db[] = []
   let targets: tasks_db[] = []
   let siblings: tasks_db[] = task_api.get_subtasks_from_buffer(showTask.parent)
-  let siblingsEdges: task_relation_db[] = task_api.get_sibling_relations_from_buffer(showTask.parent)
+  let siblingsEdges: task_relation_db[] = task_api.get_sibling_relations_from_buffer(showTask.id)
   siblingsEdges.forEach((relation) => {
     if (relation.source === showTask.id) {
       targets.push(siblings.find((sibling) => sibling.id === relation.target)!)
     }
-    if (relation.source === showTask.id) {
+    if (relation.target === showTask.id) {
       sources.push(siblings.find((sibling) => sibling.id === relation.source)!)
     }
   })

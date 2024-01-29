@@ -1,23 +1,17 @@
 import styles from './Board.module.css'
-import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography } from '@mui/material'
-import { DateCalendar } from '@mui/x-date-pickers'
+import {FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography} from '@mui/material'
+import {DateCalendar} from '@mui/x-date-pickers'
 import dayjs from 'dayjs'
 import TimeClockWarp from '../TimeClock/TimeClockWarp'
-import { tasks_db, timestamp } from '../../../../types/sql'
-import { task_api } from '../../api/task_api'
-import { Signal, useSignal, useSignalEffect } from '@preact/signals'
-import { is_inputting } from '../../state/atodo'
-import { timeConstraints } from './time_constraint_lib'
-import {
-  useOnDateChange,
-  useOnGoalChange,
-  useOnNameChange,
-  useOnStatusChange,
-  useSuspendedInfoView
-} from './board_hooks'
+import {tasks_db, timestamp} from '../../../../types/sql'
+import {task_api} from '../../api/task_api'
+import {Signal, useSignal, useSignalEffect} from '@preact/signals'
+import {is_inputting} from '../../state/atodo'
+import {timeConstraints} from './time_constraint_lib'
+import {useOnDateChange, useOnGoalChange, useOnNameChange, useOnStatusChange, useSuspendedInfoView} from './board_hooks'
 
 
-export default function Board({ task_id_signal }: {
+export default function Board({task_id_signal}: {
   task_id_signal: Signal<timestamp>
 }) {
 
@@ -49,6 +43,8 @@ export default function Board({ task_id_signal }: {
         value={task_signal.value.name}
         onChange={onNameChange}
         className={styles.Name}
+        onFocus={() => is_inputting.value = true}
+        onBlur={() => is_inputting.value = false}
       />
       <TextField
         label="Goal"
@@ -67,7 +63,7 @@ export default function Board({ task_id_signal }: {
         minDate={minDate}
       />
       <TimeClockWarp
-        taskToEdit={task_id_signal.value}
+        taskToEdit={task_signal}
         maxTime={maxTime}
         minTime={minTime}
       />
@@ -77,11 +73,11 @@ export default function Board({ task_id_signal }: {
           value={task_signal.value.status}
           onChange={onStatusChange}
         >
-          <FormControlLabel value={'created'} control={<Radio />} label={'Created'} />
-          <FormControlLabel value={'in_progress'} control={<Radio />} label={'InProgress'} />
-          <FormControlLabel value={'suspended'} control={<Radio />} label={'Suspended'} />
-          <FormControlLabel value={'paused'} control={<Radio />} label={'Paused'} />
-          <FormControlLabel value={'done'} control={<Radio />} label={'Done'} />
+          <FormControlLabel value={'created'} control={<Radio/>} label={'Created'}/>
+          <FormControlLabel value={'in_progress'} control={<Radio/>} label={'InProgress'}/>
+          <FormControlLabel value={'suspended'} control={<Radio/>} label={'Suspended'}/>
+          <FormControlLabel value={'paused'} control={<Radio/>} label={'Paused'}/>
+          <FormControlLabel value={'done'} control={<Radio/>} label={'Done'}/>
         </RadioGroup>
       </FormControl>
       {task_signal.value.status === 'suspended' &&
@@ -92,18 +88,18 @@ export default function Board({ task_id_signal }: {
               value={task_signal.value.suspended_type}
               onChange={(e) => {
                 // @ts-ignore
-                const tmp = { ...task_signal.value, suspended_type: e.target.value } as tasks_db
+                const tmp = {...task_signal.value, suspended_type: e.target.value} as tasks_db
                 task_signal.value = tmp
                 task_api.update_task(tmp)
               }}
             >
-              <FormControlLabel value={'time'} control={<Radio />} label={'Time'} />
-              <FormControlLabel value={'cyclical'} control={<Radio />}
-                                label={'Cyclicality'} />
-              <FormControlLabel value={'constructing'} control={<Radio />}
-                                label={'Constructing'} />
-              <FormControlLabel value={'email'} control={<Radio />} label={'Email'} />
-              <FormControlLabel value={'unsupported'} control={<Radio />} label={'Undefined'} />
+              <FormControlLabel value={'time'} control={<Radio/>} label={'Time'}/>
+              <FormControlLabel value={'cyclical'} control={<Radio/>}
+                                label={'Cyclicality'}/>
+              <FormControlLabel value={'constructing'} control={<Radio/>}
+                                label={'Constructing'}/>
+              <FormControlLabel value={'email'} control={<Radio/>} label={'Email'}/>
+              <FormControlLabel value={'unsupported'} control={<Radio/>} label={'Undefined'}/>
             </RadioGroup>
           </FormControl>
           <Typography variant={'h6'} className={styles.SuspendedInfo}>Suspended Info</Typography>

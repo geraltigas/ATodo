@@ -21,9 +21,9 @@ nsis:
   allowToChangeInstallationDirectory: true
   oneClick: false
   perMachine: true
-#  set icon
-  installerIcon: ./build/icon.ico
-  uninstallerIcon: ./build/icon.ico
+  #  set icon
+  installerIcon: ./resources/icon.ico
+  uninstallerIcon: ./resources/icon.ico
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

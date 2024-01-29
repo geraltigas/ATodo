@@ -399,27 +399,30 @@ export class task_api {
 
   public static preload_task(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      sql_api.select(`SELECT *
-                      FROM tasks`)
-        .then((res) => {
-          if (res.length === 0) {
-            reject(`No task found.`)
-          } else {
-            res.forEach((value) => {
-              task_api.task_buffer.set(value.id, {
-                mutated: false,
-                to_delete: false,
-                value: value as tasks_db
+
+
+      sql_api.select(`SELECT * FROM tasks`)
+        .then(
+          // @ts-ignore
+          (res) => {
+            if (res.length === 0) {
+              reject(`No task found.`)
+            } else {
+              res.forEach((value) => {
+                task_api.task_buffer.set(value.id, {
+                  mutated: false,
+                  to_delete: false,
+                  value: value as tasks_db
+                })
               })
-            })
-            return sql_api.select(`SELECT *
+              return sql_api.select(`SELECT *
                       FROM tasks_relation`)
-          }
-        }).then((res) => {
-        if (res.length === 0) {
+            }
+          }).then((res) => {
+        if (res!.length === 0) {
           reject(`No task relation found.`)
         } else {
-          res.forEach((value) => {
+          res!.forEach((value) => {
             task_api.task_relation_buffer.set(`${value.source}-${value.target}`, {
               mutated: false,
               to_delete: false,
@@ -429,11 +432,7 @@ export class task_api {
           resolve(true)
         }
       })
-        .catch((err) => {
-          reject(err)
-        })
-        .catch((err) => {
-          reject(err)
+        .catch((_err) => {
         })
 
     })

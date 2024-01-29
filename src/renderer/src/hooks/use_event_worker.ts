@@ -4,10 +4,9 @@
 // import { useAtomValue } from 'jotai/index'
 // import {invoke} from "@tauri-apps/api";
 
-import { useCallback, useEffect } from 'preact/compat'
-import { useNavigate } from 'react-router-dom'
-import { mouse_enter } from '../state/worker'
-import { window_control_api } from '../api/window_control_api'
+import {useCallback, useEffect} from 'preact/compat'
+import {mouse_enter} from '../state/worker'
+import {window_control_api} from "../api/window_control_api";
 
 type KeyBoardCallBack = (event: KeyboardEvent) => void;
 const documentKeyBoardEventsReference: Set<KeyBoardCallBack> = new Set()
@@ -32,11 +31,10 @@ export const useOnMouseLeave = () => {
 }
 
 const useOnEnterDown = (): void => {
-  const navigate = useNavigate()
 
   const callback = useCallback((event: KeyboardEvent): void => {
     if (event.key === 'Enter' && mouse_enter.value) {
-      window_control_api.back_to_atodo(unregister_all_event_listener, navigate)
+      window_control_api.back_to_atodo(unregister_all_event_listener)
     }
   }, [])
 

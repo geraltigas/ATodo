@@ -1,19 +1,16 @@
 // import {suspendedTasksAtom} from "../../state/tasksAtom.ts";
 // import {Task} from "../../../atodo/state/tasksAtoms";
 import styles from './SuspendedTasks.module.css'
-import { window_control_api } from '../../api/window_control_api'
-import { tasks_db } from '../../../../types/sql'
-import { useNavigate } from 'react-router-dom'
-import { suspended_tasks } from '../../state/worker'
-import { to_obj } from '../../lib/serialize'
+import {window_control_api} from '../../api/window_control_api'
+import {tasks_db} from '../../../../types/sql'
+import {suspended_tasks} from '../../state/worker'
+import {to_obj} from '../../lib/serialize'
 
 const SuspendedTasks = () => {
 
-  const navigate = useNavigate()
-
   const onClick = (task: tasks_db) => {
     return (_e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      window_control_api.edit_suspened_task(task.id, navigate)
+      window_control_api.edit_suspened_task(task.id)
     }
   }
 

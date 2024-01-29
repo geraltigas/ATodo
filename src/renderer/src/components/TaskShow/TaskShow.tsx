@@ -1,12 +1,11 @@
 import styles from './TaskShow.module.css'
 import React from 'react'
-import { tasks_db, timestamp } from '../../../../types/sql'
-import { scheduled_tasks, tick, time_record, TimeRecord } from '../../state/worker'
-import { task_api } from '../../api/task_api'
-import { Button } from '@mui/material'
-import { schedule } from '../../lib/Scheduler'
-import { useNavigate } from 'react-router-dom'
-import { window_control_api } from '../../api/window_control_api'
+import {tasks_db, timestamp} from '../../../../types/sql'
+import {scheduled_tasks, tick, time_record, TimeRecord} from '../../state/worker'
+import {task_api} from '../../api/task_api'
+import {Button} from '@mui/material'
+import {schedule} from '../../lib/Scheduler'
+import {window_control_api} from '../../api/window_control_api'
 
 export const from_timestamp_to_timerecord = (timestamp: number): TimeRecord => {
   let date = new Date(timestamp * 1000)
@@ -85,7 +84,6 @@ const isSuspended = (task: tasks_db): boolean => {
 }
 
 function TaskShow() {
-  const navigate = useNavigate()
 
   const showStart: boolean = scheduled_tasks.value[0].status === 'created' || scheduled_tasks.value[0].status === 'suspended' || scheduled_tasks.value[0].status === 'paused'
   const showInterrupt: boolean = scheduled_tasks.value[0].status === 'in_progress'
@@ -121,7 +119,7 @@ function TaskShow() {
       task_api.update_task(parent)
       temp = parent
     }
-    window_control_api.edit_suspened_task(scheduled_tasks.value[0].id, navigate)
+    window_control_api.edit_suspened_task(scheduled_tasks.value[0].id)
   }
 
   const onPauseClick = (_event: React.MouseEvent<HTMLButtonElement>) => {

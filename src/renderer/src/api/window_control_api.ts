@@ -1,8 +1,9 @@
-import { window_size_retore } from '../state/app'
-import { task_api } from './task_api'
-import { WORKER_GLOBAL } from '../state/worker'
-import { timestamp } from '../../../types/sql'
-import { app_state_api } from './app_state_api'
+import {window_size_retore} from '../state/app'
+import {task_api} from './task_api'
+import {WORKER_GLOBAL} from '../state/worker'
+import {timestamp} from '../../../types/sql'
+import {app_state_api} from './app_state_api'
+import {Page, route} from "../App";
 
 export class window_control_api {
   public static set_frameless(): void {
@@ -74,7 +75,7 @@ export class window_control_api {
     })
   }
 
-  public static back_to_atodo(unregister_all_event_listener: (() => void) | null, navigate: (path: string) => void): void {
+  public static back_to_atodo(unregister_all_event_listener: (() => void) | null): void {
     window_control_api.set_resizable(true).then(() => {
       if (unregister_all_event_listener !== null) {
         unregister_all_event_listener()
@@ -84,16 +85,16 @@ export class window_control_api {
       return task_api.flush_to_db()
     }).then(() => {
       WORKER_GLOBAL.resize_observer!.disconnect()
-      navigate('/')
+      route.value = Page.ATodo
     })
   }
 
-  public static edit_suspened_task(id: timestamp, navigate: (path: string) => void): void {
+  public static edit_suspened_task(id: timestamp): void {
     let task = task_api.get_task_from_buffer(id)
     app_state_api.set_now_viewing_task(task.parent).then(() => {
       return app_state_api.set_now_selected_task(task.id)
     }).then(() => {
-      window_control_api.back_to_atodo(null, navigate)
+      window_control_api.back_to_atodo(null)
     })
   }
 }

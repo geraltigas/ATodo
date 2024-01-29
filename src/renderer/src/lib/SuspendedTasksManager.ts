@@ -1,7 +1,8 @@
 import dayjs from 'dayjs'
-import { CyclicalityTrigger, tasks_db, timestamp, TimeTrigger } from '../../../types/sql'
-import { to_json, to_obj } from './serialize'
-import { task_api } from '../api/task_api'
+import {CyclicalityTrigger, tasks_db, timestamp, TimeTrigger} from '../../../types/sql'
+import {to_json, to_obj} from './serialize'
+import {task_api} from '../api/task_api'
+import {schedule} from "./Scheduler";
 
 export class SuspendedTasksBuffer {
   private static intervalIds: Map<timestamp, NodeJS.Timeout> = new Map()
@@ -14,18 +15,18 @@ export class SuspendedTasksBuffer {
       } else if (task.suspended_type === 'time') {
         let cb = () => {
           console.log('cb')
-          if (dayjs().isAfter(dayjs((to_obj(task.suspended_type!) as TimeTrigger).time))) {
+          if (dayjs().isAfter(dayjs((to_obj(task.suspended_info!) as TimeTrigger).time))) {
             console.log('time trigger')
             task.status = 'in_progress'
             task.suspended_info = null
             task.suspended_type = null
             task_api.update_task(task)
+            schedule()
             let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id)
             if (setIntervalId !== undefined) {
               clearInterval(setIntervalId)
             }
           }
-          // TODO: update ui
         }
         if (SuspendedTasksBuffer.intervalIds.has(task.id)) {
           let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id)
@@ -37,7 +38,7 @@ export class SuspendedTasksBuffer {
       } else if (task.suspended_type === 'cyclical') {
         let cb = () => {
           console.log('cb')
-          let trigger = (to_obj(task.suspended_type!) as CyclicalityTrigger)
+          let trigger = (to_obj(task.suspended_info!) as CyclicalityTrigger)
           let lastTime = dayjs(trigger.lastTime)
           let nowAt = trigger.nowAt
           let interval = trigger.interval
@@ -57,7 +58,6 @@ export class SuspendedTasksBuffer {
               clearInterval(setIntervalId)
             }
           }
-          // TODO: update ui
         }
         if (SuspendedTasksBuffer.intervalIds.has(task.id)) {
           let setIntervalId = SuspendedTasksBuffer.intervalIds.get(task.id)
