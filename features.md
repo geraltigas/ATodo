@@ -1,2 +1,1 @@
-- delete node while delete relations
--
+- change time record mechanism, use dayjs() - record time rather than setInterval
