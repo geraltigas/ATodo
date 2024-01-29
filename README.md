@@ -7,7 +7,9 @@ Advanced Todo List App
 ### Install
 
 ```bash
-$ npm install
+# dont use npm install directly, remove the sqlite3 in package.json first
+npm install
+npm install sqlite3
 ```
 
 ### Development

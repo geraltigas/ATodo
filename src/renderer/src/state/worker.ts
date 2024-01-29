@@ -1,5 +1,5 @@
-import { signal, Signal } from '@preact/signals'
-import { tasks_db, timestamp } from '../../../types/sql'
+import {signal, Signal} from '@preact/signals'
+import {tasks_db, timestamp} from '../../../types/sql'
 
 const mouse_enter_init: boolean = false
 const mouse_enter: Signal<boolean> = signal<boolean>(mouse_enter_init)

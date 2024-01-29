@@ -1,9 +1,9 @@
-import { app, BrowserWindow, shell } from 'electron'
-import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { GLOBAL } from './global'
-import { join } from 'path'
+import {app, BrowserWindow, shell} from 'electron'
+import {electronApp, is, optimizer} from '@electron-toolkit/utils'
+import {GLOBAL} from './global'
+import {join} from 'path'
 import icon from '../../resources/icon.png?asset'
-import { registe_window_api } from './window/window'
+import {registe_window_api} from './window/window'
 
 function create_atodo_window(): void {
   // Create the browser window.
@@ -20,7 +20,8 @@ function create_atodo_window(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
       contextIsolation: false,
-      nodeIntegration: false
+      nodeIntegration: false,
+      backgroundThrottling: false,
     }
   })
 
@@ -32,7 +33,7 @@ function create_atodo_window(): void {
 
   GLOBAL.ATODO_WINDOW.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
-    return { action: 'deny' }
+    return {action: 'deny'}
   })
 
   // HMR for renderer base on electron-vite cli.
@@ -63,7 +64,7 @@ app.whenReady().then(() => {
 
   create_atodo_window()
 
-  app.on('activate', function() {
+  app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) create_atodo_window()

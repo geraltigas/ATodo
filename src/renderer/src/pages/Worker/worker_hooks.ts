@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
-import { tick, time_record, WORKER_GLOBAL } from '../../state/worker'
-import { window_control_api } from '../../api/window_control_api'
-import { schedule } from '../../lib/Scheduler'
+import {useEffect} from 'react'
+import {tick, time_record, WORKER_GLOBAL} from '../../state/worker'
+import {window_control_api} from '../../api/window_control_api'
+import {schedule} from '../../lib/Scheduler'
 
 export const use_observe_window_size = () => {
   useEffect(() => {
