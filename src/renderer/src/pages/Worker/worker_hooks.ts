@@ -17,6 +17,7 @@ export const use_observe_window_size = () => {
       }
     })
     WORKER_GLOBAL.resize_observer.observe(WORKER_GLOBAL.window_element)
+    WORKER_GLOBAL.ringing_audio = document.getElementById('ringing_audio') as HTMLAudioElement
   }, [])
 }
 

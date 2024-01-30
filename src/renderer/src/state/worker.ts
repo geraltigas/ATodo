@@ -6,7 +6,8 @@ const mouse_enter: Signal<boolean> = signal<boolean>(mouse_enter_init)
 
 export const WORKER_GLOBAL = {
   window_element: null as HTMLElement | null,
-  resize_observer: null as ResizeObserver | null
+  resize_observer: null as ResizeObserver | null,
+  ringing_audio: null as HTMLAudioElement | null,
 }
 
 export type TimeRecord = {

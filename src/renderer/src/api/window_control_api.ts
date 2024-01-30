@@ -11,6 +11,11 @@ export class window_control_api {
     window.win.set_frameless()
   }
 
+  public static show_notification(title: string, body: string): void {
+// @ts-ignore
+    window.win.show_notification(title, body)
+  }
+
   public static set_fullscreen(): void {
     // @ts-ignore
     window.win.fullscreen(true)

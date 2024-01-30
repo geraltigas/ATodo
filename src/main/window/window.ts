@@ -1,5 +1,5 @@
-import { GLOBAL } from '../global'
-import { BrowserWindow, ipcMain, ipcRenderer } from 'electron'
+import {GLOBAL} from '../global'
+import {BrowserWindow, ipcMain, ipcRenderer, Notification} from 'electron'
 
 const set_frameless = (): void => {
   let window: BrowserWindow = GLOBAL.ATODO_WINDOW!
@@ -85,7 +85,7 @@ const get_window_size = (): number[] => {
 }
 
 export const registe_window_api = (): void => {
-  ipcMain.on('window-control', (_event, method) => {
+  ipcMain.on('window-control', (_event, method, ...args) => {
     switch (method) {
       case 'set_frameless':
         set_frameless()
@@ -104,6 +104,12 @@ export const registe_window_api = (): void => {
         break
       case 'exit_maximize':
         unmaximize(true)
+        break
+      case 'show_notification':
+        new Notification({
+          title: args[0],
+          body: args[1]
+        }).show()
         break
     }
   })
@@ -134,5 +140,6 @@ export const preload_window_api = {
   set_resizable: async (set: boolean) => await ipcRenderer.invoke('window-control', 'set_resizable', set),
   set_window_size: async (width: number, height: number) => await ipcRenderer.invoke('window-control', 'set_window_size', width, height),
   unmaximize: () => ipcRenderer.send('window-control', 'exit_maximize'),
-  get_window_size: async () => await ipcRenderer.invoke('window-control', 'get_window_size')
+  get_window_size: async () => await ipcRenderer.invoke('window-control', 'get_window_size'),
+  show_notification: (title: string, body: string) => ipcRenderer.send('window-control', 'show_notification', title, body)
 }

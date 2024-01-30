@@ -3,14 +3,15 @@ import styles from './Worker.module.css'
 import OpenInFullIcon from '@mui/icons-material/OpenInFull'
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen'
 // import {Task, TaskStatus, TimeRecord} from "../../../atodo/state/tasksAtoms";
-import { use_event_worker, useOnMouseEnter, useOnMouseLeave } from '../../hooks/use_event_worker'
+import {use_event_worker, useOnMouseEnter, useOnMouseLeave} from '../../hooks/use_event_worker'
 import SuspendedTasks from '../../components/SuspendedTasks/SuspendedTasks'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
-import { use_init_data, use_observe_window_size } from './worker_hooks'
-import { scheduled_tasks } from '../../state/worker'
-import { useSignal } from '@preact/signals'
+import {use_init_data, use_observe_window_size} from './worker_hooks'
+import {scheduled_tasks} from '../../state/worker'
+import {useSignal} from '@preact/signals'
 import TaskShow from '../../components/TaskShow/TaskShow'
-import { ShowTime } from '../../components/ShowTime/ShowTime'
+import {ShowTime} from '../../components/ShowTime/ShowTime'
+import ringing from '../../../../../resources/Small-hand-bell-ringing-sound-effect.mp3'
 
 // const time_record_tick = (timeRecord: timestamp) => {
 //   time_record.value = timeRecord + 1
@@ -43,26 +44,27 @@ const Worker = () => {
   return (
     <div className={styles.container} id={'window_size_observe'} onMouseLeave={onMouseLeave}
          onMouseEnter={onMouseEnter}>
+      <audio id={'ringing_audio'} src={ringing}/>
       <div className={styles.taskShow}>
         <div className={styles.leftShow}>
           {scheduled_tasks.value.length !== 0 && <div className={styles.taskFont + ' ' + styles.app_drag}>
             {scheduled_tasks.value[0].name}
           </div>}
-          {scheduled_tasks.value.length !== 0 && <ShowTime />}
+          {scheduled_tasks.value.length !== 0 && <ShowTime/>}
           {scheduled_tasks.value.length === 0 && <div className={styles.app_drag}>You are free?</div>}
         </div>
         <div className={styles.rightButtons}>
           <div onClick={toggleShowSuspendedTasks} className={styles.expand}>
-            <FormatListBulletedIcon />
+            <FormatListBulletedIcon/>
           </div>
           <div onClick={expendOnClick} className={styles.expand}>
-            {show_task.value ? <CloseFullscreenIcon /> : <OpenInFullIcon />}
+            {show_task.value ? <CloseFullscreenIcon/> : <OpenInFullIcon/>}
           </div>
         </div>
       </div>
       {show_task.value && scheduled_tasks.value.length !== 0 &&
-        <TaskShow />}
-      {show_suspended_tasks.value && <SuspendedTasks />}
+        <TaskShow/>}
+      {show_suspended_tasks.value && <SuspendedTasks/>}
     </div>
   )
 }

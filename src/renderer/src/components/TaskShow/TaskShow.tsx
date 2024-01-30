@@ -1,11 +1,14 @@
 import styles from './TaskShow.module.css'
 import React from 'react'
 import {tasks_db, timestamp} from '../../../../types/sql'
-import {scheduled_tasks, tick, time_record, TimeRecord} from '../../state/worker'
+import {scheduled_tasks, tick, time_record, TimeRecord, WORKER_GLOBAL} from '../../state/worker'
 import {task_api} from '../../api/task_api'
 import {Button} from '@mui/material'
 import {schedule} from '../../lib/Scheduler'
 import {window_control_api} from '../../api/window_control_api'
+
+let ringing_interval_id: NodeJS.Timeout
+const RINGING_INTERVAL = 45 * 60 * 1000
 
 export const from_timestamp_to_timerecord = (timestamp: number): TimeRecord => {
   let date = new Date(timestamp * 1000)
@@ -105,6 +108,10 @@ function TaskShow() {
     }).catch((err) => {
       console.log(err)
     })
+    ringing_interval_id = setInterval(() => {
+      WORKER_GLOBAL.ringing_audio!.play()
+      window_control_api.show_notification('Time to take a break!', `You have been working for ${RINGING_INTERVAL / 60 / 1000} minutes!`)
+    }, RINGING_INTERVAL)
   }
 
   const onSuspendClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
@@ -127,6 +134,7 @@ function TaskShow() {
     }).catch((err) => {
       console.log(err)
     })
+    clearInterval(ringing_interval_id)
   }
 
   const onPauseClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
@@ -148,6 +156,7 @@ function TaskShow() {
     }).catch((err) => {
       console.log(err)
     })
+    clearInterval(ringing_interval_id)
   }
 
   const onDoneClick = (_event: React.MouseEvent<HTMLButtonElement>) => {
